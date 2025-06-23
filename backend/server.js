@@ -3,6 +3,8 @@ const express = require("express");
 const cors = require("cors");
 const { connect } = require("./config/db.config");
 
+connect();
+
 const app = express();
 const OrderRoute = require("./routes/OrderRoute");
 
@@ -15,12 +17,12 @@ app.use(
 )
 
 app.use(express.json());
+
 app.get("/", (req, res) => {
     res.json({ message: "Welcom to Techzone application." });
 });
 app.use('/api/orders', OrderRoute);
 
-connect();
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
