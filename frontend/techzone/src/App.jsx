@@ -27,7 +27,7 @@ const App = () => {
         <div className=''>
           
             <Navbar onAccountClick={()=>setShowLoginModal(true)} />
-            <main className=''>
+            <main className='m-4'>
               <Routes>
                 <Route path='/' element={<HomePage/>}/>
                 
