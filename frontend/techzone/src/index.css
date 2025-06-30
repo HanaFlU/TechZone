@@ -12,7 +12,39 @@
     font-family: var(--font-display);
   }
   body{
-    background-color: #6b6f6e;
+    background-color: #F6F6F6;
     overflow-x: hidden;
+  }
+}
+@layer components {
+  .bg-dark-green {
+    background-color: #124232;
+  }
+  .text-dark-green {
+    color: #124232;
+  }
+  .bg-dark-green {
+    background-color: #124232;
+  }
+
+  .bg-light-green {
+    background-color: #328E6E;
+  }
+  .border-light-green {
+    border-color: #328E6E;
+  }
+  .text-light-green {
+    color: #328E6E;
+  }
+
+  .bg-secondary {
+    background-color: #757575;
+  }
+  .text-secondary {
+    color: #757575;
+  }
+
+  .text-dark-gray {
+    color: #333333;
   }
 }

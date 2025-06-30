@@ -5,6 +5,8 @@ import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 
 import HomePage from './pages/HomePage';
+import CartPage from './pages/Cart';
+import OrderPage from './pages/User/Order';
 
 import AdminDashboard from './pages/Admin/AdminDashboard';
 
@@ -30,7 +32,9 @@ const App = () => {
             <main className=''>
               <Routes>
                 <Route path='/' element={<HomePage/>}/>
-                
+                <Route path='/cart' element={<CartPage />} />
+                <Route path='/order' element={<OrderPage />} />
+
                 <Route element={<ProtectedRoute />}>
                   {/* <Route path='' element={} /> */}
                 </Route>
