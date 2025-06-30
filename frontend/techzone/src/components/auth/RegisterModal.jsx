@@ -19,6 +19,10 @@ export default function RegisterModal({ onClose, onSwitch }) {
           <button className="absolute top-2 right-3" onClick={onClose}>×</button>
           <h2 className="text-xl font-bold mb-4">Đăng ký</h2>
           <form onSubmit={handleSubmit}>
+            <input className="border p-2 w-full mb-2" type="text" placeholder="Họ và tên" required />
+            <input className="border p-2 w-full mb-2" type="text" placeholder="Số điện thoại" required />
+            <input className="border p-2 w-full mb-2" type="date" placeholder="Ngày sinh" required />
+            <input className="border p-2 w-full mb-2" type="radio" placeholder="Giới tính" required />
             <input className="border p-2 w-full mb-2" type="email" placeholder="Email" required />
             <input className="border p-2 w-full mb-4" type="password" placeholder="Mật khẩu" required />
             <button type="submit" className="bg-green-600 text-white w-full py-2 rounded">Đăng ký</button>
