@@ -1,8 +1,8 @@
 import createApiClient from "../utils/api";
 
 class CartService {
-    constructor(baseURL = "http://localhost:8000/api/carts") {
-        this.api = createApiClient(baseURL);
+    constructor(apiURL = `${import.meta.env.VITE_API_URL}/cart`) {
+        this.api = createApiClient(apiURL);
         this.fixedUserId = '6856b6f4cf118b51cb681313';
     }
     /**

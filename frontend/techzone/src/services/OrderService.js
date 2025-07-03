@@ -2,8 +2,8 @@
 import createApiClient from "../utils/api";
 
 class OrderService {
-    constructor(baseURL = "http://localhost:8000/api/orders") { // Đảm bảo đúng baseURL của Order API
-        this.api = createApiClient(baseURL);
+    constructor(apiURL = `${import.meta.env.VITE_API_URL}/orders/create-from-cart`) {
+        this.api = createApiClient(apiURL);
     }
 
     /**

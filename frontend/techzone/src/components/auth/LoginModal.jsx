@@ -1,35 +1,93 @@
 import { useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
+import AuthService from "../../services/AuthService";
+import useAuthForm from "../../hooks/useAuthForm";
 
 import LoginWithGoogleButton from "../button/LoginWithGoogleButton";
+import { IoMdClose } from "react-icons/io";
 
 export default function LoginModal({ onClose, onSwitch }) {
   const { login } = useContext(AuthContext);
 
-  const handleSubmit = async (e) => {
-    // e.preventDefault();
-    // // call backend API
-    // const res = await fetch("/api/auth/login", {});
-    // const data = await res.json();
-    // login(data.user, data.token); // save to context
-    // onClose();
-    alert("Chức năng này chưa được triển khai");
-    e.preventDefault();
+  const initialFields = {
+    email: "",
+    password: "",
   };
 
+  const validateLogin = (fields) => {
+    const { email, password } = fields;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      return "Email không hợp lệ";
+    }
+
+    if (password.length < 6) {
+      return "Mật khẩu phải có ít nhất 6 ký tự";
+    }
+
+    return "";
+  }
+
+  const { formData, error, setError, handleChange, validate } = useAuthForm(initialFields, validateLogin);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+        const errMsg = validate();
+        if (errMsg) {
+          setError(errMsg);
+          return;
+        };
+    
+        try {
+          console.log(formData);
+          const data = await AuthService.login(formData);
+       
+          login(data.user, data.token);
+          setError(null); 
+    
+          onClose();
+        } catch (err) {
+          console.error("Error during login:", err);
+          setError("Lỗi kết nối tới máy chủ.");
+          return;
+        }
+  };
+
+ 
   
     return (
-      <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 ">
         <div className="bg-white p-6 rounded w-full max-w-sm relative">
-          <button className="absolute top-2 right-3" onClick={onClose}>×</button>
+          <button className="absolute top-2 right-6 text-dark-gray w-2 h-2 cursor-pointer" onClick={onClose}>
+            <IoMdClose  className="text-dark-gray w-6 h-8" />
+          </button>
           <h2 className="text-2xl font-bold mb-4 text-dark-gray text-center text-shadow-light-gray">Đăng nhập</h2>
           <form onSubmit={handleSubmit}>
             <label className="text-dark-gray">Email</label>
-            <input className="border border-dark-gray p-2 w-full h-10 mb-2 rounded-lg" type="email" placeholder="Nhập email" required />
+            <input
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              type="email"
+              className="border border-dark-gray p-2 w-full h-10 mb-2 rounded-lg"
+              placeholder="Nhập email"
+              required
+            />
             <label className="text-dark-gray">Mật khẩu</label>
-            <input className="border border-dark-gray p-2 w-full h-10 mb-2 rounded-lg" type="password" placeholder="Nhập mật khẩu" required />
+            <input
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              type="password"
+              className="border border-dark-gray p-2 w-full h-10 mb-2 rounded-lg"
+              placeholder="Nhập mật khẩu"
+              required
+            />
             
-            <div className="text-sm mb-2">
+            {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
+
+            <div className="text-sm mb-2 text-right">
               <button
                 type="button"
                 className="text-light-green hover:underline"
@@ -38,16 +96,28 @@ export default function LoginModal({ onClose, onSwitch }) {
                 Quên mật khẩu?
               </button>
             </div>
-            
-            <button type="submit" className="w-full h-10 transition-colors focus:ring-2 hover:bg-[#124232] bg-light-green text-white py-2 rounded-lg">Đăng nhập</button>
+
+            <button
+              onSubmit={handleSubmit}
+              type="submit"
+              className="w-full h-10 transition-colors focus:ring-2 hover:bg-[#124232] bg-light-green text-white py-2 rounded-lg"
+            >
+              Đăng nhập
+            </button>
           </form>
 
           <p className="text-center text-sm mt-2 text-darkgray">__hoặc__</p>
-          <LoginWithGoogleButton/>
+          
+          <LoginWithGoogleButton onClose={onClose} />
 
           <p className="mt-4 text-sm text-center">
-            Bạn chưa có tài khoản?{' '}
-            <button className="text-light-green hover:underline" onClick={onSwitch}>Đăng ký</button>
+            <span>Bạn chưa có tài khoản? </span>
+            <button
+              className="text-light-green hover:underline"
+              onClick={onSwitch}
+            >
+              Đăng ký
+            </button>
           </p>
         </div>
       </div>

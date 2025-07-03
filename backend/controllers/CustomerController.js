@@ -1,7 +1,6 @@
-import Address from '../models/AddressModel.js';
-import Customer from '../models/CustomerModel.js';
-import User from '../models/UserModel.js';
-
+const Address = require('../models/AddressModel.js');
+const Customer = require('../models/CustomerModel.js');
+const User = require('../models/UserModel.js');
 const CustomerController = {
     findAll: async (req, res) => {
         Customer.find()
@@ -136,4 +135,4 @@ const CustomerController = {
     },
 };
 
-export default CustomerController;
+module.exports = CustomerController;

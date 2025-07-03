@@ -1,15 +1,50 @@
 import React from 'react'
 import { useGoogleLogin } from '@react-oauth/google';
+import AuthService from '../../services/AuthService';
 
-const LoginWithGoogleButton = () => {
+const LoginWithGoogleButton = ({onClose}) => {
     const login = useGoogleLogin({
         onSuccess: (response) => {
             console.log(response);
+            if (response.access_token) {
+                handleGoogleLogin(response);
+            } else {
+                console.error("No access token received from Google login.");
+            }
         },
         onError: (error) => {
             console.log(error);
         },
-  })
+    })
+     const handleGoogleLogin = async (response) => {
+        try {
+            const res = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+                headers: {
+                    Authorization: `Bearer ${response.access_token}`,
+                },
+            });
+            const profile = await res.json();
+            console.log(profile);
+
+            // Prepare data to send to backend
+            const data = {
+                email: profile.email,
+                name: profile.name,
+                providerID: profile.sub, // Google user ID
+            };
+
+            // Call your backend service to handle Google login
+            const result = await AuthService.googleLogin(data);
+            console.log(result);
+
+            login(data.user, data.token);
+            
+            onClose();
+        } catch (error) {
+            console.error("Error during Google login:", error);
+        }
+    };
+    
     return (
         <button
             type="button"
