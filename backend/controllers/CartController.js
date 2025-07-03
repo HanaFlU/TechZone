@@ -1,6 +1,6 @@
-import Product from '../models/ProductModel.js';
-import Cart from '../models/CartModel.js';
-import Customer from '../models/CustomerModel.js';
+const Product = require('../models/ProductModel.js');
+const Cart = require('../models/CartModel.js');
+const Customer = require('../models/CustomerModel.js');
 const CartController = {
     findAll: async (req, res) => {
         Cart.find()
@@ -34,4 +34,4 @@ const CartController = {
         }
     },
 };
-export default CartController;
+module.exports = CartController;

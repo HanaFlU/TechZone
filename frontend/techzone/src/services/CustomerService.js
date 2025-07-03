@@ -1,8 +1,8 @@
 import createApiClient from "../utils/api";
 
 class CustomerService {
-    constructor(baseURL = "http://localhost:8000/api/customers") { // Đảm bảo đúng baseURL của Customer API
-        this.api = createApiClient(baseURL);
+    constructor(apiURL = `${import.meta.env.VITE_API_URL}/customers`) {
+        this.api = createApiClient(apiURL);
     }
 
     /**

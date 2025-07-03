@@ -1,7 +1,8 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema(
     {
+
         name: {
             type: String,
             required: true,
@@ -22,6 +23,7 @@ const userSchema = new mongoose.Schema(
         },
         gender: {
             type: String,
+            enum: ['MALE', 'FEMALE', 'OTHER'],
         },
         password: {
             type: String,
@@ -31,6 +33,12 @@ const userSchema = new mongoose.Schema(
             type: String,
             enum: ['CUS', 'AD'],
             default: 'CUS',
+        },
+        provider: { //for google login
+            type: String,
+        },
+        providerID: { //is provided by google OAuth
+            type: String,
         },
         isActive: {
             type: Boolean,
@@ -53,5 +61,4 @@ const userSchema = new mongoose.Schema(
         timestamps: true,
     }
 );
-
 module.exports = mongoose.model('User', userSchema);
