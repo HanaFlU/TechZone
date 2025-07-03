@@ -1,9 +1,13 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { useGoogleLogin } from '@react-oauth/google';
 import AuthService from '../../services/AuthService';
+import { AuthContext } from '../../context/AuthContext';
 
-const LoginWithGoogleButton = ({onClose}) => {
-    const login = useGoogleLogin({
+const LoginWithGoogleButton = ({ onClose }) => {
+    
+    const { login } = useContext(AuthContext);
+
+    const loginGG = useGoogleLogin({
         onSuccess: (response) => {
             console.log(response);
             if (response.access_token) {
@@ -35,21 +39,21 @@ const LoginWithGoogleButton = ({onClose}) => {
 
             // Call your backend service to handle Google login
             const result = await AuthService.googleLogin(data);
-            console.log(result);
+            console.log(result.massage);
 
-            login(data.user, data.token);
+            login(result.user, result.token);
             
             onClose();
         } catch (error) {
             console.error("Error during Google login:", error);
         }
     };
-    
+
     return (
         <button
             type="button"
             class="w-full transition-colors focus:ring-2 p-0.5 mt-4 disabled:cursor-not-allowed bg-white hover:bg-gray-200 text-light-green border-light-green border-2 disabled:bg-gray-300 disabled:text-gray-700 rounded-lg "
-            onClick={() => login()}>
+            onClick={() => loginGG()}>
                 <span
                     className="flex items-center justify-center gap-1 font-medium py-1 px-2.5 text-base false">
                     <svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.1"
