@@ -10,70 +10,62 @@ const CustomerController = {
 
     getAccountInfo: async (req, res) => {
         try {
-            const customerId = req.params.customerId;
-            const customer = await Customer.findById(customerId).populate('user');
+            const userId = req.params.userId;
+            const user = await User.findById(userId);
 
-            if (!customer) {
+            if (!user) {
                 return res.status(404).json({
                     success: false,
-                    message: 'Không tìm thấy customer.'
-                });
-            }
-
-            if (!customer.user) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Không tìm thấy thông tin user.'
+                    message: 'Không tìm thấy thông tin người dùng.'
                 });
             }
 
             const accountInfo = {
-                _id: customer.user._id,
-                name: customer.user.name,
-                email: customer.user.email,
-                phone: customer.user.phone,
-                birthdate: customer.user.birthdate,
-                gender: customer.user.gender,
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+                birthdate: user.birthdate,
+                gender: user.gender,
             };
 
             res.status(200).json({
                 success: true,
                 user: accountInfo,
-                customerId: customer._id,
             });
 
         } catch (error) {
-            console.error('Lỗi khi lấy thông tin tài khoản theo Customer ID:', error);
+            console.error('Lỗi khi lấy thông tin tài khoản:', error);
             res.status(500).json({
                 success: false,
                 message: 'Lỗi server.'
             });
         }
     },
-
     updateAccountInfo: async (req, res) => {
         try {
-            const customerId = req.params.customerId;
+            const userId = req.params.userId;
             const { name, phone, birthdate, gender } = req.body;
 
-            // Tìm Customer
-            const customer = await Customer.findById(customerId);
-            if (!customer) {
-                return res.status(404).json({ success: false, message: 'Không tìm thấy customer.' });
-            }
-            // Tìm User
-            const user = await User.findById(customer.user);
+            console.log('Dữ liệu nhận từ frontend (updateAccountInfo):', req.body);
+
+            const user = await User.findById(userId);
             if (!user) {
-                return res.status(404).json({ success: false, message: 'Không tìm thấy user.' });
+                return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng.' });
             }
 
-            user.name = name || user.name;
-            user.phone = phone || user.phone;
-            user.birthdate = birthdate || user.birthdate;
-            user.gender = gender || user.gender;
+            user.name = name !== undefined ? name : user.name;
+            user.phone = phone !== undefined ? phone : user.phone;
+            user.gender = gender !== undefined ? gender : user.gender;
 
+            if (birthdate !== undefined) {
+                if (birthdate) {
+                    user.birthdate = new Date(birthdate);
+                } else {
+                    user.birthdate = null;
+                }
+            }
             const updatedUser = await user.save();
-
             const updatedAccountInfo = {
                 _id: updatedUser._id,
                 name: updatedUser.name,

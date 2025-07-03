@@ -5,11 +5,12 @@ import { useNavigate } from 'react-router-dom';
 import OrderService from '../../services/OrderService';
 import CustomerService from '../../services/CustomerService';
 
+import Button from '../../components/button/Button';
+
 import { PlusIcon } from '@heroicons/react/24/outline';
 
 const OrderPage = () => {
   const navigate = useNavigate();
-  const currentCustomerId = '6856b816cf118b51cb681322'; //Giả sử khách hàng đã đăng nhập
 
   const [cartData, setCartData] = useState(null);
   const [customerAddresses, setCustomerAddresses] = useState([]);
@@ -19,7 +20,7 @@ const OrderPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [orderSuccess, setOrderSuccess] = useState(false);
-
+  const [currentCustomerId, setActualCustomerId] = useState(null);
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -30,28 +31,31 @@ const OrderPage = () => {
         if (storedCart) {
           const parsedCart = JSON.parse(storedCart);
           setCartData(parsedCart);
+          //Lấy customerId từ cartData
+          if (parsedCart && parsedCart.customer) {
+            setActualCustomerId(parsedCart.customer);
+            const customerDataResponse = await CustomerService.getAddresses(parsedCart.customer);
+            if (customerDataResponse.customer && customerDataResponse.customer.shippingAddresses) {
+              const addresses = customerDataResponse.customer.shippingAddresses;
+              setCustomerAddresses(addresses);
+
+              if (addresses.length > 0) {
+                const defaultAddr = addresses.find(addr => addr.isDefault) || addresses[0];
+                setSelectedAddressId(defaultAddr._id);
+              }
+            } else {
+              console.log("Không tìm thấy địa chỉ giao hàng.");
+              setCustomerAddresses([]);
+            }
+          } else {
+            console.error("Customer ID not found in cartData. Cannot proceed with order.");
+            setError({ message: "Không tìm thấy Customer ID trong dữ liệu giỏ hàng." });
+            setLoading(false);
+            return;
+          }
         } else {
           console.log("Không tìm thấy dữ liệu giỏ hàng trong localStorage.");
           return;
-        }
-
-        // Lấy danh sách địa chỉ của khách hàng
-        if (currentCustomerId) {
-          const customerDataResponse = await CustomerService.getAddresses(currentCustomerId);
-          if (customerDataResponse.customer && customerDataResponse.customer.shippingAddresses) {
-            const addresses = customerDataResponse.customer.shippingAddresses;
-            setCustomerAddresses(addresses);
-
-            if (addresses.length > 0) {
-              const defaultAddr = addresses.find(addr => addr.isDefault) || addresses[0];
-              setSelectedAddressId(defaultAddr._id);
-            }
-          } else {
-              console.log("Không tìm thấy địa chỉ giao hàng.");
-              setCustomerAddresses([]);
-          }
-        } else {
-          setError({ message: "Không tìm thấy currentCustomerId" });
         }
 
       } catch (err) {
@@ -63,7 +67,7 @@ const OrderPage = () => {
     };
 
     fetchData();
-  }, [currentCustomerId, navigate]);
+  }, [navigate]);
 
   const calculateTotal = () => {
     if (!cartData || !cartData.items) return 0;
@@ -120,7 +124,7 @@ const OrderPage = () => {
   };
 
   if (loading) {
-    return <div style={{ padding: '20px', textAlign: 'center' }}>Loading your order summary and addresses...</div>;
+    return <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>;
   }
 
   if (error && !orderSuccess) {
@@ -147,12 +151,12 @@ const OrderPage = () => {
       {!cartData || cartData.items.length === 0 ? (
         <div className="text-center text-gray-500 py-10">
           <p className="text-lg">Giỏ hàng của bạn trống hoặc không thể tải được.</p>
-          <button
-            onClick={() => navigate('/cart')}
-            className="mt-5 px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-          >
-            Đi đến Giỏ hàng
-          </button>
+          <Button
+              onClick={() => navigate('/cart')}
+              variant="primary"
+            >
+              TRỞ VỀ GIỎ HÀNG
+            </Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
@@ -211,6 +215,7 @@ const OrderPage = () => {
                 <button className="bg-white text-light-green font-medium border-2 border-light-green px-6 py-2 rounded-lg  hover:bg-emerald-700 hover:text-white transition-colors">
                   ÁP DỤNG
                 </button>
+         
               </div>
             </div>
 

@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CustomerService from '../../services/CustomerService';
-
 import Input from '../../components/Input/Input';
 import Select from '../../components/Input/Select';
 import Button from '../../components/button/Button';
 import Notification from '../../components/button/Notification';
-
 import {
   UserCircleIcon,
   MapPinIcon,
@@ -15,13 +13,15 @@ import {
 
 const AccountPage = () => {
   const navigate = useNavigate();
-  const currentCustomerId = '6856b816cf118b51cb681322';
+  // Lấy userId từ localStorage
+  const [currentUserId, setCurrentUserId] = useState(null);
 
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [notificationMessage, setNotificationMessage] = useState(null);
   const [notificationType, setNotificationType] = useState(null);
+
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -30,16 +30,43 @@ const AccountPage = () => {
     gender: ''
   });
 
+  // Lấy userId
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        if (user && user._id) {
+          setCurrentUserId(user._id);
+        } else {
+          console.error("User ID not found in localStorage.");
+          setLoading(false);
+          setError("Không tìm thấy ID người dùng. Vui lòng đăng nhập lại.");
+          // navigate('/login');
+        }
+      } catch (e) {
+        console.error("Failed to parse user from localStorage", e);
+        setLoading(false);
+        setError("Lỗi khi đọc thông tin người dùng. Vui lòng thử lại.");
+      }
+    } else {
+      console.error("No user found in localStorage. Redirecting to login.");
+      setLoading(false);
+      setError("Bạn chưa đăng nhập. Vui lòng đăng nhập để xem thông tin.");
+      // navigate('/login');
+    }
+}, [navigate]);
   useEffect(() => {
     const fetchProfile = async () => {
+      if (!currentUserId) {
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       setError(null);
       try {
-        if (!currentCustomerId) {
-          throw new Error("Không tìm thấy Customer ID. Vui lòng đăng nhập.");
-        }
-
-        const data = await CustomerService.getAccountInfo(currentCustomerId);
+        const data = await CustomerService.getAccountInfo(currentUserId);
 
         if (data.success && data.user) {
           setUserProfile(data.user);
@@ -62,7 +89,7 @@ const AccountPage = () => {
     };
 
     fetchProfile();
-  }, [currentCustomerId, navigate]);
+  }, [currentUserId]);
 
   const showNotification = (message, type) => {
     setNotificationMessage(message);
@@ -88,15 +115,31 @@ const AccountPage = () => {
     setError(null);
     setNotificationMessage(null);
     setNotificationType(null);
-    try {
-      if (!currentCustomerId) {
-        throw new Error("Không tìm thấy Customer ID. Vui lòng đăng nhập.");
-      }
 
-      const data = await CustomerService.updateAccountInfo(currentCustomerId, formData);
+    try {
+      if (!currentUserId) {
+        throw new Error("Không tìm thấy User ID. Vui lòng đăng nhập.");
+      }
+      const dataToSend = {
+        name: formData.name,
+        phone: formData.phone,
+        birthdate: formData.birthdate ? new Date(formData.birthdate).toISOString() : null, // Gửi null nếu rỗng
+        gender: formData.gender,
+      };
+
+      console.log("Dữ liệu gửi đi:", dataToSend);
+
+      const data = await CustomerService.updateAccountInfo(currentUserId, dataToSend);
 
       if (data.success && data.user) {
         setUserProfile(data.user);
+        setFormData({
+          name: data.user.name || '',
+          phone: data.user.phone || '',
+          email: data.user.email || '',
+          birthdate: data.user.birthdate ? new Date(data.user.birthdate).toISOString().split('T')[0] : '',
+          gender: data.user.gender || ''
+        });
         showNotification('Cập nhật hồ sơ thành công!', 'success');
       } else {
         throw new Error(data.message || 'Không thể cập nhật hồ sơ.');
@@ -118,7 +161,6 @@ const AccountPage = () => {
       birthdate: userProfile?.birthdate ? new Date(userProfile.birthdate).toISOString().split('T')[0] : '',
       gender: userProfile?.gender || ''
     });
-
     setNotificationMessage(null);
     setNotificationType(null);
   };
@@ -138,7 +180,7 @@ const AccountPage = () => {
         type={notificationType}
         onClose={closeNotification}
       />
-      
+
       {/* Left side */}
       <div className="lg:col-span-1 bg-white p-6 rounded-lg h-fit">
         <div className="flex items-center mb-6 border-b pb-4 border-gray-200">
@@ -153,11 +195,11 @@ const AccountPage = () => {
             <UserCircleIcon className="h-5 w-5 mr-3" />
             Tài khoản của tôi
           </a>
-          <a href="#" className="flex items-center p-3 rounded-md text-gray-700 hover:bg-gray-100">
+          <a href="#" onClick={() => navigate('/addresses')} className="flex items-center p-3 rounded-md text-gray-700 hover:bg-gray-100">
             <MapPinIcon className="h-5 w-5 mr-3" />
             Địa chỉ giao hàng
           </a>
-          <a href="#" className="flex items-center p-3 rounded-md text-gray-700 hover:bg-gray-100">
+          <a href="#" onClick={() => navigate('/orders')} className="flex items-center p-3 rounded-md text-gray-700 hover:bg-gray-100">
             <CubeIcon className="h-5 w-5 mr-3" />
             Đơn hàng của tôi
           </a>
@@ -188,13 +230,13 @@ const AccountPage = () => {
             required
           />
           <Input
-              label="Ngày sinh"
-              id="birthdate"
-              name="birthdate"
-              type="date"
-              value={formData.birthdate}
-              onChange={handleInputChange}
-              required
+            label="Ngày sinh"
+            id="birthdate"
+            name="birthdate"
+            type="date"
+            value={formData.birthdate}
+            onChange={handleInputChange}
+            required
           />
           <Select
             label="Giới tính:"
@@ -222,7 +264,7 @@ const AccountPage = () => {
           </div>
           <div className="md:col-span-1 flex justify-start items-start">
             <p
-              onClick={() => alert('Chức năng thay đổi mật khẩu!')}
+              onClick={() => alert('Chức năng thay đổi mật khẩu sẽ được phát triển!')}
               className="text-light-green hover:underline text-sm font-medium cursor-pointer"
             >
               Thay đổi mật khẩu

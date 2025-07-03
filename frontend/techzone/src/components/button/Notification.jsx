@@ -1,4 +1,3 @@
-// src/components/Notification/Notification.jsx
 import React from 'react';
 import { CheckCircleIcon, XCircleIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 

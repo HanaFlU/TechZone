@@ -5,11 +5,10 @@ class CustomerService {
     constructor(apiURL = `${import.meta.env.VITE_API_URL}/customers`) {
         this.api = createApiClient(apiURL);
     }
-
-    async getAccountInfo(customerId) {
+    async getAccountInfo(userId) {
         try {
-            console.log('CustomerService: Fetching account info for customer ID:', customerId);
-            const response = await this.api.get(`/${customerId}/account`);
+            console.log('CustomerService: Fetching account info for customer ID:', userId);
+            const response = await this.api.get(`/${userId}/account`);
             return response.data;
         } catch (error) {
             console.error('CustomerService Error: Failed to fetch account info:', error.response ? error.response.data : error.message);
@@ -17,10 +16,10 @@ class CustomerService {
         }
     }
 
-    async updateAccountInfo(customerId, userData) {
+    async updateAccountInfo(userId, userData) {
         try {
-            console.log('CustomerService: Updating account info for customer ID:', customerId, 'Data:', userData);
-            const response = await this.api.put(`/${customerId}/account`, userData);
+            console.log('CustomerService: Updating account info for customer ID:', userId, 'Data:', userData);
+            const response = await this.api.put(`/${userId}/account`, userData);
             return response.data;
         } catch (error) {
             console.error('CustomerService Error: Failed to update account info:', error.response ? error.response.data : error.message);

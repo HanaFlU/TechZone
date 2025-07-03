@@ -13,7 +13,7 @@ const CartController = {
             const customer = await Customer.findOne({ user: userId });
 
             if (!customer) {
-                return res.status(404).json({ message: 'Customer profile not found for this user.' });
+                return res.status(404).json({ message: 'Không tìm thấy customer qua userId.' });
             }
 
             const customerId = customer._id;
@@ -25,7 +25,7 @@ const CartController = {
             });
 
             if (!cart) {
-                return res.status(200).json({ customer: customerId, items: [], message: 'Cart is empty or not found.' });
+                return res.status(200).json({ customer: customerId, items: [], message: 'Cart rỗng.' });
             }
             res.status(200).json(cart);
         } catch (error) {

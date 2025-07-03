@@ -1,14 +1,13 @@
-// src/services/OrderService.js
 import createApiClient from "../utils/api";
 
 class OrderService {
-    constructor(apiURL = `${import.meta.env.VITE_API_URL}/orders/create-from-cart`) {
+    constructor(apiURL = `${import.meta.env.VITE_API_URL}/orders`) {
         this.api = createApiClient(apiURL);
     }
 
     /**
      * Gửi yêu cầu tạo một đơn hàng mới từ giỏ hàng.
-     * Tương ứng với POST /api/orders/create-from-cart
+     * Tương ứng với POST /api/orders/
      * @param {object} orderData - Dữ liệu cần thiết để tạo đơn hàng (customerId, shippingAddressId, paymentMethod).
      * @returns {Promise<object>} Dữ liệu của đơn hàng đã được tạo.
      */

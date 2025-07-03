@@ -4,6 +4,6 @@ const CartController = require('../controllers/CartController.js');
 const router = express.Router();
 
 router.get('/', CartController.findAll);
-router.get('/:userId', CartController.getCartByUserId); // Example route for getCartByUserId
+router.get('/:userId', CartController.getCartByUserId);
 
 module.exports = router;

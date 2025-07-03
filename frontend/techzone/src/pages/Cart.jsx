@@ -1,60 +1,92 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import CartService from '../services/CartService'; // Import instance của service
+import CartService from '../services/CartService';
+import Button from '../components/button/Button';
 
 const CartPage = () => {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [cartStored, setCartStored] = useState(false);
-  
-  const navigate = useNavigate(); // Khởi tạo hook useNavigate
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [cartStored, setCartStored] = useState(false);
+    const [currentUserId, setCurrentUserId] = useState(null);
 
-  useEffect(() => {
-    const fetchAndStoreCart = async () => {
-      setLoading(true);
-      setError(null);
-      setCartStored(false);
+    const navigate = useNavigate();
 
-      try {
-        console.log('*Attempting to fetch cart data and save to localStorage...');
-        const cartData = await CartService.getCartDataForLocalStorage(); 
+    // Lấy userId từ localStorage
+    useEffect(() => {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            try {
+                const user = JSON.parse(storedUser);
+                if (user && user._id) {
+                    setCurrentUserId(user._id);
+                } else {
+                    console.error("Không tìm thấy userId trong localStorage.");
+                    setLoading(false);
+                    setError("Không tìm thấy userId. Vui lòng đăng nhập lại.");
+                    // navigate('/login'); // Yêu cầu đăng nhập
+                }
+            } catch (e) {
+                console.error("Fail khi lấy từ localStorage", e);
+                setLoading(false);
+                setError("Lỗi khi lấy userId. Vui lòng thử lại.");
+            }
+        } else {
+            console.error("Không tìm thấy 'user' trong localStorage.");
+            setLoading(false);
+            setError("Bạn chưa đăng nhập. Vui lòng đăng nhập để xem thông tin.");
+            // navigate('/login');
+        }
+    }, [navigate]);
 
-        localStorage.setItem('cartData', JSON.stringify(cartData));
-        console.log('*Cart data successfully saved to localStorage:', cartData);
-        setCartStored(true);
-      } catch (err) {
-        console.error('!!!Failed to process cart data:', err);
-        setError(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+    useEffect(() => {
+        const fetchAndStoreCart = async () => {
+            if (!currentUserId) {
+                setLoading(false);
+                return;
+            }
 
-    fetchAndStoreCart();
-  }, []);
+            setLoading(true);
+            setError(null);
+            setCartStored(false);
 
-  return (
-    <div style={{ padding: '20px', textAlign: 'center', fontFamily: 'Arial, sans-serif' }}>
-      <h1>Cart Data Processing Page</h1>
-      
-      {loading && <p style={{ color: 'blue' }}>Processing cart data for Local Storage...</p>}
-      {error && <p style={{ color: 'red' }}>Error: {error.message || 'An unknown error occurred during cart processing.'}</p>}
-      {!loading && !error && cartStored && (
-        <p style={{ color: 'green', fontWeight: 'bold' }}>Cart data successfully stored in Local Storage!</p>
-      )}
-      {!loading && !error && !cartStored && !error && (
-        <p style={{ color: 'orange' }}>No cart data found or processed for the fixed user.</p>
-      )}
+            try {
+                const cartData = await CartService.getCartData(currentUserId); 
 
-      <button
-        onClick={() => navigate('/order')}
-        style={{ margin: '10px', padding: '10px 20px', cursor: 'pointer', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px' }}
-      >
-        Go to Order Page
-      </button>
+                localStorage.setItem('cartData', JSON.stringify(cartData));
+                console.log('Lưu cartData thành công vào localStorage:', cartData);
+                setCartStored(true);
+            } catch (err) {
+                console.error('Failed khi lưu cartData vào localStorage:', err);
+                setError(err);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    </div>
-  );
+        fetchAndStoreCart();
+    }, [currentUserId]);
+
+    return (
+        <div style={{ padding: '20px', textAlign: 'center', fontFamily: 'Arial, sans-serif' }}>
+            <h1>Giỏ hàng của tôi</h1>
+            {error && <p style={{ color: 'red' }}>Error: {error.message || 'Lỗi không xác định.'}</p>}
+            {!loading && !error && cartStored && (
+                <p style={{ color: 'green', fontWeight: 'bold' }}>Dữ liệu giỏ hàng đã được lưu thành công vào Local Storage!</p>
+            )}
+            {!loading && !error && !cartStored && !error && (
+                <p style={{ color: 'orange' }}>Không có dữ liệu giỏ hàng.</p>
+            )}
+
+            
+            <Button
+              onClick={() => navigate('/order')}
+              variant="primary"
+            >
+              THANH TOÁN
+            </Button>
+
+        </div>
+    );
 };
 
 export default CartPage;
