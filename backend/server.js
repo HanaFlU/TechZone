@@ -26,6 +26,7 @@ app.use(express.json());
 app.get("/", (req, res) => {
     res.json({ message: "Welcom to Techzone application." });
 });
+
 app.use('/api/customers', CustomerRoute);
 app.use('/api/orders', OrderRoute);
 app.use('/api/carts', CartRoute);

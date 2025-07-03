@@ -5,6 +5,7 @@ import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 
 import HomePage from './pages/HomePage';
+import AccountPage from './pages/User/AccountPage';
 import CartPage from './pages/Cart';
 import OrderPage from './pages/User/Order';
 
@@ -32,6 +33,7 @@ const App = () => {
             <main className='m-4'>
               <Routes>
                 <Route path='/' element={<HomePage/>}/>
+                <Route path='/account' element={<AccountPage />} />
                 <Route path='/cart' element={<CartPage />} />
                 <Route path='/order' element={<OrderPage />} />
 

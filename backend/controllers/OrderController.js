@@ -12,15 +12,14 @@ function generateRandomOrderId(length) {
     return result;
 }
 
-// Hàm trợ giúp để tạo orderId duy nhất (kiểm tra trong DB)
 const generateUniqueOrderId = async () => {
     let isUnique = false;
     let generatedId;
     while (!isUnique) {
-        generatedId = generateRandomOrderId(10); // Tạo ID ngẫu nhiên 10 ký tự
-        const existingOrder = await Order.findOne({ orderId: generatedId }); // Kiểm tra xem ID đã tồn tại trong DB chưa
+        generatedId = generateRandomOrderId(10); // Tạo order ID
+        const existingOrder = await Order.findOne({ orderId: generatedId });
         if (!existingOrder) {
-            isUnique = true; // Nếu không tìm thấy, ID này là duy nhất
+            isUnique = true;
         }
     }
     return generatedId;
@@ -49,16 +48,16 @@ const OrderController = {
     createOrder: async (req, res) => {
         const { customerId, shippingAddressId, paymentMethod } = req.body;
 
-        console.log('Received request to create order:', { customerId, shippingAddressId, paymentMethod });
+        console.log('Nhận yêu cầu tạo đơn hàng:', { customerId, shippingAddressId, paymentMethod });
 
         if (!customerId || !shippingAddressId || !paymentMethod) {
-            return res.status(400).json({ message: 'Missing required fields: customerId, shippingAddressId, paymentMethod.' });
+            return res.status(400).json({ message: 'Thiếu thông tin để tạo đơn hàng!' });
         }
 
         try {
             const cart = await Cart.findOne({ customer: customerId }).populate('items.product');
             if (!cart || cart.items.length === 0) {
-                return res.status(404).json({ message: 'Cart not found or is empty for this customer.' });
+                return res.status(404).json({ message: 'Không tìm thấy giỏ hàng hoặc giỏ hàng trống!' });
             }
 
             let totalAmount = 0;
@@ -69,8 +68,8 @@ const OrderController = {
                 const quantity = cartItem.quantity;
 
                 if (!product) {
-                    console.warn(`Product with ID ${cartItem.product._id} not found in database for cart item.`);
-                    return res.status(400).json({ message: `Product not found for item in cart: ${cartItem.product._id}. Please review your cart.` });
+                    console.warn(`Không tìm thấy sản phẩm với ID ${cartItem.product._id} trong cartItem.`);
+                    return res.status(400).json({ message: `Không tìm thấy sản phẩm trong cartItem: ${cartItem.product._id}.` });
                 }
 
                 // Kiểm tra tồn kho
@@ -78,14 +77,13 @@ const OrderController = {
                     return res.status(400).json({ message: `Không đủ số lượng sản phẩm ${product.name} để đặt hàng. Kho: ${product.stock}, Số lượng đặt hàng: ${quantity}` });
                 }
 
-                // <<< LẤY GIÁ TẠI THỜI ĐIỂM HIỆN TẠI VÀ LƯU VÀO orderItems >>>
-                const priceAtOrder = product.price; // Lấy giá hiện tại của sản phẩm
-                totalAmount += priceAtOrder * quantity; // Tính tổng tiền dựa trên giá này
+                const priceAtOrder = product.price;
+                totalAmount += priceAtOrder * quantity;
 
                 orderItems.push({
                     product: product._id,
                     quantity: quantity,
-                    priceAtOrder: priceAtOrder // <<< LƯU GIÁ TẠI THỜI ĐIỂM ĐẶT HÀNG
+                    priceAtOrder: priceAtOrder
                 });
             }
 
@@ -112,11 +110,11 @@ const OrderController = {
             await Cart.findByIdAndDelete(cart._id);
 
             const populatedOrder = await Order.findById(savedOrder._id)
-            res.status(201).json({ message: 'Order created successfully!', order: populatedOrder });
+            res.status(201).json({ message: 'Tạo đơn hàng thành công!', order: populatedOrder });
 
         } catch (error) {
-            console.error('Error creating order:', error);
-            res.status(500).json({ message: 'Server error during order creation.', error: error.message });
+            console.error('Lỗi khi tạo đơn hàng:', error);
+            res.status(500).json({ message: 'Lỗi server khi tạo đơn hàng.', error: error.message });
         }
     },
 };

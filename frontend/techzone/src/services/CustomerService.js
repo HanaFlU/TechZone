@@ -1,8 +1,30 @@
 import createApiClient from "../utils/api";
 
 class CustomerService {
-    constructor(baseURL = "http://localhost:8000/api/customers") { // Đảm bảo đúng baseURL của Customer API
+    constructor(baseURL = "http://localhost:8000/api/customers") {
         this.api = createApiClient(baseURL);
+    }
+
+    async getAccountInfo(customerId) {
+        try {
+            console.log('CustomerService: Fetching account info for customer ID:', customerId);
+            const response = await this.api.get(`/${customerId}/account`);
+            return response.data;
+        } catch (error) {
+            console.error('CustomerService Error: Failed to fetch account info:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    }
+
+    async updateAccountInfo(customerId, userData) {
+        try {
+            console.log('CustomerService: Updating account info for customer ID:', customerId, 'Data:', userData);
+            const response = await this.api.put(`/${customerId}/account`, userData);
+            return response.data;
+        } catch (error) {
+            console.error('CustomerService Error: Failed to update account info:', error.response ? error.response.data : error.message);
+            throw error;
+        }
     }
 
     /**
