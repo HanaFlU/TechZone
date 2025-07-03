@@ -1,10 +1,10 @@
-// backend/routes/customerRoutes.js
-const express = require('express');
+import express from 'express';
+import customerController from '../controllers/CustomerController.js';
+
 const router = express.Router();
-const customerController = require('../controllers/CustomerController');
 
 router.get('/', customerController.findAll);
 router.get('/:customerId/addresses', customerController.getAddresses);
 router.post('/:customerId/address', customerController.addAddress);
 
-module.exports = router;
+export default router;

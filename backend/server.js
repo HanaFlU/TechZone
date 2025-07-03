@@ -1,14 +1,17 @@
-require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
-const { connect } = require("./config/db.config");
+import dotenv from "dotenv";
+dotenv.config();
+
+import express from "express";
+import cors from "cors";
+import { connect } from "./config/db.config.js";
+
+import CustomerRoute from "./routes/CustomerRoute.js";
+import OrderRoute from "./routes/OrderRoute.js";
+import CartRoute from "./routes/CartRoute.js";
 
 connect();
 
 const app = express();
-const CustomerRoute = require("./routes/CustomerRoute");
-const OrderRoute = require("./routes/OrderRoute");
-const CartRoute = require("./routes/CartRoute");
 
 app.use(
     cors({
@@ -16,7 +19,7 @@ app.use(
         methods: ["GET", "PUT", "POST", "DELETE"],
         allowedHeaders: ["Content-Type", "Authorization"],
     })
-)
+);
 
 app.use(express.json());
 

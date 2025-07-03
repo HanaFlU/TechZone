@@ -1,7 +1,6 @@
-const Order = require('../models/OrderModel');
-const Cart = require('../models/CartModel');
-const Product = require('../models/ProductModel');
-const Customer = require('../models/CustomerModel');
+import Order from '../models/OrderModel.js';
+import Cart from '../models/CartModel.js';
+import Product from '../models/ProductModel.js';
 
 function generateRandomOrderId(length) {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -121,5 +120,4 @@ const OrderController = {
         }
     },
 };
-module.exports = OrderController;
-
+export default OrderController;
