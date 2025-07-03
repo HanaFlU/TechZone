@@ -1,17 +1,17 @@
-const Address = require('../models/AddressModel');
-const Customer = require('../models/CustomerModel');
+import Address from '../models/AddressModel.js';
+import Customer from '../models/CustomerModel.js';
 
 const CustomerController = {
     findAll: async (req, res) => {
         Customer.find()
             .then((data) => res.status(200).json(data))
-            .catch((err) => res.status(500).json(err.message))
+            .catch((err) => res.status(500).json(err.message));
     },
     getAddresses: async (req, res) => {
         const { customerId } = req.params;
         try {
             const customer = await Customer.findById(customerId)
-                .populate('shippingAddresses'); // <<< POPULATE CÁC ĐỊA CHỈ Ở ĐÂY
+                .populate('shippingAddresses');
 
             if (!customer) {
                 return res.status(404).json({ message: 'Customer not found.' });
@@ -33,14 +33,12 @@ const CustomerController = {
                 return res.status(404).json({ message: 'Customer not found.' });
             }
 
-            // Tạo một địa chỉ mới và gán customerId
             const newAddress = new Address({
                 customer: customerId,
                 fullName, phone, street, city, district, zipcode, isDefault
             });
             const savedAddress = await newAddress.save();
 
-            // Thêm ID của địa chỉ mới vào mảng shippingAddresses của customer
             customer.shippingAddresses.push(savedAddress._id);
             await customer.save();
 
@@ -52,4 +50,5 @@ const CustomerController = {
         }
     },
 };
-module.exports = CustomerController;
+
+export default CustomerController;

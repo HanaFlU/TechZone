@@ -1,8 +1,9 @@
-const express = require('express');
+import express from 'express';
+import CartController from '../controllers/CartController.js'; // Correct import for default export
+
 const router = express.Router();
-const CartController = require('../controllers/CartController');
 
 router.get('/', CartController.findAll);
-router.get('/:userId', CartController.getCartByUserId);
+router.get('/:userId', CartController.getCartByUserId); // Example route for getCartByUserId
 
-module.exports = router;
+export default router;
