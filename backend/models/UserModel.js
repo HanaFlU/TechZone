@@ -9,7 +9,6 @@ const userSchema = new mongoose.Schema(
         },
         phone: {
             type: String,
-            required: true,
             unique: true,
         },
         email: {
@@ -19,7 +18,6 @@ const userSchema = new mongoose.Schema(
         },
         birthdate: {
             type: Date,
-            required: true,
         },
         gender: {
             type: String,
@@ -27,7 +25,6 @@ const userSchema = new mongoose.Schema(
         },
         password: {
             type: String,
-            required: true,
         },
         role: {
             type: String,

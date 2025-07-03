@@ -54,6 +54,7 @@ export default function LoginModal({ onClose, onSwitch }) {
         }
   };
 
+ 
   
     return (
       <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 ">
@@ -107,7 +108,7 @@ export default function LoginModal({ onClose, onSwitch }) {
 
           <p className="text-center text-sm mt-2 text-darkgray">__hoặc__</p>
           
-          <LoginWithGoogleButton />
+          <LoginWithGoogleButton onClose={onClose} />
 
           <p className="mt-4 text-sm text-center">
             <span>Bạn chưa có tài khoản? </span>
