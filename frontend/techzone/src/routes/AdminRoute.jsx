@@ -4,5 +4,5 @@ import { AuthContext } from '../context/AuthContext';
 
 export default function AdminRoute() {
   const { user } = useContext(AuthContext);
-  return user?.role === 'admin' ? <Outlet /> : <Navigate to="/" />;
+  return user?.role === 'AD' ? <Outlet /> : <Navigate to="/" />;
 }

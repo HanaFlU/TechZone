@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import UserMenu from '../user/UserMenu'
 
+<<<<<<< HEAD:frontend/techzone/src/components/layout/Navbar.jsx
 const Navbar = ({onAccountClick}) => {
   const [searchValue, setSearchValue] = useState('')
   const [cartItemCount, setCartItemCount] = useState(0) // You can connect this to your cart state
@@ -93,6 +94,13 @@ const Navbar = ({onAccountClick}) => {
               </button>
             </div>
           </div>
+=======
+const Navbar = ({onAccountClick, setAdminMode}) => {
+  return (
+      <nav className='bg-dark-green text-white px-4 py-3 flex justify-between items-center' >
+          <div className='text-white text-lg font-semibold'>Logo</div>
+      <UserMenu onClick={onAccountClick} setAdminMode={setAdminMode} />
+>>>>>>> a3755d8b682ea815140e2106c099acf6705c20c6:frontend/techzone/src/components/layout/user/Navbar.jsx
       </nav>
   )
 }

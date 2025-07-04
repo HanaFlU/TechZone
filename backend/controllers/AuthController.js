@@ -1,4 +1,5 @@
 const User = require('../models/UserModel.js');
+const Customer = require('../models/CustomerModel.js');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const generateToken = require('../helpers/generateToken.js');
@@ -38,6 +39,9 @@ const AuthController = {
                 provider: 'local',
             });
             await newUser.save();
+
+            // Tạo document Customer tương ứng
+            await Customer.create({ user: newUser._id });
 
             const token = generateToken(newUser);
 
@@ -108,6 +112,8 @@ const AuthController = {
                     role: 'CUS',
                 });
                 await user.save();
+                // Tạo document Customer tương ứng nếu lần đầu đăng nhập bằng Google
+                await Customer.create({ user: user._id });
             }
 
             user.lastLogin = new Date();

@@ -1,6 +1,7 @@
 const Order = require('../models/OrderModel.js');
 const Cart = require('../models/CartModel.js');
 const Product = require('../models/ProductModel.js');
+const Customer = require('../models/CustomerModel.js');
 
 function generateRandomOrderId(length) {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -115,6 +116,29 @@ const OrderController = {
         } catch (error) {
             console.error('Lỗi khi tạo đơn hàng:', error);
             res.status(500).json({ message: 'Lỗi server khi tạo đơn hàng.', error: error.message });
+        }
+    },
+    getOrdersByCustomer: async (req, res) => {
+        try {
+            const { customerId } = req.params;
+            // Tìm customer theo id, populate user để lấy email/name nếu cần
+            const customer = await Customer.findById(customerId).populate('user');
+            if (!customer) {
+                return res.status(404).json({ message: 'Không tìm thấy khách hàng.' });
+            }
+            // Lấy tất cả order có customer = customerId
+            const orders = await Order.find({ customer: customerId });
+            res.status(200).json({
+                customer: {
+                    _id: customer._id,
+                    name: customer.user?.name,
+                    email: customer.user?.email,
+                },
+                orders
+            });
+        } catch (error) {
+            console.error('Error fetching orders by customer:', error);
+            res.status(500).json({ message: 'Lỗi server khi lấy danh sách đơn hàng của khách hàng.', error: error.message });
         }
     },
 };

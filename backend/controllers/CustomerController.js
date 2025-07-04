@@ -4,6 +4,7 @@ const User = require('../models/UserModel.js');
 const CustomerController = {
     findAll: async (req, res) => {
         Customer.find()
+            .populate('user')
             .then((data) => res.status(200).json(data))
             .catch((err) => res.status(500).json(err.message));
     },
@@ -123,6 +124,23 @@ const CustomerController = {
         } catch (error) {
             console.error('Error adding address to customer:', error);
             res.status(500).json({ message: 'Server error adding address.', error: error.message });
+        }
+    },
+    deleteCustomer: async (req, res) => {
+        try {
+            const { customerId } = req.params;
+            const customer = await Customer.findById(customerId);
+            if (!customer) {
+                return res.status(404).json({ message: 'Customer not found.' });
+            }
+            // Xóa user liên kết
+            await User.findByIdAndDelete(customer.user);
+            // Xóa customer
+            await Customer.findByIdAndDelete(customerId);
+            res.status(200).json({ message: 'Customer deleted successfully.' });
+        } catch (error) {
+            console.error('Error deleting customer:', error);
+            res.status(500).json({ message: 'Server error while deleting customer.', error: error.message });
         }
     },
 };

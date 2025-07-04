@@ -4,5 +4,5 @@ import { AuthContext } from '../context/AuthContext';
 
 export default function ProtectedRoute() {
   const { user } = useContext(AuthContext);
-  return user?.role === 'user' || user?.role === 'admin' ? <Outlet /> : <Navigate to="/login" />;
+  return user?.role === 'CUS' || user?.role === 'AD' ? <Outlet /> : <Navigate to="/" />;
 }

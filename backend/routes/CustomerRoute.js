@@ -8,6 +8,7 @@ router.get('/:customerId/addresses', customerController.getAddresses);
 router.post('/:customerId/address', customerController.addAddress);
 router.get('/:userId/account', customerController.getAccountInfo);
 router.put('/:userId/account', customerController.updateAccountInfo);
+router.delete('/:customerId', customerController.deleteCustomer);
 
 module.exports = router;
 
