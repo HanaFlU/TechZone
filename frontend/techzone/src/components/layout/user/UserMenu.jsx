@@ -1,12 +1,14 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { CgProfile } from "react-icons/cg";
-import { AuthContext } from '../../context/AuthContext';
+import { AuthContext } from '../../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
-const UserMenu = ({onClick}) => {
+const UserMenu = ({onClick, setAdminMode}) => {
     const { user, logout } = useContext(AuthContext);
     const [open, setOpen] = useState(false);
     const dropdownRef = useRef();
-
+    const navigate = useNavigate();
+    
     useEffect(() => {
         const handleClickOutside = (e) => {
           if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -45,6 +47,21 @@ const UserMenu = ({onClick}) => {
                     >
                     Tài khoản
                     </a>
+                    
+                    {user?.role === "AD" && (
+                        <a
+                            href="#"
+                            className="block px-4 py-2 text-sm hover:bg-gray-100 rounded-t"
+                            onClick={e => {
+                                e.preventDefault();
+                                setAdminMode(true);
+                                navigate("/admin/dashboard");
+                                }
+                            }
+                        >
+                            Quản lý
+                        </a>
+                    )}
                     <button
                         onClick={logout}
                         className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 rounded-b"

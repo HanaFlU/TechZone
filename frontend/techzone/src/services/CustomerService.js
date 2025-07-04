@@ -43,6 +43,36 @@ class CustomerService {
             throw error;
         }
     }
+
+    async getOrdersByCustomer(customerId) {
+        try {
+            const response = await this.api.get(`/orders/customer/${customerId}`);
+            return response.data;
+        } catch (error) {
+            console.error('CustomerService Error: Failed to fetch orders by customer:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    }
+
+    async getAllCustomers() {
+        try {
+            const response = await this.api.get(`/`);
+            return response.data;
+        } catch (error) {
+            console.error('CustomerService Error: Failed to fetch all customers:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    }
+
+    async deleteCustomer(customerId) {
+        try {
+            const response = await this.api.delete(`/${customerId}`);
+            return response.data;
+        } catch (error) {
+            console.error('CustomerService Error: Failed to delete customer:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    }
 }
 
 export default new CustomerService();
