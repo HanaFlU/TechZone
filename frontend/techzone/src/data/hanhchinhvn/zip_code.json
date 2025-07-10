@@ -1,0 +1,254 @@
+[
+    {
+      "province": "An Giang",
+      "zipCode": "880000"
+    },
+    {
+      "province": "Bạc Liêu",
+      "zipCode": "260000"
+    },
+    {
+      "province": "Bắc Cạn",
+      "zipCode": "960000"
+    },
+    {
+      "province": "Bắc Giang",
+      "zipCode": "220000"
+    },
+    {
+      "province": "Bắc Ninh",
+      "zipCode": "790000"
+    },
+    {
+      "province": "Bến Tre",
+      "zipCode": "930000"
+    },
+    {
+      "province": "Bình Dương",
+      "zipCode": "590000"
+    },
+    {
+      "province": "Bình Định",
+      "zipCode": "820000"
+    },
+    {
+      "province": "Bình Phước",
+      "zipCode": "830000"
+    },
+    {
+      "province": "Bình Thuận",
+      "zipCode": "800000"
+    },
+    {
+      "province": "Cà Mau",
+      "zipCode": "970000"
+    },
+    {
+      "province": "Cao Bằng",
+      "zipCode": "270000"
+    },
+    {
+      "province": "Cần Thơ",
+      "zipCode": "900000"
+    },
+    {
+      "province": "Đà Nẵng",
+      "zipCode": "550000"
+    },
+    {
+      "province": "Điện Biên",
+      "zipCode": "380000"
+    },
+    {
+      "province": "Đắk Lắk",
+      "zipCode": "630000"
+    },
+    {
+      "province": "Đắk Nông",
+      "zipCode": "640000"
+    },
+    {
+      "province": "Đồng Nai",
+      "zipCode": "810000"
+    },
+    {
+      "province": "Đồng Tháp",
+      "zipCode": "870000"
+    },
+    {
+      "province": "Gia Lai",
+      "zipCode": "600000"
+    },
+    {
+      "province": "Hà Giang",
+      "zipCode": "310000"
+    },
+    {
+      "province": "Hà Nam",
+      "zipCode": "400000"
+    },
+    {
+      "province": "Hà Tĩnh",
+      "zipCode": "480000"
+    },
+    {
+      "province": "Hà Nội",
+      "zipCode": "100000"
+    },
+    {
+      "province": "Hải Dương",
+      "zipCode": "170000"
+    },
+    {
+      "province": "Hải Phòng",
+      "zipCode": "180000"
+    },
+    {
+      "province": "Hậu Giang",
+      "zipCode": "910000"
+    },
+    {
+      "province": "Hoà Bình",
+      "zipCode": "350000"
+    },
+    {
+      "province": "Tp. Hồ Chí Minh",
+      "zipCode": "700000"
+    },
+    {
+      "province": "Hưng Yên",
+      "zipCode": "160000"
+    },
+    {
+      "province": "Khánh Hoà",
+      "zipCode": "650000"
+    },
+    {
+      "province": "Kiên Giang",
+      "zipCode": "920000"
+    },
+    {
+      "province": "Kon Tum",
+      "zipCode": "580000"
+    },
+    {
+      "province": "Lai Châu",
+      "zipCode": "390000"
+    },
+    {
+      "province": "Lạng Sơn",
+      "zipCode": "240000"
+    },
+    {
+      "province": "Lào Cai",
+      "zipCode": "330000"
+    },
+    {
+      "province": "Lâm Đồng",
+      "zipCode": "670000"
+    },
+    {
+      "province": "Long An",
+      "zipCode": "850000"
+    },
+    {
+      "province": "Nam Định",
+      "zipCode": "420000"
+    },
+    {
+      "province": "Nghệ An",
+      "zipCode": "460000 – 470000"
+    },
+    {
+      "province": "Ninh Bình",
+      "zipCode": "430000"
+    },
+    {
+      "province": "Ninh Thuận",
+      "zipCode": "660000"
+    },
+    {
+      "province": "Phú Thọ",
+      "zipCode": "290000"
+    },
+    {
+      "province": "Phú Yên",
+      "zipCode": "620000"
+    },
+    {
+      "province": "Quảng Bình",
+      "zipCode": "510000"
+    },
+    {
+      "province": "Quảng Nam",
+      "zipCode": "560000"
+    },
+    {
+      "province": "Quảng Ngãi",
+      "zipCode": "570000"
+    },
+    {
+      "province": "Quảng Ninh",
+      "zipCode": "200000"
+    },
+    {
+      "province": "Quảng Trị",
+      "zipCode": "520000"
+    },
+    {
+      "province": "Sóc Trăng",
+      "zipCode": "950000"
+    },
+    {
+      "province": "Sơn La",
+      "zipCode": "360000"
+    },
+    {
+      "province": "Tây Ninh",
+      "zipCode": "840000"
+    },
+    {
+      "province": "Thái Bình",
+      "zipCode": "410000"
+    },
+    {
+      "province": "Thái Nguyên",
+      "zipCode": "250000"
+    },
+    {
+      "province": "Thanh Hoá",
+      "zipCode": "440000 – 450000"
+    },
+    {
+      "province": "Thừa Thiên Huế",
+      "zipCode": "530000"
+    },
+    {
+      "province": "Tiền Giang",
+      "zipCode": "860000"
+    },
+    {
+      "province": "Trà Vinh",
+      "zipCode": "940000"
+    },
+    {
+      "province": "Tuyên Quang",
+      "zipCode": "300000"
+    },
+    {
+      "province": "Vĩnh Long",
+      "zipCode": "890000"
+    },
+    {
+      "province": "Vĩnh Phúc",
+      "zipCode": "280000"
+    },
+    {
+      "province": "Yên Bái",
+      "zipCode": "320000"
+    },
+    {
+      "province": "Bà Rịa Vũng Tàu",
+      "zipCode": "790000"
+    }
+]

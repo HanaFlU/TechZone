@@ -47,9 +47,6 @@ const CustomerController = {
         try {
             const userId = req.params.userId;
             const { name, phone, birthdate, gender } = req.body;
-
-            console.log('Dữ liệu nhận từ frontend (updateAccountInfo):', req.body);
-
             const user = await User.findById(userId);
             if (!user) {
                 return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng.' });
@@ -83,6 +80,21 @@ const CustomerController = {
             res.status(500).json({ success: false, message: 'Lỗi server.' });
         }
     },
+    getCustomerByUserId: async (req, res) => {
+        try {
+            const userId = req.params.userId;
+            const customer = await Customer.findOne({ user: userId });
+
+            if (!customer) {
+                return res.status(404).json({ success: false, message: 'Customer not found for this user.' });
+            }
+
+            res.status(200).json({ success: true, customer });
+        } catch (error) {
+            console.error('Error fetching customer by user ID:', error);
+            res.status(500).json({ success: false, message: 'Server error while fetching customer by user ID.', error: error.message });
+        }
+    },
 
     getAddresses: async (req, res) => {
         const { customerId } = req.params;
@@ -100,30 +112,105 @@ const CustomerController = {
             res.status(500).json({ message: 'Server error while fetching customer profile.', error: error.message });
         }
     },
+    getAddressById: async (req, res) => {
+        const { addressId } = req.params;
+        try {
+            const address = await Address.findById(addressId);
+            if (!address) {
+                return res.status(404).json({ success: false, message: 'Address not found.' });
+            }
+            res.status(200).json({ success: true, address });
+        } catch (error) {
+            console.error('Error fetching address by ID:', error);
+            res.status(500).json({ success: false, message: 'Server error fetching address.', error: error.message });
+        }
+    },
     addAddress: async (req, res) => {
         const { customerId } = req.params;
-        const { fullName, phone, street, city, district, zipcode, isDefault } = req.body;
+        const { fullName, phone, street, city, district, ward, zipcode, isDefault } = req.body;
 
         try {
             const customer = await Customer.findById(customerId);
             if (!customer) {
                 return res.status(404).json({ message: 'Customer not found.' });
             }
+            if (isDefault) {
+                await Address.updateMany(
+                    { customer: customerId, isDefault: true },
+                    { $set: { isDefault: false } }
+                );
+            }
 
             const newAddress = new Address({
                 customer: customerId,
-                fullName, phone, street, city, district, zipcode, isDefault
+                fullName, phone, street, city, district, ward, zipcode, isDefault
             });
+            const existingAddressesCount = await Address.countDocuments({ customer: customerId });
+            if (existingAddressesCount === 0) {
+                newAddress.isDefault = true;
+            }
+
             const savedAddress = await newAddress.save();
-
-            customer.shippingAddresses.push(savedAddress._id);
+            customer.shippingAddresses.push(newAddress._id);
             await customer.save();
-
-            res.status(201).json({ message: 'Address added successfully!', address: savedAddress });
+            res.status(201).json({ success: true, message: 'Address added successfully!', address: savedAddress });
 
         } catch (error) {
             console.error('Error adding address to customer:', error);
-            res.status(500).json({ message: 'Server error adding address.', error: error.message });
+            res.status(500).json({ success: false, message: 'Server error adding address.', error: error.message });
+        }
+    },
+    updateAddress: async (req, res) => {
+        const { addressId } = req.params;
+        const { fullName, phone, street, city, district, ward, zipcode, isDefault } = req.body;
+
+        try {
+            const address = await Address.findById(addressId);
+            if (!address) {
+                return res.status(404).json({ success: false, message: 'Address not found.' });
+            }
+
+            if (isDefault === true) {
+                await Address.updateMany(
+                    { customer: address.customer, isDefault: true, _id: { $ne: addressId } },
+                    { $set: { isDefault: false } }
+                );
+            }
+
+            address.fullName = fullName !== undefined ? fullName : address.fullName;
+            address.phone = phone !== undefined ? phone : address.phone;
+            address.street = street !== undefined ? street : address.street;
+            address.city = city !== undefined ? city : address.city;
+            address.district = district !== undefined ? district : address.district;
+            address.ward = ward !== undefined ? ward : address.ward;
+            address.zipcode = zipcode !== undefined ? zipcode : address.zipcode;
+            address.isDefault = isDefault !== undefined ? isDefault : address.isDefault;
+
+            const updatedAddress = await address.save();
+            res.status(200).json({ success: true, message: 'Address updated successfully!', address: updatedAddress });
+
+        } catch (error) {
+            console.error('Error updating address:', error);
+            res.status(500).json({ success: false, message: 'Server error updating address.', error: error.message });
+        }
+    },
+    deleteAddress: async (req, res) => {
+        const { customerId, addressId } = req.params;
+        try {
+            const customer = await Customer.findById(customerId);
+            if (!customer) {
+                return res.status(404).json({ success: false, message: 'Customer not found.' });
+            }
+            // Delete in customers
+            customer.shippingAddresses = customer.shippingAddresses.filter(
+                (addrId) => addrId.toString() !== addressId
+            );
+            await customer.save();
+            await Address.findByIdAndDelete(addressId);
+            res.status(200).json({ success: true, message: 'Address deleted successfully!' });
+        } catch (error) {
+            console.error('Error deleting address:', error);
+            res.status(500).json({ success: false, message: 'Server error deleting address.', error: error.message });
         }
     },
     deleteCustomer: async (req, res) => {

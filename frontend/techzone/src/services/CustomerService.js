@@ -27,6 +27,17 @@ class CustomerService {
         }
     }
 
+    async getCustomerByUserId(userId) {
+        try {
+            console.log('CustomerService: Fetching customer by User ID:', userId);
+            const response = await this.api.get(`/by-user/${userId}`);
+            return response.data;
+        } catch (error) {
+            console.error('CustomerService Error: Failed to fetch customer by user ID:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    }
+
     /**
      * Lấy thông tin chi tiết của một khách hàng bao gồm các địa chỉ giao hàng.
      * Tương ứng với GET /api/customers/:customerId/addresses
@@ -40,6 +51,43 @@ class CustomerService {
             return response.data;
         } catch (error) {
             console.error('CustomerService Error: Failed to fetch customer addresses:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    }
+    async getAddressById(addressId) {
+        try {
+            const response = await this.api.get(`/address/${addressId}`);
+            return response.data;
+        } catch (error) {
+            console.error('CustomerService Error: Failed to fetch address by ID:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    }
+    async addAddress(customerId, addressData) {
+        try {
+            const response = await this.api.post(`/${customerId}/address`, addressData);
+            return response.data;
+        } catch (error) {
+            console.error('CustomerService Error: Failed to add address:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    }
+    async updateAddress(addressId, addressData) {
+        try {
+            const response = await this.api.put(`/address/${addressId}`, addressData);
+            return response.data;
+        } catch (error) {
+            console.error('CustomerService Error: Failed to update address:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    }
+
+    async deleteAddress(customerId, addressId) {
+        try {
+            const response = await this.api.delete(`/${customerId}/address/${addressId}`);
+            return response.data;
+        } catch (error) {
+            console.error('CustomerService Error: Failed to delete address:', error.response ? error.response.data : error.message);
             throw error;
         }
     }

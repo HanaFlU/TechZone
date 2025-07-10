@@ -145,7 +145,7 @@ const OrderPage = () => {
     );
   }
   return (
-    <div className="container mx-auto p-8 pt-4 font-sans">
+    <div className="container mx-auto py-8 pt-4 font-sans">
       <p className="text-sm mb-4 text-secondary">Breadcrumb</p> {/* Tiêu đề trang */}
       
       {!cartData || cartData.items.length === 0 ? (
@@ -267,7 +267,7 @@ const OrderPage = () => {
           </div>
 
           {/* Right side */}
-          <div className="lg:col-span-1 bg-white p-8 pt-4 rounded-lg h-fit sticky top-4">
+          <div className="lg:col-span-1 bg-white p-8 pt-4 rounded-lg h-fit top-4">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg text-gray-800 font-bold">Thông tin đơn hàng</h2>
               <button className="text-light-green text-sm hover:text-shadow-sm">Sửa</button>

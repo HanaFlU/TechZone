@@ -26,6 +26,10 @@ const addressSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    ward: {
+        type: String,
+        required: true,
+    },
     zipcode: {
         type: String,
         required: false,

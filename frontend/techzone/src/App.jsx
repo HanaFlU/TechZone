@@ -6,7 +6,10 @@ import Footer from './components/layout/user/Footer';
 import Sidebar from './components/layout/admin/Sidebar';
 
 import HomePage from './pages/HomePage';
-import AccountPage from './pages/User/AccountPage';
+import AccountLayout from './pages/User/AccountLayout';
+import ProfilePage from './pages/User/ProfilePage';
+import AddressesPage from './pages/User/AddressesPage';
+import AddressForm from './pages/User/AddressForm';
 import CartPage from './pages/Cart';
 import OrderPage from './pages/User/Order';
 
@@ -16,6 +19,7 @@ import NotFoundPage from './pages/NotFoundPage';
 
 import LoginModal from './components/auth/LoginModal';
 import RegisterModal from './components/auth/RegisterModal';
+
 
 import { AuthProvider } from './context/AuthContext'
 import AdminRoute from './routes/AdminRoute';
@@ -66,7 +70,12 @@ const App = () => {
             <>
               <Routes>
                 <Route path='/' element={<HomePage />} />
-                <Route path='/account' element={<AccountPage />} />
+                <Route path='/account' element={<AccountLayout />}> 
+                  <Route index element={<ProfilePage />} />
+                  <Route path='addresses' element={<AddressesPage />} />
+                  <Route path="addresses/add" element={<AddressForm />} />
+                  <Route path="addresses/edit/:id" element={<AddressForm />} />
+                </Route>
                 <Route path='/cart' element={<CartPage />} />
                 <Route path='/order' element={<OrderPage />} />
                 <Route element={<ProtectedRoute />}>

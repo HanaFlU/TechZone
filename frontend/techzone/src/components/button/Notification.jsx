@@ -14,7 +14,7 @@ const Notification = ({ message, type, onClose }) => {
   }
 
   return (
-    <div className={`fixed top-[60px] right-8 z-50 flex items-center gap-3 ${styleClasses} animate-bounce-in`}>
+    <div className={`fixed top-[100px] right-8 z-50 flex items-center gap-3 ${styleClasses} animate-bounce-in`}>
       <p className={`text-sm font-medium`}>{message}</p>
       {onClose && (
         <button
