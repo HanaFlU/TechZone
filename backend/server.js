@@ -10,7 +10,8 @@ const CustomerRoute = require("./routes/CustomerRoute.js");
 const OrderRoute = require("./routes/OrderRoute.js");
 const CartRoute = require("./routes/CartRoute.js");
 const AuthRoute = require("./routes/AuthRoute.js");
-
+const PaymentRoute = require("./routes/PaymentRoute.js");
+const shippingRateRoute = require("./routes/ShippingRateRoute.js");
 connect();
 
 const app = express();
@@ -33,6 +34,8 @@ app.use('/api/customers', CustomerRoute);
 app.use('/api/orders', OrderRoute);
 app.use('/api/carts', CartRoute);
 app.use('/api/auth', AuthRoute);
+app.use('/api/payments', PaymentRoute);
+app.use('/api/shipping-rate', shippingRateRoute);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

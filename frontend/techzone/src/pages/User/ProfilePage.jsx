@@ -5,16 +5,19 @@ import Input from '../../components/Input/Input';
 import Select from '../../components/Input/Select';
 import Button from '../../components/button/Button';
 import Notification from '../../components/button/Notification';
+import useNotification from '../../hooks/useNotification';
 
 const ProfilePage = () => {
-  
-  // Lấy currentUserId và userProfile
   const { currentUserId, userProfile: initialUserProfile } = useOutletContext(); 
 
   const [userProfile, setUserProfile] = useState(initialUserProfile);
-  const [notificationMessage, setNotificationMessage] = useState(null);
-  const [notificationType, setNotificationType] = useState(null);
-
+  const {
+    notificationMessage, 
+    notificationType, 
+    showNotification, 
+    displayNotification, 
+    closeNotification
+  } = useNotification();
   const [formData, setFormData] = useState({
     name: initialUserProfile?.name || '',
     phone: initialUserProfile?.phone || '',
@@ -37,29 +40,13 @@ const ProfilePage = () => {
     }
   }, [initialUserProfile]);
 
-
-  const showNotification = (message, type) => {
-    setNotificationMessage(message);
-    setNotificationType(type);
-    setTimeout(() => {
-      setNotificationMessage(null);
-      setNotificationType(null);
-    }, 3000);
-  };
-
-  const closeNotification = () => {
-    setNotificationMessage(null);
-    setNotificationType(null);
-  };
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSaveProfile = async () => {
-    setNotificationMessage(null);
-    setNotificationType(null);
+    displayNotification('', '');
 
     try {
       if (!currentUserId) {
@@ -85,13 +72,13 @@ const ProfilePage = () => {
           birthdate: data.user.birthdate ? new Date(data.user.birthdate).toISOString().split('T')[0] : '',
           gender: data.user.gender || ''
         });
-        showNotification('Cập nhật hồ sơ thành công!', 'success');
+        displayNotification('Cập nhật hồ sơ thành công!', 'success');
       } else {
         throw new Error(data.message || 'Không thể cập nhật hồ sơ.');
       }
     } catch (err) {
       console.error("Lỗi khi cập nhật hồ sơ:", err);
-      showNotification('Cập nhật hồ sơ thất bại: ' + (err.message || 'Lỗi không xác định'), 'error');
+      displayNotification('Cập nhật hồ sơ thất bại: ' + (err.message || 'Lỗi không xác định'), 'error');
     } 
   };
 
@@ -103,18 +90,18 @@ const ProfilePage = () => {
       birthdate: userProfile?.birthdate ? new Date(userProfile.birthdate).toISOString().split('T')[0] : '',
       gender: userProfile?.gender || ''
     });
-    setNotificationMessage(null);
-    setNotificationType(null);
+    displayNotification('', '');
   };
 
   return (
     <>
-      <Notification
-        message={notificationMessage}
-        type={notificationType}
-        onClose={closeNotification}
-      />
-
+      {showNotification && (
+        <Notification
+            message={notificationMessage}
+            type={notificationType}
+            onClose={closeNotification}
+        />
+      )}
       <h2 className="text-2xl text-gray-800 font-bold mb-4">Hồ sơ của tôi</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-2 text-base">

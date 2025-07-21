@@ -2,6 +2,7 @@ const Order = require('../models/OrderModel.js');
 const Cart = require('../models/CartModel.js');
 const Product = require('../models/ProductModel.js');
 const Customer = require('../models/CustomerModel.js');
+const PaymentController = require('./PaymentController.js');
 
 function generateRandomOrderId(length) {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -46,16 +47,24 @@ const OrderController = {
             res.status(500).json({ message: 'Lỗi server khi lấy đơn hàng.' });
         }
     },
-    createOrder: async (req, res) => {
-        const { customerId, shippingAddressId, paymentMethod } = req.body;
 
-        console.log('Nhận yêu cầu tạo đơn hàng:', { customerId, shippingAddressId, paymentMethod });
+    createOrder: async (req, res) => {
+        const { customerId, shippingAddressId, paymentMethod, transactionId, paymentStatus } = req.body;
+
+        console.log('Nhận yêu cầu tạo đơn hàng:', { customerId, shippingAddressId, paymentMethod, transactionId, paymentStatus });
 
         if (!customerId || !shippingAddressId || !paymentMethod) {
-            return res.status(400).json({ message: 'Thiếu thông tin để tạo đơn hàng!' });
+            return res.status(400).json({ message: 'Thiếu thông tin bắt buộc để tạo đơn hàng!' });
         }
 
         try {
+            if (paymentMethod === 'CREDIT_CARD') {
+                const stripePaymentResult = await PaymentController.handleStripePaymentCallback({ transactionId, paymentStatus });
+                if (stripePaymentResult) {
+                    return res.status(stripePaymentResult.status).json(stripePaymentResult);
+                }
+            }
+
             const cart = await Cart.findOne({ customer: customerId }).populate('items.product');
             if (!cart || cart.items.length === 0) {
                 return res.status(404).json({ message: 'Không tìm thấy giỏ hàng hoặc giỏ hàng trống!' });
@@ -88,7 +97,27 @@ const OrderController = {
                 });
             }
 
+            // Phí vận chuyển sẽ xử lý sau
+            const shippingFee = 20000;
+            totalAmount += shippingFee;
+
             const newOrderId = await generateUniqueOrderId();
+
+            // Trạng thái ban đầu của đơn hàng và thanh toán
+            let initialOrderStatus = 'PENDING';
+            let paymentStatusForOrder = 'PENDING';
+
+            if (paymentMethod === 'CREDIT_CARD') {
+                if (paymentStatus === 'SUCCESSED') {
+                    paymentStatusForOrder = 'SUCCESSED';
+                } else if (paymentStatus === 'FAILED') {
+                    initialOrderStatus = 'CANCELLED';
+                    paymentStatusForOrder = 'FAILED';
+                }
+            } else if (paymentMethod === 'COD') {
+                paymentStatusForOrder = 'PENDING';
+            }
+            // Tạo Order
             const newOrder = new Order({
                 orderId: newOrderId,
                 customer: customerId,
@@ -96,25 +125,33 @@ const OrderController = {
                 shippingAddress: shippingAddressId,
                 paymentMethod: paymentMethod,
                 totalAmount: totalAmount,
-                status: 'PENDING',
+                status: initialOrderStatus,
+                paymentStatus: paymentStatusForOrder,
+                transactionId: transactionId,
             });
-
             const savedOrder = await newOrder.save();
 
-            for (const orderItem of orderItems) {
-                await Product.findByIdAndUpdate(
-                    orderItem.product,
-                    { $inc: { stock: -orderItem.quantity } }
-                );
+            // Cập nhật số lượng tồn kho
+            if (paymentMethod === 'COD' || (paymentMethod === 'CREDIT_CARD' && paymentStatus === 'SUCCESSED')) {
+                for (const orderItem of orderItems) {
+                    await Product.findByIdAndUpdate(
+                        orderItem.product,
+                        { $inc: { stock: -orderItem.quantity } }
+                    );
+                }
+                await Cart.findByIdAndDelete(cart._id); // Xóa giỏ hàng
+            } else if (paymentMethod === 'CREDIT_CARD' && paymentStatus === 'FAILED') {
+                console.log("Thanh toán Stripe thất bại, giỏ hàng được giữ lại.");
             }
 
-            await Cart.findByIdAndDelete(cart._id);
-
-            const populatedOrder = await Order.findById(savedOrder._id)
+            const populatedOrder = await Order.findById(savedOrder._id);
             res.status(201).json({ message: 'Tạo đơn hàng thành công!', order: populatedOrder });
 
         } catch (error) {
             console.error('Lỗi khi tạo đơn hàng:', error);
+            if (error.cause === 409) {
+                return res.status(409).json({ message: error.message });
+            }
             res.status(500).json({ message: 'Lỗi server khi tạo đơn hàng.', error: error.message });
         }
     },

@@ -24,6 +24,16 @@ class OrderService {
             throw error;
         }
     }
+
+    async getOrderById(orderId) {
+        try {
+            const response = await this.api.get(`/${orderId}`);
+            return response.data;
+        } catch (error) {
+            console.error('OrderService Error: Failed to get order by id:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    }
 }
 
 export default new OrderService();

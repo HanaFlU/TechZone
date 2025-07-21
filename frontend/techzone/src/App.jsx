@@ -10,8 +10,9 @@ import AccountLayout from './pages/User/AccountLayout';
 import ProfilePage from './pages/User/ProfilePage';
 import AddressesPage from './pages/User/AddressesPage';
 import AddressForm from './pages/User/AddressForm';
+import OrderHistoryPage from './pages/User/OrderHistoryPage';
 import CartPage from './pages/Cart';
-import OrderPage from './pages/User/Order';
+import OrderPage from './pages/Order/Order';
 
 import AdminDashboard from './pages/Admin/AdminDashboard';
 
@@ -75,6 +76,7 @@ const App = () => {
                   <Route path='addresses' element={<AddressesPage />} />
                   <Route path="addresses/add" element={<AddressForm />} />
                   <Route path="addresses/edit/:id" element={<AddressForm />} />
+                  <Route path='orders' element={<OrderHistoryPage />} />
                 </Route>
                 <Route path='/cart' element={<CartPage />} />
                 <Route path='/order' element={<OrderPage />} />
