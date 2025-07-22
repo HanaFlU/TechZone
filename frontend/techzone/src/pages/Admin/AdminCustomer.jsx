@@ -17,9 +17,9 @@ const CustomerAdmin = () => {
       setLoading(true);
       setError(null);
       try {
-        // Gọi API lấy danh sách customer (có thể cần chỉnh lại endpoint cho phù hợp backend)
-        const res = await CustomerService.api.get('/');
-        setCustomers(res.data);
+        const data = await CustomerService.getAllCustomers();
+        setCustomers(data);
+        console.log('Fetched customers:', data);
       } catch (err) {
         console.error('Error fetching customers:', err);
         setError('Không thể tải danh sách khách hàng.');
@@ -106,10 +106,10 @@ const CustomerAdmin = () => {
           <Alert severity="error">{error}</Alert>
         ) : (
           <TableContainer component={Paper}>
-            <Table>
+            <Table size="small" sx={{ minWidth: 650 }}>
               <TableHead>
                 <TableRow sx={{ backgroundColor: '#e0f2f1' }}>
-                  <TableCell>ID</TableCell>
+                  <TableCell>Ngày tạo</TableCell>
                   <TableCell>Họ tên</TableCell>
                   <TableCell>Email</TableCell>
                   <TableCell>Số điện thoại</TableCell>
@@ -120,7 +120,7 @@ const CustomerAdmin = () => {
               <TableBody>
                 {filteredCustomers.map((customer) => (
                   <TableRow key={customer._id}>
-                    <TableCell>{customer._id}</TableCell>
+                    <TableCell>{new Date(customer.user?.createdAt).toLocaleDateString()}</TableCell>
                     <TableCell>{customer.user?.name}</TableCell>
                     <TableCell>{customer.user?.email}</TableCell>
                     <TableCell>{customer.user?.phone}</TableCell>

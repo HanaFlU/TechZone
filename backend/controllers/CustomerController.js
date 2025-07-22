@@ -3,13 +3,16 @@ const Customer = require('../models/CustomerModel.js');
 const User = require('../models/UserModel.js');
 const CustomerController = {
     findAll: async (req, res) => {
-        Customer.find()
-            .populate('user')
-            .then((data) => res.status(200).json(data))
-            .catch((err) => res.status(500).json(err.message));
+        try {
+            const customers = await Customer.find().populate('user');
+            res.status(200).json(customers);
+        } catch (error) {
+            console.error('Error fetching customers:', error);
+            return res.status(500).json({ message: 'Lỗi khi lấy danh sách khách hàng.' });
+        }
     },
 
-    getAccountInfo: async (req, res) => {
+    getUserInfo: async (req, res) => {
         try {
             const userId = req.params.userId;
             const user = await User.findById(userId);
@@ -17,7 +20,7 @@ const CustomerController = {
             if (!user) {
                 return res.status(404).json({
                     success: false,
-                    message: 'Không tìm thấy thông tin người dùng.'
+                    message: 'Không tìm thấy thông tin khách hàng.'
                 });
             }
 
@@ -43,7 +46,7 @@ const CustomerController = {
             });
         }
     },
-    updateAccountInfo: async (req, res) => {
+    updateUserInfo: async (req, res) => {
         try {
             const userId = req.params.userId;
             const { name, phone, birthdate, gender } = req.body;
@@ -82,7 +85,7 @@ const CustomerController = {
     },
     getCustomerByUserId: async (req, res) => {
         try {
-            const userId = req.params.userId;
+            const userId = req.user.id;
             const customer = await Customer.findOne({ user: userId });
 
             if (!customer) {
@@ -97,7 +100,7 @@ const CustomerController = {
     },
 
     getAddresses: async (req, res) => {
-        const { customerId } = req.params;
+        const { customerId } = req.user.id;
         try {
             const customer = await Customer.findById(customerId)
                 .populate('shippingAddresses');
@@ -112,6 +115,7 @@ const CustomerController = {
             res.status(500).json({ message: 'Server error while fetching customer profile.', error: error.message });
         }
     },
+
     getAddressById: async (req, res) => {
         const { addressId } = req.params;
         try {
@@ -125,6 +129,7 @@ const CustomerController = {
             res.status(500).json({ success: false, message: 'Server error fetching address.', error: error.message });
         }
     },
+
     addAddress: async (req, res) => {
         const { customerId } = req.params;
         const { fullName, phone, street, city, district, ward, zipcode, isDefault } = req.body;

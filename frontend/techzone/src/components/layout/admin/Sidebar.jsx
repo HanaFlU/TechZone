@@ -118,7 +118,7 @@ const Sidebar = ({onVisitStore, children}) => {
             </div>
 
             {/* SideBar Menu Items */}
-            <div className='mt-4 overflow-y-auto h-[calc(100vh-85px)]'>
+            <div className=' overflow-y-auto h-[calc(100vh-85px)]'>
             {items.map(({ label, icon1, icon2, notify, outline, onClick, children, active }) => (
             <MenuItem
                 key={label}
