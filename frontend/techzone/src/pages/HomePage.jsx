@@ -262,7 +262,7 @@ const HomePage = () => {
     return (
       <div className="w-80 bg-white rounded-2xl shadow-lg">
         {/* Header */}
-        <div className="bg-green-600 rounded-t-2xl px-6 py-4">
+        <div className="bg-light-green rounded-t-2xl px-6 py-4">
           <div className="flex items-center space-x-3">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-white">
               <path d="M3 6H21V8H3V6ZM3 11H21V13H3V11ZM3 16H21V18H3V16Z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -326,7 +326,7 @@ const HomePage = () => {
     return (
       <div className="w-64 bg-white rounded-2xl shadow-lg">
         {/* Header */}
-        <div className="bg-green-600 rounded-t-2xl px-6 py-4">
+        <div className="bg-light-green rounded-t-2xl px-6 py-4">
           <div className="flex items-center space-x-3">
             <div className="text-white">
               {category.icon}

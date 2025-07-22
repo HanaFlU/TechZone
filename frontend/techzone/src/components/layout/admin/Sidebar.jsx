@@ -102,10 +102,10 @@ const Sidebar = ({onVisitStore, children}) => {
     <section className='flex h-screen bg-gradient-to-br from-emerald-50 to-white'>
 
         {/* SideBar */}
-        <nav className={`${isOpen ? "w-72" : "w-16"} transition-all duration-300 p-3 bg-white border-r border-emerald-100 shadow-md relative`}>
+        <nav className={`${isOpen ? "w-72" : "w-16"} transition-all duration-300 p-3 pb-[85px] bg-white border-r border-emerald-100 shadow-md relative `}>
 
             {/* SideBar Header */}
-            <div className={`p-2 flex items-center ${isOpen ? "justify-between" : "justify-center"}`}>
+            <div className={`p-2 flex items-center  ${isOpen ? "justify-between" : "justify-center"}`}>
                 {isOpen && (
                     <a href="/" className='flex items-center space-x-2'>
                         <img src="/LogoSingle.png" alt="logo" className='h-12 w-auto drop-shadow' />
@@ -118,7 +118,7 @@ const Sidebar = ({onVisitStore, children}) => {
             </div>
 
             {/* SideBar Menu Items */}
-            <div className='mt-4'>
+            <div className='mt-4 overflow-y-auto h-[calc(100vh-85px)]'>
             {items.map(({ label, icon1, icon2, notify, outline, onClick, children, active }) => (
             <MenuItem
                 key={label}
@@ -137,8 +137,8 @@ const Sidebar = ({onVisitStore, children}) => {
             </div>
 
             {/* User Info & Logout */}
-            <div className="absolute left-0 bottom-8 w-full border-t border-emerald-100 pt-5 group">
-                <div className="flex items-center justify-between p-2 rounded ">
+            <div className="absolute left-0 bottom-0 w-full border-t border-emerald-100 bg-white pt-5 group zindex-100">
+                <div className="flex items-center justify-between p-2 rounded zindex-10">
                     <div className='flex items-center space-x-3 relative'>
                         <div className='bg-emerald-100 h-10 w-10 flex items-center justify-center rounded-lg text-xl font-bold text-emerald-600'>
                             {user.name ? user.name[0].toUpperCase() : 'A'}
@@ -146,7 +146,7 @@ const Sidebar = ({onVisitStore, children}) => {
                         {isOpen && (
                             <div>
                                 <span className='block font-semibold text-emerald-700'>{user.name}</span>
-                                <span className='text-xs text-gray-500'>{user.email}</span>
+                                <span className='text-xs text-gray-600'>{user.email}</span>
                             </div>
                         )}
                     </div>
@@ -165,7 +165,8 @@ const Sidebar = ({onVisitStore, children}) => {
         {/* Main Content */}
         <div className='flex-1 p-6 bg-emerald-50 rounded-lg shadow-inner overflow-auto'>
           {children}
-        </div>    </section>
+        </div>
+      </section>
   )
 }
 

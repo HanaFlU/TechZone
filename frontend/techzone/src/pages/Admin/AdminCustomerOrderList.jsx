@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Typography, Card, CardContent, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress, Alert } from '@mui/material';
-import CustomerService from '../../services/CustomerService';
+import OrderService from '../../services/OrderService';
 
 const AdminCustomerOrderList = () => {
   const { customerId } = useParams();
@@ -15,7 +15,7 @@ const AdminCustomerOrderList = () => {
       setLoading(true);
       setError(null);
       try {
-        const data = await CustomerService.getOrdersByCustomer(customerId);
+        const data = await OrderService.getOrdersByCustomer(customerId);
         setOrders(data.orders || []);
         setCustomer(data.customer || null);
       } catch (err) {

@@ -10,8 +10,8 @@ const useAuthUser = () => {
         if (storedUser) {
             try {
                 const user = JSON.parse(storedUser);
-                if (user && user._id) {
-                    setCurrentUserId(user._id);
+                if (user && user.id) {
+                    setCurrentUserId(user.id);
                 } else {
                     console.error("useAuthUser Error: User ID not found in localStorage.");
                     setAuthError("Không tìm thấy ID người dùng. Vui lòng đăng nhập lại.");

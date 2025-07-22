@@ -1,31 +1,34 @@
-const User = require('../models/UserModel.js');
-const Customer = require('../models/CustomerModel.js');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const generateToken = require('../helpers/generateToken.js');
-
 const dotenv = require("dotenv");
 dotenv.config();
+const User = require('../models/UserModel.js');
+const Customer = require('../models/CustomerModel.js');
+const Role = require('../models/RoleModel.js');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+const generateToken = require('../helpers/generateToken.js');
+
 
 const AuthController = {
     // Register a new user local
     register: async (req, res) => {
         if (!req.body) {
-            return res.status(400).json({ message: 'Vui lòng điền đầy đủ thông tin.' });
+            return res.status(400).json({ message: 'Please fill in all required information.' });
         }
         const { name, phone, email, birthdate, gender, password, comfirmpassword } = req.body;
         if (!name || !email || !password) {
-            return res.status(400).json({ message: 'Vui lòng điền đầy đủ thông tin.' });
+            return res.status(400).json({ message: 'Please fill in all required information.' });
         }
 
         if (password !== comfirmpassword) {
-            return res.status(400).json({ message: 'Mật khẩu không khớp.' });
+            return res.status(400).json({ message: 'Passwords do not match.' });
         }
 
         try {
             const existingUser = await User.findOne({ email });
+            const roleDoc = await Role.findOne({ name: 'CUS' });
             if (existingUser) {
-                return res.status(400).json({ message: 'Email đã được sử dụng.' });
+                return res.status(400).json({ message: 'Email already exists.' });
             }
             const hashedPassword = await bcrypt.hash(password, 10);
             const newUser = new User({
@@ -35,49 +38,45 @@ const AuthController = {
                 birthdate,
                 password: hashedPassword,
                 gender,
-                role: 'CUS',
+                role: roleDoc._id,
                 provider: 'local',
             });
             await newUser.save();
 
-            // Tạo document Customer tương ứng
+            // Create a Customer document for the new user
             await Customer.create({ user: newUser._id });
 
             const token = generateToken(newUser);
 
             res.status(201).json({
-                message: 'Đăng ký thành công.',
-                user: {
-                    ...newUser.toObject(),
-                    _id: newUser._id
-                },
+                message: 'Successful register.',
                 token,
             });
         } catch (error) {
             console.error('Error during registration:', error);
-            res.status(500).json({ message: 'Đăng ký thất bại. Vui lòng thử lại.' });
+            res.status(500).json({ message: 'Somthing went wrong!' });
         }
     },
 
     // Login user local
     login: async (req, res) => {
         if (!req.body) {
-            return res.status(400).json({ message: 'Vui lòng điền đầy đủ thông tin.' });
+            return res.status(400).json({ message: 'Please fill in all required information.' });
         }
         const { email, password } = req.body;
         if (!email || !password) {
-            return res.status(400).json({ message: 'Vui lòng điền đầy đủ thông tin.' });
+            return res.status(400).json({ message: 'Please fill in all required information.' });
         }
 
         try {
-            const user = await User.findOne({ email });
+            const user = await User.findOne({ email }).populate('role');
             if (!user) {
-                return res.status(404).json({ message: 'Người dùng không tồn tại.' });
+                return res.status(404).json({ message: 'User does not exist.' });
             }
 
             const isPasswordValid = await bcrypt.compare(password, user.password);
             if (!isPasswordValid) {
-                return res.status(401).json({ message: 'Mật khẩu không đúng.' });
+                return res.status(401).json({ message: 'Incorrect password.' });
             }
 
             user.lastLogin = new Date();
@@ -86,13 +85,18 @@ const AuthController = {
             const token = generateToken(user);
 
             res.status(200).json({
-                message: 'Đăng nhập thành công.',
-                user,
+                message: 'Login successful.',
                 token,
+                user: {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role.name,
+                }
             });
         } catch (error) {
             console.error('Error during login:', error);
-            res.status(500).json({ message: 'Đăng nhập thất bại. Vui lòng thử lại.' });
+            res.status(500).json({ message: 'Somthing went wrong!' });
         }
     },
 
@@ -102,33 +106,39 @@ const AuthController = {
         console.log('Google login request:', req.body);
 
         try {
-            let user = await User.findOne({ email, provider: 'google' });
+            const roleDoc = await Role.findOne({ name: 'CUS' });
+            let user = await User.findOne({ email, provider: 'google' }).populate('role');
+            // If user does not exist, create a new user with provider 'google'.
             if (!user) {
                 user = new User({
                     name,
                     email,
                     provider: 'google',
                     providerID,
-                    role: 'CUS',
+                    role: roleDoc._id,
                 });
                 await user.save();
-                // Tạo document Customer tương ứng nếu lần đầu đăng nhập bằng Google
                 await Customer.create({ user: user._id });
             }
-
+            console.log('User found or created:', user);
             user.lastLogin = new Date();
             await user.save();
 
             const token = generateToken(user);
 
             res.status(200).json({
-                message: 'Đăng nhập thành công.',
-                user,
+                message: 'Login successful.',
                 token,
+                user: {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role.name,
+                }
             });
         } catch (error) {
             console.error('Error during Google login:', error);
-            res.status(500).json({ message: 'Đăng nhập thất bại. Vui lòng thử lại.' });
+            res.status(500).json({ message: 'Somthing went wrong!' });
         }
     }
 

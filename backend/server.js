@@ -1,11 +1,11 @@
 const dotenv = require("dotenv");
-
 dotenv.config();
 
 const express = require("express");
 const cors = require("cors");
 const { connect } = require("./config/db.config.js");
 
+const RoleRoute = require("./routes/RoleRoute.js");
 const CustomerRoute = require("./routes/CustomerRoute.js");
 const OrderRoute = require("./routes/OrderRoute.js");
 const CartRoute = require("./routes/CartRoute.js");
@@ -13,6 +13,7 @@ const AuthRoute = require("./routes/AuthRoute.js");
 const PaymentRoute = require("./routes/PaymentRoute.js");
 const shippingRateRoute = require("./routes/ShippingRateRoute.js");
 connect();
+const { protect, checkPermission } = require("./midleware/AuthMiddleware.js");
 
 const app = express();
 
@@ -30,10 +31,11 @@ app.get("/", (req, res) => {
     res.json({ message: "Welcom to Techzone application." });
 });
 
-app.use('/api/customers', CustomerRoute);
+app.use('/api/auth', AuthRoute);
+app.use('/api/roles', protect, checkPermission(["AD"], "MANAGE_ROLES"), RoleRoute);
+app.use('/api/customers', protect, CustomerRoute);
 app.use('/api/orders', OrderRoute);
 app.use('/api/carts', CartRoute);
-app.use('/api/auth', AuthRoute);
 app.use('/api/payments', PaymentRoute);
 app.use('/api/shipping-rate', shippingRateRoute);
 

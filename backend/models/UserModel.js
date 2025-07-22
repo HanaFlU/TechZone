@@ -25,9 +25,9 @@ const userSchema = new mongoose.Schema(
             type: String,
         },
         role: {
-            type: String,
-            enum: ['CUS', 'AD'],
-            default: 'CUS',
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Role',
+            required: true,
         },
         provider: { //for google login
             type: String,

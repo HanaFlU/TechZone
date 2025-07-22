@@ -4,9 +4,13 @@ const Customer = require('../models/CustomerModel.js');
 
 const CartController = {
     findAll: async (req, res) => {
-        Cart.find()
-            .then((data) => res.status(200).json(data))
-            .catch((err) => res.status(500).json(err.message))
+        try {
+            const data = await Cart.find();
+            res.status(200).json(data);
+            return;
+        } catch (err) {
+            res.status(500).json({ message: err.message });
+        }
     },
     getCartByUserId: async (req, res) => {
         try {
