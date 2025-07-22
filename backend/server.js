@@ -34,10 +34,10 @@ app.get("/", (req, res) => {
 app.use('/api/auth', AuthRoute);
 app.use('/api/roles', protect, checkPermission(["AD"], "MANAGE_ROLES"), RoleRoute);
 app.use('/api/customers', protect, CustomerRoute);
-app.use('/api/orders', OrderRoute);
-app.use('/api/carts', CartRoute);
-app.use('/api/payments', PaymentRoute);
-app.use('/api/shipping-rate', shippingRateRoute);
+app.use('/api/orders', protect, OrderRoute);
+app.use('/api/carts', protect, CartRoute);
+app.use('/api/payments', protect, PaymentRoute);
+app.use('/api/shipping-rate', protect, shippingRateRoute);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

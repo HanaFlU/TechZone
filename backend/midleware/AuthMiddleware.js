@@ -27,7 +27,13 @@ const protect = (req, res, next) => {
 };
 
 const checkPermission = (roles = [], permission = "") => {
+    // If path is get product, don't need to check permission
     return async (req, res, next) => {
+        const path = req.path;
+        if (path === '/api/products') {
+            return next();
+        }
+
         const userId = req.user.id;
         const user = await User.findById(userId).populate('role');
         if (!user || !user.role) {

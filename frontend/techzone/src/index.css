@@ -9,10 +9,16 @@
 @layer base{
   html{
     font-family: var(--font-display);
+    font-size: 16px;
+    line-height: 1.5;
+    margin: 0;
+    padding: 0;
+    height: 100%;
   }
   body{
     background-color: #F6F6F6;
     overflow-x: hidden;
+    height: 100%;
   }
 }
 @layer components {
