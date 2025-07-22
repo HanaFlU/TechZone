@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
-import CustomerService from '../../services/CustomerService';
+import CustomerService from '../../../services/CustomerService';
 import { PlusIcon, TrashIcon, PencilIcon } from '@heroicons/react/24/outline';
-import Button from '../../components/button/Button';
+import Button from '../../../components/button/Button';
 
 const AddressesPage = () => {
   const navigate = useNavigate();

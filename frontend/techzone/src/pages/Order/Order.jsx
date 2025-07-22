@@ -4,7 +4,7 @@ import OrderService from '../../services/OrderService';
 import CustomerService from '../../services/CustomerService';
 import PaymentService from '../../services/PaymentService';
 import ShippingService from '../../services/ShippingRate';
-import AddressForm from '../User/AddressForm';
+import AddressForm from '../User/Address/AddressForm';
 
 import Breadcrumb from '../../components/Breadcrumb';
 import Button from '../../components/button/Button';

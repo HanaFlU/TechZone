@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
-import CustomerService from '../../services/CustomerService';
-import Input from '../../components/Input/Input';
-import Button from '../../components/button/Button';
-import Notification from '../../components/button/Notification';
-import AddressSelect from '../../components/Input/AddressSelect';
-import zipCodesData from '../../data/hanhchinhvn/zip_code.json';
-import useNotification from '../../hooks/useNotification';
+import CustomerService from '../../../services/CustomerService';
+import Input from '../../../components/Input/Input';
+import Button from '../../../components/button/Button';
+import Notification from '../../../components/button/Notification';
+import AddressSelect from '../../../components/Input/AddressSelect';
+import zipCodesData from '../../../data/hanhchinhvn/zip_code.json';
+import useNotification from '../../../hooks/useNotification';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 
 const AddressForm = ({

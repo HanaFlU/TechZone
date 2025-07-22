@@ -36,9 +36,27 @@ const orderSchema = new mongoose.Schema(
             enum: ["PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"],
             default: "PENDING",
         },
+        statusHistory: [
+            {
+                status: {
+                    type: String,
+                    enum: ['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'],
+                    // required: true
+                },
+                timestamp: {
+                    type: Date,
+                    default: Date.now
+                },
+            }
+        ],
         shippingAddress: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Address",
+            required: true,
+        },
+        shippingFee: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "ShippingRate",
             required: true,
         },
         paymentMethod: {

@@ -8,9 +8,9 @@ import Sidebar from './components/layout/admin/Sidebar';
 import HomePage from './pages/HomePage';
 import AccountLayout from './pages/User/AccountLayout';
 import ProfilePage from './pages/User/ProfilePage';
-import AddressesPage from './pages/User/AddressesPage';
-import AddressForm from './pages/User/AddressForm';
-import OrderHistoryPage from './pages/User/OrderHistoryPage';
+import AddressesPage from './pages/User/Address/AddressesPage';
+import AddressForm from './pages/User/Address/AddressForm';
+import OrderHistoryPage from './pages/User/Order/OrderHistoryPage';
 import CartPage from './pages/Cart';
 import OrderPage from './pages/Order/Order';
 
@@ -45,9 +45,9 @@ const App = () => {
 
   return (
     <AuthProvider>
-      <div className=''>
+      <div className='m-0 p-0 h-screen'>
         {!adminMode && <Navbar onAccountClick={() => setShowLoginModal(true)} setAdminMode={setAdminMode} />}
-        <main className='m-4'>
+        <main className='h-screen'>
           {adminMode ? (
             <Sidebar onVisitStore={() => {
               setAdminMode(false);

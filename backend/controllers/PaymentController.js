@@ -40,8 +40,8 @@ const PaymentController = {
                 });
             }
 
-            const shippingFee = 20000;
-            totalAmount += shippingFee;
+            const fee = 20000;
+            totalAmount += fee;
 
             const amountInMinorUnits = Math.round(totalAmount);
 

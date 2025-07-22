@@ -33,15 +33,21 @@ const OrderController = {
             .then((data) => res.status(200).json(data))
             .catch((err) => res.status(500).json(err.message))
     },
+
     getOrderById: async (req, res) => {
         try {
             const orderId = req.params.id;
             const order = await Order.findById(orderId)
+                .populate({
+                    path: 'items.product',
+                    select: 'name images'
+                })
+                .populate('shippingAddress')
+                .populate('shippingFee');
             if (!order) {
                 return res.status(404).json({ message: 'Không tìm thấy đơn hàng.' });
             }
-
-            res.status(200).json(order);
+            res.status(200).json({ order: order });
         } catch (error) {
             console.error('Error fetching order:', error);
             res.status(500).json({ message: 'Lỗi server khi lấy đơn hàng.' });
@@ -164,7 +170,14 @@ const OrderController = {
                 return res.status(404).json({ message: 'Không tìm thấy khách hàng.' });
             }
             // Lấy tất cả order có customer = customerId
-            const orders = await Order.find({ customer: customerId });
+            const orders = await Order.find({ customer: customerId })
+                .populate({
+                    path: 'items.product',
+                    select: 'name images'
+                })
+                .populate('shippingAddress')
+                .populate('shippingFee')
+                .sort({ createdAt: -1 });
             res.status(200).json({
                 customer: {
                     _id: customer._id,

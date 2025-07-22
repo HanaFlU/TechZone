@@ -27,6 +27,7 @@
     "react-dom": "^19.1.0",
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.6.2",
+    "react-select": "^5.10.2",
     "tailwindcss": "^4.1.10"
   },
   "devDependencies": {
@@ -38,6 +39,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
+    "prettier": "^3.6.2",
     "vite": "^6.3.5"
   }
 }
