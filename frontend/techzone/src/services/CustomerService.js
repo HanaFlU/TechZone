@@ -5,24 +5,24 @@ class CustomerService {
     constructor(apiURL = `${import.meta.env.VITE_API_URL}/customers`) {
         this.api = createApiClient(apiURL);
     }
-    async getAccountInfo(userId) {
+    async addCustomer(customerData) {
         try {
-            console.log('CustomerService: Fetching account info for customer ID:', userId);
-            const response = await this.api.get(`/${userId}/account`);
+            console.log('CustomerService: Adding new customer with data:', customerData);
+            const response = await this.api.post('/', customerData);
             return response.data;
         } catch (error) {
-            console.error('CustomerService Error: Failed to fetch account info:', error.response ? error.response.data : error.message);
+            console.error('CustomerService Error: Failed to add customer:', error.response ? error.response.data : error.message);
             throw error;
         }
     }
 
-    async updateAccountInfo(userId, userData) {
+    async updateCustomer(userId, customerData) {
         try {
-            console.log('CustomerService: Updating account info for customer ID:', userId, 'Data:', userData);
-            const response = await this.api.put(`/${userId}/account`, userData);
+            console.log('StaffService: Updating account info for staff ID:', userId, 'Data:', customerData);
+            const response = await this.api.put(`/${userId}/account`, customerData);
             return response.data;
         } catch (error) {
-            console.error('CustomerService Error: Failed to update account info:', error.response ? error.response.data : error.message);
+            console.error('StaffService Error: Failed to update account info:', error.response ? error.response.data : error.message);
             throw error;
         }
     }
