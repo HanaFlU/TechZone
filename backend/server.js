@@ -13,7 +13,9 @@ const OrderRoute = require("./routes/OrderRoute.js");
 const CartRoute = require("./routes/CartRoute.js");
 const AuthRoute = require("./routes/AuthRoute.js");
 const PaymentRoute = require("./routes/PaymentRoute.js");
-const shippingRateRoute = require("./routes/ShippingRateRoute.js");
+const ShippingRateRoute = require("./routes/ShippingRateRoute.js");
+const UploadRoute = require("./routes/UploadRoute.js");
+const CategoryRoute = require("./routes/CategoryRoute.js");
 connect();
 const { protect, checkPermission } = require("./midleware/AuthMiddleware.js");
 
@@ -34,6 +36,7 @@ app.get("/", (req, res) => {
 });
 
 app.use('/api/auth', AuthRoute);
+app.use('/api/upload', UploadRoute);
 app.use('/api/roles', protect, checkPermission(["AD"], "MANAGE_ROLES"), RoleRoute);
 app.use('/api/users', protect, UserRoute);
 app.use('/api/customers', protect, CustomerRoute);
@@ -41,7 +44,8 @@ app.use('/api/staffs', protect, StaffRoute);
 app.use('/api/orders', protect, OrderRoute);
 app.use('/api/carts', protect, CartRoute);
 app.use('/api/payments', protect, PaymentRoute);
-app.use('/api/shipping-rate', protect, shippingRateRoute);
+app.use('/api/shipping-rate', protect, ShippingRateRoute);
+app.use('/api/categories', protect, CategoryRoute);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
@@ -53,6 +57,7 @@ app.use((req, res, next) => {
 
 // Error handler
 app.use((err, req, res, next) => {
+    console.error("Error:", err.message);
     console.error(err.stack);
     res.status(500).json({ message: "Lỗi server nội bộ." });
 });

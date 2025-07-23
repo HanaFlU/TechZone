@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Typography, Card, CardContent, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress, Alert } from '@mui/material';
-import OrderService from '../../services/OrderService';
+import OrderService from '../../../services/OrderService';
 
 const AdminCustomerOrderList = () => {
   const { customerId } = useParams();

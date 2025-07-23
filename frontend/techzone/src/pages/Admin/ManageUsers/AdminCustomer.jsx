@@ -5,7 +5,7 @@ import { AiOutlineEdit } from "react-icons/ai";
 import { IoEyeOutline } from "react-icons/io5";
 import { FaRegTrashCan } from "react-icons/fa6";
 import { useNavigate } from 'react-router-dom';
-import CustomerService from '../../services/CustomerService';
+import CustomerService from '../../../services/CustomerService';
 
 const CustomerAdmin = () => {
   const [customers, setCustomers] = useState([]);

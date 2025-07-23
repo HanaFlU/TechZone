@@ -8,9 +8,8 @@ import {
 import { FaUserPlus } from 'react-icons/fa';
 import { AiOutlineEdit } from 'react-icons/ai';
 import { FaRegTrashCan } from 'react-icons/fa6';
-import UserService from '../../services/UserService';
-import StaffService from '../../services/StaffService';
-import RoleService from '../../services/RoleService';
+import StaffService from '../../../services/StaffService';
+import RoleService from '../../../services/RoleService';
 
 const StaffAdmin = () => {
   const [staffs, setStaffs] = useState([]);
@@ -107,7 +106,7 @@ const StaffAdmin = () => {
 
   const handleAdd = async () => {
     const { name, email, phone, isActive, password, role } = addDialog.fields;
-    if (!name.trim() || !email.trim() || !password.trim() || !role) {
+    if (!name.trim() || !email.trim() || !password.trim() || !phone.trim() || !isActive || !role) {
       alert('Vui lòng điền đầy đủ thông tin.');
       return;
     }
