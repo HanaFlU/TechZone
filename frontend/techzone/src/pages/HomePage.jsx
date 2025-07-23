@@ -176,10 +176,10 @@ const HomePage = () => {
                             )}
                           </div>
                         )}
-                        <div className="mt-auto">
-                          <span className="block text-lg font-bold text-emerald-600 mb-1">{product.price?.toLocaleString('vi-VN')}₫</span>
-                          <button className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold py-2 px-4 rounded-lg transition-colors border border-emerald-200 w-full">Mua ngay</button>
+                        <div className="flex items-end gap-2 mb-2">
+                          <span className="text-lg font-bold text-emerald-600">{product.price?.toLocaleString('vi-VN')}₫</span>
                         </div>
+                        <button className="mt-auto bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold py-2 px-4 rounded-lg transition-colors border border-emerald-200">Mua ngay</button>
                       </div>
                     </div>
                   ))}
@@ -202,7 +202,7 @@ const HomePage = () => {
                 <div>Đang tải sản phẩm...</div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {filteredProducts.filter(product => product.category === '6880f8f65c48a7e4f61d311d' || (product.category && product.category._id === '6880f8f65c48a7e4f61d311d')).slice(0, 4).map(product => (
+                  {filteredProducts.slice(0, 4).map(product => (
                     <div key={product._id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow flex flex-col overflow-hidden">
                       <div className="relative bg-gray-100 flex items-center justify-center" style={{height:208}}>
                         <img src={product.image} alt={product.name} className="object-contain h-52 w-full" />
@@ -214,10 +214,10 @@ const HomePage = () => {
                           WebkitLineClamp: 2,
                           WebkitBoxOrient: 'vertical'
                         }}>{product.name}</h3>
-                        <div className="mt-auto">
-                          <span className="block text-lg font-bold text-emerald-600 mb-1">{product.price?.toLocaleString('vi-VN')}₫</span>
-                          <button className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold py-2 px-4 rounded-lg transition-colors border border-emerald-200 w-full">Mua ngay</button>
+                        <div className="flex items-end gap-2 mb-2">
+                          <span className="text-lg font-bold text-emerald-600">{product.price?.toLocaleString('vi-VN')}₫</span>
                         </div>
+                        <button className="mt-auto bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold py-2 px-4 rounded-lg transition-colors border border-emerald-200">Mua ngay</button>
                       </div>
                     </div>
                   ))}
@@ -240,7 +240,7 @@ const HomePage = () => {
                 <div>Đang tải sản phẩm...</div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {filteredProducts.filter(product => product.category === '6880f8f65c48a7e4f61d3125' || (product.category && product.category._id === '6880f8f65c48a7e4f61d3125')).slice(0, 4).map(product => (
+                  {filteredProducts.slice(0, 4).map(product => (
                     <div key={product._id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow flex flex-col overflow-hidden">
                       <div className="relative bg-gray-100 flex items-center justify-center" style={{height:208}}>
                         <img src={product.image} alt={product.name} className="object-contain h-52 w-full" />
@@ -252,10 +252,10 @@ const HomePage = () => {
                           WebkitLineClamp: 2,
                           WebkitBoxOrient: 'vertical'
                         }}>{product.name}</h3>
-                        <div className="mt-auto">
-                          <span className="block text-lg font-bold text-emerald-600 mb-1">{product.price?.toLocaleString('vi-VN')}₫</span>
-                          <button className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold py-2 px-4 rounded-lg transition-colors border border-emerald-200 w-full">Mua ngay</button>
+                        <div className="flex items-end gap-2 mb-2">
+                          <span className="text-lg font-bold text-emerald-600">{product.price?.toLocaleString('vi-VN')}₫</span>
                         </div>
+                        <button className="mt-auto bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold py-2 px-4 rounded-lg transition-colors border border-emerald-200">Mua ngay</button>
                       </div>
                     </div>
                   ))}
@@ -278,7 +278,7 @@ const HomePage = () => {
                 <div>Đang tải sản phẩm...</div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {filteredProducts.filter(product => product.category === '6880f8f65c48a7e4f61d3128' || (product.category && product.category._id === '6880f8f65c48a7e4f61d3128')).slice(0, 4).map(product => (
+                  {filteredProducts.slice(0, 4).map(product => (
                     <div key={product._id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow flex flex-col overflow-hidden">
                       <div className="relative bg-gray-100 flex items-center justify-center" style={{height:208}}>
                         <img src={product.image} alt={product.name} className="object-contain h-52 w-full" />
@@ -290,10 +290,10 @@ const HomePage = () => {
                           WebkitLineClamp: 2,
                           WebkitBoxOrient: 'vertical'
                         }}>{product.name}</h3>
-                        <div className="mt-auto">
-                          <span className="block text-lg font-bold text-emerald-600 mb-1">{product.price?.toLocaleString('vi-VN')}₫</span>
-                          <button className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold py-2 px-4 rounded-lg transition-colors border border-emerald-200 w-full">Mua ngay</button>
+                        <div className="flex items-end gap-2 mb-2">
+                          <span className="text-lg font-bold text-emerald-600">{product.price?.toLocaleString('vi-VN')}₫</span>
                         </div>
+                        <button className="mt-auto bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold py-2 px-4 rounded-lg transition-colors border border-emerald-200">Mua ngay</button>
                       </div>
                     </div>
                   ))}
@@ -341,10 +341,10 @@ const HomePage = () => {
                               WebkitLineClamp: 2,
                               WebkitBoxOrient: 'vertical'
                             }}>{product.name}</h3>
-                            <div className="mt-auto">
-                              <span className="block text-lg font-bold text-emerald-600 mb-1">{product.price?.toLocaleString('vi-VN')}₫</span>
-                              <button className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold py-2 px-4 rounded-lg transition-colors border border-emerald-200 w-full">Mua ngay</button>
+                            <div className="flex items-end gap-2 mb-2">
+                              <span className="text-lg font-bold text-emerald-600">{product.price?.toLocaleString('vi-VN')}₫</span>
                             </div>
+                            <button className="mt-auto bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold py-2 px-4 rounded-lg transition-colors border border-emerald-200">Mua ngay</button>
                           </div>
                         </div>
                       ))}
