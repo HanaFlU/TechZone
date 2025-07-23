@@ -6,7 +6,9 @@ const cors = require("cors");
 const { connect } = require("./config/db.config.js");
 
 const RoleRoute = require("./routes/RoleRoute.js");
+const UserRoute = require("./routes/UserRoute.js");
 const CustomerRoute = require("./routes/CustomerRoute.js");
+const StaffRoute = require("./routes/StaffRoute.js");
 const OrderRoute = require("./routes/OrderRoute.js");
 const CartRoute = require("./routes/CartRoute.js");
 const AuthRoute = require("./routes/AuthRoute.js");
@@ -33,7 +35,9 @@ app.get("/", (req, res) => {
 
 app.use('/api/auth', AuthRoute);
 app.use('/api/roles', protect, checkPermission(["AD"], "MANAGE_ROLES"), RoleRoute);
+app.use('/api/users', protect, UserRoute);
 app.use('/api/customers', protect, CustomerRoute);
+app.use('/api/staffs', protect, StaffRoute);
 app.use('/api/orders', protect, OrderRoute);
 app.use('/api/carts', protect, CartRoute);
 app.use('/api/payments', protect, PaymentRoute);
