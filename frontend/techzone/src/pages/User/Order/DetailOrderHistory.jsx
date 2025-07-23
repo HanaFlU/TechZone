@@ -1,6 +1,5 @@
 import React from 'react';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
-import { CheckCircleIcon } from '@heroicons/react/24/solid';
+import { ArrowLeftIcon, CheckBadgeIcon } from '@heroicons/react/24/solid';
 
 const DetailOrder = ({
   selectedOrder,
@@ -40,7 +39,7 @@ const DetailOrder = ({
       </div>
 
       {/* Thông tin địa chỉ giao hàng và Lịch sử trạng thái */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-2 gap-y-6">
         <div>
           <p className="text-xl font-semibold mb-3">Địa chỉ giao hàng</p>
           <div className="space-y-2 text-gray-700 text-sm">
@@ -55,86 +54,86 @@ const DetailOrder = ({
             </p>
           </div>
         </div>
+        {/* Lịch sử trạng thái */}
         <div>
           <p className="text-xl font-semibold mb-3">Lịch sử trạng thái</p>
           {selectedOrder.statusHistory && selectedOrder.statusHistory.length > 0 ? (
-              <ol className="relative ml-4">
+            <div className="relative pl-2">
+              <div className="absolute left-2 mt-1 top-0 bottom-0 w-0.5 bg-gray-100"></div>
               {[...selectedOrder.statusHistory].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).map((s, idx) => (
-                  <li key={idx} className="grid grid-cols-[auto_1fr] gap-x-4 items-start pb-4">
-                      <div className="flex flex-col items-center">
-                          {/* Dấu chấm/icon */}
-                          <div className="flex-shrink-0">
-                              <CheckCircleIcon className="w-5 h-5 text-emerald-500 bg-white rounded-full" />
-                          </div>
-                          {/* Đường kẻ (nếu không phải item cuối cùng) */}
-                          {idx < selectedOrder.statusHistory.length - 1 && (
-                              <div className="w-0.5 bg-gray-200 flex-grow mt-2 -mb-2"></div>
-                          )}
-                      </div>
-                      {/* Cột 2: Thời gian và nội dung trạng thái */}
-                      <div>
-                          <time className="block text-sm font-normal leading-none text-gray-500 mb-1">
-                              {formatTime(s.timestamp)} {formatDateOnly(s.timestamp)}
-                          </time>
-                          <h4 className="text-base font-semibold text-gray-900">
-                              {getStatusDisplayName(s.status)}
-                          </h4>
-                          {s.status === "DELIVERED" && <p className="text-sm text-gray-600">Giao hàng thành công!</p>}
-                          {s.status === "SHIPPED" && <p className="text-sm text-gray-600">Đang giao hàng</p>}
-                          {s.status === "CONFIRMED" && <p className="text-sm text-gray-600">Đơn hàng đã được xác nhận thành công! Đang trong quá trình vận chuyển</p>}
-                          {s.status === "PENDING" && <p className="text-sm text-gray-600">Đơn hàng đã đặt thành công! Vui lòng chờ xác nhận đơn hàng từ cửa hàng.</p>}
-                      </div>
-                  </li>
+                <div key={idx} className="relative mb-4 last:mb-0 flex items-start">
+                  <div className="absolute -left-3 p-0.5 rounded-full">
+                    <CheckBadgeIcon className="w-5 h-5 text-light-green" />
+                  </div>
+
+                  {/* Nội dung trạng thái */}
+                  <div className="ml-4 flex-grow">
+                    <div className="flex items-center mb-1">
+                      <time className="block text-sm font-normal leading-none whitespace-nowrap mr-2">
+                        {formatTime(s.timestamp)} {formatDateOnly(s.timestamp)}
+                      </time>
+                      <h4 className={`text-base font-semibold ${s.status === "DELIVERED" ? "text-light-green" : "text-gray-700"}`}>
+                        {getStatusDisplayName(s.status)}
+                      </h4>
+                    </div>
+                    {s.status === "DELIVERED" && <p className="text-sm text-secondary">Giao hàng thành công!</p>}
+                    {s.status === "SHIPPED" && <p className="text-sm text-secondary">Đang giao hàng</p>}
+                    {s.status === "CONFIRMED" && <p className="text-sm text-secondary">Đơn hàng đã được xác nhận thành công! Đang trong quá trình vận chuyển</p>}
+                    {s.status === "PENDING" && <p className="text-sm text-secondary">Đơn hàng đã đặt thành công! Vui lòng chờ xác nhận đơn hàng từ cửa hàng.</p>}
+                  </div>
+                </div>
               ))}
-              </ol>
+            </div>
           ) : (
-              <p className="text-gray-600">Không có lịch sử trạng thái để hiển thị.</p>
+            <p className="text-gray-600">Không có lịch sử trạng thái để hiển thị.</p>
           )}
         </div>
       </div>
 
-        {/* Danh sách sản phẩm */}
-        <div className="mb-6">
-            <p className="text-xl font-semibold mb-3 text-gray-800">Danh sách sản phẩm</p>
-            {selectedOrder.items?.map((item, idx) => (
-                <div key={idx} className="flex items-center py-3 border-t border-gray-100 first:border-t-0">
-                    <div className="w-16 h-16 bg-gray-100 rounded-md overflow-hidden flex items-center justify-center mr-4">
-                        <img
-                        src={item.product?.images && item.product.images.length > 0 ? item.product.images[0] : "/path/to/default-product-image.png"}
-                        alt={item.product?.name || "Sản phẩm"}
-                        className="object-cover w-full h-full"
-                        />
-                    </div>
-                    <div className="flex-grow">
-                        <p className="font-medium text-gray-800">{item.product?.name || "Sản phẩm không xác định"}</p>
-                        <p className="text-sm text-gray-500">Phân loại: {item.product?.variants?.map(v => typeof v === 'object' ? v.value : v).join(', ') || 'N/A'}</p>
-                        <p className="text-sm text-gray-600">Số lượng: {item.quantity}</p>
-                    </div>
-                    <div className="text-right font-semibold text-gray-800">
-                        {formatCurrency(item.priceAtOrder)}
-                    </div>
-                </div>
-            ))}
-        </div>
+      {/* Danh sách sản phẩm */}
+      <div>
+        <p className="text-xl font-semibold mb-3 text-gray-800">Danh sách sản phẩm</p>
+        {selectedOrder.items?.map((item, idx) => (
+          <div key={idx} className="flex items-center py-2 border-t border-gray-100 first:border-t-0">
+            <div className="w-16 h-16 bg-gray-100 rounded-md flex-shrink-0 overflow-hidden flex items-center justify-center mr-4">
+                <img
+                src={item.product?.image || "/default-product-image.png"}
+                alt={item.product?.name || "Tên sản phẩm"}
+                className="object-cover w-full h-full"
+                />
+            </div>
+            <div className="flex-grow">
+                <p className="font-medium text-gray-800">{item.product?.name || "Sản phẩm không xác định"}</p>
+                <p className="text-sm text-gray-500">Phân loại: {item.product?.variants?.map(v => typeof v === 'object' ? v.value : v).join(', ') || 'N/A'}</p>
+                <p className="text-sm text-gray-600">Số lượng: {item.quantity}</p>
+            </div>
+            <div className="text-right font-semibold text-gray-800">
+                {formatCurrency(item.priceAtOrder)}
+            </div>
+          </div>
+        ))}
+      </div>
 
-        {/* Tóm tắt thanh toán */}
-        <div className="border-t border-gray-200 pt-4 mt-6">
-            <div className="flex justify-between text-gray-700 mb-2">
-                <span>Tổng tiền hàng:</span>
-                <span>{formatCurrency(selectedOrder.totalAmount - (selectedOrder.shippingFee?.amount || selectedOrder.shippingFee || 0))}</span>
-            </div>
-            <div className="flex justify-between text-gray-700 mb-2">
-                <span>Phí vận chuyển:</span>
-                <span>{formatCurrency(selectedOrder.shippingFee?.amount || selectedOrder.shippingFee || 0)}</span>
-            </div>
-            <div className="flex justify-between text-lg font-bold text-emerald-600">
-                <span>Thành tiền:</span>
-                <span>{formatCurrency(selectedOrder.totalAmount)}</span>
-            </div>
-            <div className="flex justify-end mt-4 text-sm text-gray-600">
-                <span>Phương thức thanh toán: <span className="font-semibold text-gray-800">{getPaymentMethodDisplayName(selectedOrder.paymentMethod)}</span></span>
-            </div>
-        </div>
+      {/* Tóm tắt thanh toán */}
+      <div className="border-t border-gray-200 pt-4 text-secondary mb-2 pl-[34vw]">
+          <div className="flex justify-between">
+              <span>Tổng tiền hàng</span>
+              <span>{formatCurrency(selectedOrder.totalAmount - (selectedOrder.shippingFee?.amount || selectedOrder.shippingFee || 0))}</span>
+          </div>
+          <div className="flex justify-between ">
+              <span>Phí vận chuyển</span>
+              <span>{formatCurrency(selectedOrder.shippingFee?.amount || selectedOrder.shippingFee || 0)}</span>
+          </div>
+          <div className="flex justify-between">
+              <span>Thành tiền</span>
+              <span className="text-xl font-bold text-emerald-600">{formatCurrency(selectedOrder.totalAmount)}</span>
+          </div>
+          
+      </div>
+      <div className="flex pl-[34vw] justify-between border-t pt-2 text-secondary border-gray-200">
+              <span>Phương thức thanh toán</span>
+              <span className="font-semibold text-gray-800">{getPaymentMethodDisplayName(selectedOrder.paymentMethod)}</span>
+          </div>
     </div>
   );
 };

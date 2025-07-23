@@ -93,166 +93,148 @@ const OrderForm = () => {
   useEffect(() => {
     const fetchShippingFee = async () => {
       const total = calculateTotal();
+      const token = localStorage.getItem('token');
       try {
-        const fee = await ShippingService.getShippingFee(total);
+        const fee = await ShippingService.getShippingFee(total, token);
         setShippingFee(fee);
       } catch {
-        setShippingFee(20000); // fallback
+        setShippingFee(50000);
       }
     };
     if (cartData && cartData.items) fetchShippingFee();
   }, [cartData]);
+
   const handlePlaceOrder = useCallback(async () => {
-        if (!currentCustomerId) {
-            displayNotification("Thiếu thông tin người dùng để đặt hàng.", "error");
-            return;
-        }
-        if (!selectedAddressId) {
-            displayNotification("Vui lòng chọn địa chỉ giao hàng.", "warning");
-            return;
-        }
-        if (!paymentMethod) {
-            displayNotification("Vui lòng chọn phương thức thanh toán.", "warning");
-            return;
-        }
-        if (!cartData || !cartData.items || cartData.items.length === 0) {
-            displayNotification("Giỏ hàng trống! Không thể đặt hàng.", "warning");
-            return;
+    if (!currentCustomerId) {
+      displayNotification("Thiếu thông tin người dùng để đặt hàng.", "error");
+      return;
+    }
+    if (!selectedAddressId) {
+      displayNotification("Vui lòng chọn địa chỉ giao hàng.", "warning");
+      return;
+    }
+    if (!paymentMethod) {
+      displayNotification("Vui lòng chọn phương thức thanh toán.", "warning");
+      return;
+    }
+
+    const checkoutDataString = localStorage.getItem('checkoutData');
+    if (!checkoutDataString) {
+      displayNotification("Không tìm thấy dữ liệu thanh toán. Vui lòng quay lại giỏ hàng.", "error");
+      return;
+    }
+    const checkoutData = JSON.parse(checkoutDataString);
+
+    if (!checkoutData || !checkoutData.items || checkoutData.items.length === 0) {
+      displayNotification("Giỏ hàng trống hoặc dữ liệu thanh toán không hợp lệ! Không thể đặt hàng.", "warning");
+      return;
+    }
+    setPlacingOrder(true);
+    try {
+      const finalTotalAmount = calculateTotal() + shippingFee;
+      const detailedOrderItems = checkoutData.items.map(item => ({
+        productId: item.product._id,
+        quantity: item.quantity,
+        priceAtOrder: item.product.price
+      }));
+
+      let stripeTransactionId = null;
+      let finalPaymentStatus = 'PENDING';
+      if (paymentMethod === 'CREDIT_CARD') {
+        if (!stripe || !elements) {
+          displayNotification("Stripe chưa sẵn sàng. Vui lòng thử lại.", "error");
+          setPlacingOrder(false);
+          return;
         }
 
-        setPlacingOrder(true);
-        displayNotification('', '');
+        const cardElement = elements.getElement(CardElement);
+        if (!cardElement) {
+          displayNotification("Không tìm thấy thông tin thẻ tín dụng. Vui lòng nhập lại.", "error");
+          setPlacingOrder(false);
+          return;
+        }
 
         try {
-            if (paymentMethod === 'COD') {
-                const orderPayload = {
-                    customerId: currentCustomerId,
-                    shippingAddressId: selectedAddressId,
-                    paymentMethod: paymentMethod,
-                };
-                const response = await OrderService.createOrder(orderPayload);
+          // Tạo paymentIntent trên Stripe
+          const paymentIntentResponse = await PaymentService.createStripePaymentIntent({
+            customerId: currentCustomerId,
+            shippingAddressId: selectedAddressId,
+            amount: finalTotalAmount,
+            currency: 'VND'
+          });
 
-                if (response.message === 'Tạo đơn hàng thành công!' && response.order) {
-                    localStorage.removeItem('checkoutData');
-                    setCartData(null);
-                    displayNotification('Đặt hàng thành công! Đơn hàng sẽ được giao trong thời gian sớm nhất.', 'success');
-                    setTimeout(() => {
-                        navigate('/');
-                    }, 3000);
-                } else {
-                    displayNotification(response.message || 'Đặt hàng thất bại!', 'error');
-                }
-
-            } else if (paymentMethod === 'CREDIT_CARD') {
-                if (!stripe || !elements) {
-                    displayNotification("Stripe chưa sẵn sàng. Vui lòng thử lại.", "error");
-                    setPlacingOrder(false);
-                    return;
-                }
-
-                const cardElement = elements.getElement(CardElement);
-                if (!cardElement) {
-                    displayNotification("Không tìm thấy thông tin thẻ tín dụng. Vui lòng nhập lại.", "error");
-                    setPlacingOrder(false);
-                    return;
-                }
-
-                const detailedOrderItems = cartData.items.map(item => ({
-                    productId: item.product._id,
-                    quantity: item.quantity,
-                    priceAtOrder: item.product.price
-                }));
-                const finalTotalAmount = calculateTotal() + shippingFee;
-
-                let stripeTransactionId = null;
-                let finalPaymentStatus = 'FAILED';
-
-                try {
-                    // Tạo paymentIntent trên Stripe
-                    const paymentIntentResponse = await PaymentService.createStripePaymentIntent({
-                        customerId: currentCustomerId,
-                        shippingAddressId: selectedAddressId,
-                    });
-
-                    if (!paymentIntentResponse.clientSecret) {
-                        displayNotification(paymentIntentResponse.message || 'Không thể tạo phiên thanh toán Stripe.', 'error');
-                        setPlacingOrder(false);
-                        return;
-                    }
-
-                    // Thanh toán trên frontend với clientSecret
-                    const { paymentIntent, error: confirmError } = await stripe.confirmCardPayment(
-                        paymentIntentResponse.clientSecret,
-                        {
-                            payment_method: {
-                                card: cardElement,
-                                billing_details: {
-                                    name: "Tên khách hàng",
-                                    email: "email@example.com",
-                                },
-                            },
-                        }
-                    );
-
-                    if (confirmError) {
-                        finalPaymentStatus = 'FAILED';
-                        stripeTransactionId = confirmError.payment_intent ? confirmError.payment_intent.id : null;
-                        displayNotification(`Thanh toán thất bại: ${confirmError.message}`, 'error');
-                    } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-                        finalPaymentStatus = 'SUCCESSED';
-                        stripeTransactionId = paymentIntent.id;
-                        displayNotification('Thanh toán thành công! Đang hoàn tất đơn hàng...', 'success');
-                    } else {
-                        finalPaymentStatus = 'FAILED';
-                        stripeTransactionId = paymentIntent ? paymentIntent.id : null;
-                    }
-                } catch (stripeProcessingError) {
-                    finalPaymentStatus = 'FAILED';
-                    displayNotification(`Lỗi xử lý thanh toán Stripe: ${stripeProcessingError.message}`, 'error');
-                }
-
-                try {
-                    // Tạo Order
-                    const orderCreationPayload = {
-                        customerId: currentCustomerId,
-                        shippingAddressId: selectedAddressId,
-                        paymentMethod: paymentMethod,
-                        orderItems: detailedOrderItems,
-                        totalAmount: finalTotalAmount,
-                        transactionId: stripeTransactionId,
-                        paymentStatus: finalPaymentStatus,
-                    };
-                    const orderResponse = await OrderService.createOrder(orderCreationPayload);
-
-                    if (orderResponse.order) {
-                        localStorage.removeItem('checkoutData');
-                        setCartData(null);
-                        const finalMessage = finalPaymentStatus === 'SUCCESSED' ?
-                            'Thanh toán thành công và đơn hàng đã được tạo!' :
-                            'Thanh toán thất bại, đơn hàng đã được ghi nhận với trạng thái FAILED.';
-                        displayNotification(finalMessage, finalPaymentStatus === 'SUCCESSED' ? 'success' : 'error');
-                        setTimeout(() => {
-                            navigate('/');
-                        }, 3000);
-                    } else {
-                        displayNotification(orderResponse.message || 'Lỗi khi tạo đơn hàng sau thanh toán.', 'error');
-                    }
-                } catch (orderCreationError) {
-                    displayNotification(`Lỗi khi tạo đơn hàng trên server: ${orderCreationError.response?.data?.message || orderCreationError.message}`, 'error');
-                }
-
-            } else if (paymentMethod === 'E_WALLET') {
-                 displayNotification("Chức năng ví điện tử đang được phát triển.", "info");
-            }
-
-        } catch (err) {
-            const errorMessage = err.response?.data?.message || err.message || 'Đã xảy ra lỗi khi đặt hàng/thanh toán.';
-            displayNotification(errorMessage, 'error');
-        } finally {
+          if (!paymentIntentResponse.clientSecret) {
+            displayNotification(paymentIntentResponse.message || 'Không thể tạo phiên thanh toán Stripe.', 'error');
             setPlacingOrder(false);
-        }
-    }, [cartData, currentCustomerId, selectedAddressId, paymentMethod, displayNotification, navigate, stripe, elements, calculateTotal, shippingFee]);
+            return;
+          }
 
+            // Thanh toán trên frontend với clientSecret
+          const { paymentIntent, error: confirmError } = await stripe.confirmCardPayment(
+            paymentIntentResponse.clientSecret,
+            {
+              payment_method: {
+                card: cardElement,
+                billing_details: {
+                  name: "Tên khách hàng",
+                  email: "email@example.com",
+                },
+              },
+            }
+          );
+
+          if (confirmError) {
+            finalPaymentStatus = 'FAILED';
+            stripeTransactionId = confirmError.payment_intent ? confirmError.payment_intent.id : null;
+            displayNotification(`Thanh toán thất bại: ${confirmError.message}`, 'error');
+          } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+            finalPaymentStatus = 'SUCCESSED';
+            stripeTransactionId = paymentIntent.id;
+            displayNotification('Thanh toán thành công! Đang hoàn tất đơn hàng...', 'success');
+          } else {
+            finalPaymentStatus = 'FAILED';
+            stripeTransactionId = paymentIntent ? paymentIntent.id : null;
+          }
+        } catch (stripeProcessingError) {
+          finalPaymentStatus = 'FAILED';
+          displayNotification(`Lỗi xử lý thanh toán Stripe: ${stripeProcessingError.message}`, 'error');
+        }
+      }
+      // Tạo Order
+      const orderCreationPayload = {
+          customerId: currentCustomerId,
+          shippingAddressId: selectedAddressId,
+          paymentMethod: paymentMethod,
+          orderItems: detailedOrderItems,
+          totalAmount: finalTotalAmount,
+          shippingFee: shippingFee,
+          transactionId: stripeTransactionId,
+          paymentStatus: finalPaymentStatus,
+      };
+      
+      const orderResponse = await OrderService.createOrder(orderCreationPayload);
+      if (orderResponse.order) {
+        localStorage.removeItem('checkoutData');
+        
+        const finalMessage = finalPaymentStatus === 'SUCCESSED' || paymentMethod === 'COD' ? // Thông báo thành công nếu thanh toán thành công hoặc là COD
+            'Đơn hàng đã được tạo thành công!' :
+            'Đơn hàng đã được ghi nhận nhưng thanh toán thất bại.';
+        displayNotification(finalMessage, (finalPaymentStatus === 'SUCCESSED' || paymentMethod === 'COD') ? 'success' : 'error');
+        setTimeout(() => {
+            navigate('/');
+        }, 4000);
+      } else {
+        displayNotification(orderResponse.message || 'Lỗi khi tạo đơn hàng.', 'error');
+      }
+
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || err.message || 'Đã xảy ra lỗi khi đặt hàng/thanh toán.';
+      displayNotification(errorMessage, 'error');
+    } finally {
+      setPlacingOrder(false);
+    }
+  }, [cartData, currentCustomerId, selectedAddressId, paymentMethod, displayNotification, navigate, stripe, elements, calculateTotal, shippingFee, setCartData ]); // Thêm calculateTotal và shippingFee vào dependency array
+    
   // Hàm reload địa chỉ sau khi thêm mới thành công
   const reloadAddresses = useCallback(async () => {
     if (currentCustomerId) {
@@ -495,9 +477,9 @@ const OrderForm = () => {
                 {cartData.items.map((item, index) => (
                   <div key={index} className="flex items-center space-x-4">
                     <div className="w-20 h-20 bg-gray-100 rounded-md flex items-center justify-center flex-shrink-0">
-                      {item.product?.images?.[0] ? (
+                      {item.product?.image ? (
                         <img
-                          src={item.product.images[0]}
+                          src={item.product.image}
                           alt={item.product?.name || 'Sản phẩm'}
                           className="w-full h-full object-cover"
                         />

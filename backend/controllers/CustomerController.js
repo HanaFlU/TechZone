@@ -1,6 +1,9 @@
 const Address = require('../models/AddressModel.js');
 const Customer = require('../models/CustomerModel.js');
 const User = require('../models/UserModel.js');
+const Role = require('../models/RoleModel.js');
+const bcrypt = require('bcrypt');
+
 const CustomerController = {
     findAll: async (req, res) => {
         try {
@@ -11,7 +14,37 @@ const CustomerController = {
             return res.status(500).json({ message: 'Lỗi khi lấy danh sách khách hàng.' });
         }
     },
-
+    createCustomer: async (req, res) => {
+        try {
+            const { name, email, phone, password } = req.body;
+            if (!name || !email || !phone || !password) {
+                return res.status(400).json({ message: 'Vui lòng cung cấp đầy đủ thông tin.' });
+            }
+            const existingUser = await User.findOne({ email });
+            if (existingUser) {
+                return res.status(400).json({ message: 'Email đã được sử dụng.' });
+            }
+            const roleDoc = await Role.findOne({ name: 'CUS' });
+            const hashedPassword = await bcrypt.hash(password, 10);
+            const newUser = new User({
+                name,
+                email,
+                phone,
+                password: hashedPassword,
+                role: roleDoc._id,
+                provider: 'local',
+            });
+            await newUser.save();
+            const newCustomer = new Customer({
+                user: newUser._id,
+            });
+            await newCustomer.save();
+            res.status(201).json({ message: 'Khách hàng đã được tạo thành công.', customer: newCustomer });
+        } catch (error) {
+            console.error('Error creating customer:', error);
+            res.status(500).json({ message: 'Lỗi khi tạo khách hàng.' });
+        }
+    },
     getUserInfo: async (req, res) => {
         try {
             const userId = req.params.userId;
@@ -49,7 +82,7 @@ const CustomerController = {
     updateUserInfo: async (req, res) => {
         try {
             const userId = req.params.userId;
-            const { name, phone, birthdate, gender } = req.body;
+            const { name, phone, birthdate, gender, isActive } = req.body;
             const user = await User.findById(userId);
             if (!user) {
                 return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng.' });
@@ -58,6 +91,7 @@ const CustomerController = {
             user.name = name !== undefined ? name : user.name;
             user.phone = phone !== undefined ? phone : user.phone;
             user.gender = gender !== undefined ? gender : user.gender;
+            user.isActive = isActive !== undefined ? isActive : user.isActive;
 
             if (birthdate !== undefined) {
                 if (birthdate) {
@@ -74,6 +108,7 @@ const CustomerController = {
                 email: updatedUser.email,
                 birthdate: updatedUser.birthdate,
                 gender: updatedUser.gender,
+                isActive: updatedUser.isActive,
             };
 
             res.status(200).json({ success: true, message: 'Hồ sơ đã cập nhật thành công!', user: updatedAccountInfo });
@@ -100,9 +135,11 @@ const CustomerController = {
     },
 
     getAddresses: async (req, res) => {
-        const { customerId } = req.user.id;
+        const userId = req.user.id;
+        console.log('Fetching addresses for user:', userId);
+        console.log('Request params:', req.user);
         try {
-            const customer = await Customer.findById(customerId)
+            const customer = await Customer.findOne({ user: userId })
                 .populate('shippingAddresses');
 
             if (!customer) {
