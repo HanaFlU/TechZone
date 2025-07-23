@@ -119,11 +119,14 @@ const CartPage = () => {
 
     useEffect(() => {
         const fetchShippingFee = async () => {
+            const token = localStorage.getItem('token');
+            const orderValue = calculateTotalPrice;
+            console.log(`Đang truy cập API phí vận chuyển: ${import.meta.env.VITE_API_URL}/shipping-rate/get-fee?orderValue=${orderValue}`);
             try {
-                const fee = await ShippingService.getShippingFee(calculateTotalPrice);
+                const fee = await ShippingService.getShippingFee(orderValue, token);
                 setShippingFee(fee);
             } catch {
-                setShippingFee(20000); // fallback nếu lỗi
+                setShippingFee(80000);
             }
         };
         if (calculateTotalPrice > 0) fetchShippingFee();
@@ -183,7 +186,7 @@ const CartPage = () => {
     const allItemsSelected = cartData.items.every(item => selectedItems[item.product._id]);
 
     return (
-        <div className="container mx-auto px-8 font-sans">
+        <div className="container mx-auto px-8 py-2 font-sans">
             <Breadcrumb items={[{ label: "Giỏ hàng" }]} />
             <h1 className="text-2xl font-bold mb-6 text-gray-800">Giỏ hàng của tôi</h1>
             {showNotification && (
@@ -227,7 +230,7 @@ const CartPage = () => {
                                         onChange={() => handleToggleSelectItem(item.product._id)}
                                     />
                                     <img
-                                        src={item.product.images[0]}
+                                        src={item.product.image}
                                         alt={item.product.name}
                                         className="w-16 h-16 object-cover"
                                     />

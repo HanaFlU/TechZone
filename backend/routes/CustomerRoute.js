@@ -4,7 +4,8 @@ const { checkPermission } = require('../midleware/AuthMiddleware.js');
 
 const router = express.Router();
 
-router.get('/', checkPermission(["AD", "MANAGER"], "MANAGE_CUSTOMER"), customerController.findAll);
+router.get('/', checkPermission(["AD", "MANAGER"], "MANAGE_USERS"), customerController.findAll);
+router.post('/', checkPermission(["AD", "MANAGER"], "MANAGE_USERS"), customerController.createCustomer);
 router.get('/by-user/:userId', customerController.getCustomerByUserId);
 
 router.get('/:userId/account', customerController.getUserInfo);

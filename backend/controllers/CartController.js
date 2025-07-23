@@ -23,7 +23,7 @@ const CartController = {
             const cart = await Cart.findOne({ customer: customerId }).populate({
                 path: 'items.product',
                 model: 'Product',
-                select: 'name price images stock productId',
+                select: 'name price image stock productId',
             });
 
             if (!cart) {
@@ -76,7 +76,7 @@ const CartController = {
             await cart.populate({
                 path: 'items.product',
                 model: 'Product',
-                select: 'name price images stock productId',
+                select: 'name price image stock productId',
             });
             res.status(200).json({ success: true, message: 'Sản phẩm đã được thêm vào giỏ hàng!', cart });
         } catch (error) {
@@ -113,7 +113,7 @@ const CartController = {
                 await cart.populate({
                     path: 'items.product',
                     model: 'Product',
-                    select: 'name price images stock productId',
+                    select: 'name price image stock productId',
                 });
                 res.status(200).json({ success: true, message: 'Cập nhật số lượng sản phẩm thành công!', cart });
             } else {
@@ -124,7 +124,6 @@ const CartController = {
             res.status(500).json({ success: false, message: 'Server Error', error: error.message });
         }
     },
-
     removeCartItem: async (req, res) => {
         try {
             const { cartId, productId } = req.params;
@@ -141,7 +140,7 @@ const CartController = {
             await cart.populate({
                 path: 'items.product',
                 model: 'Product',
-                select: 'name price images stock productId',
+                select: 'name price image stock productId',
             });
             res.status(200).json({ success: true, message: 'Sản phẩm đã được xóa khỏi giỏ hàng!', cart });
         } catch (error) {

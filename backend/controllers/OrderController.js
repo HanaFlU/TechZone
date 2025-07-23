@@ -2,7 +2,12 @@ const Order = require('../models/OrderModel.js');
 const Cart = require('../models/CartModel.js');
 const Product = require('../models/ProductModel.js');
 const Customer = require('../models/CustomerModel.js');
+const ShippingRate = require('../models/ShippingRateModel.js');
 const PaymentController = require('./PaymentController.js');
+const CartController = require('./CartController.js');
+
+const OrderConfirmationEmail = require('./OrderConfirmationEmail.js');
+
 
 function generateRandomOrderId(length) {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -40,7 +45,7 @@ const OrderController = {
             const order = await Order.findById(orderId)
                 .populate({
                     path: 'items.product',
-                    select: 'name images'
+                    select: 'name image'
                 })
                 .populate('shippingAddress')
                 .populate('shippingFee');
@@ -55,57 +60,54 @@ const OrderController = {
     },
 
     createOrder: async (req, res) => {
-        const { customerId, shippingAddressId, paymentMethod, transactionId, paymentStatus } = req.body;
+        // Lấy dữ liệu từ checkoutData đã được gửi từ frontend
+        const {
+            customerId,
+            shippingAddressId,
+            paymentMethod,
+            transactionId,
+            paymentStatus,
+            orderItems,
+            totalAmount,
+            shippingFee,
+        } = req.body;
 
-        console.log('Nhận yêu cầu tạo đơn hàng:', { customerId, shippingAddressId, paymentMethod, transactionId, paymentStatus });
-
-        if (!customerId || !shippingAddressId || !paymentMethod) {
-            return res.status(400).json({ message: 'Thiếu thông tin bắt buộc để tạo đơn hàng!' });
+        console.log('Nhận yêu cầu tạo đơn hàng:', { customerId, shippingAddressId, paymentMethod, transactionId, paymentStatus, totalAmount, shippingFee, orderItems });
+        if (!customerId || !shippingAddressId || !paymentMethod || !orderItems || orderItems.length === 0 || totalAmount === undefined) {
+            return res.status(400).json({ message: 'Thiếu thông tin bắt buộc để tạo đơn hàng hoặc giỏ hàng trống!' });
         }
 
         try {
-            if (paymentMethod === 'CREDIT_CARD') {
-                const stripePaymentResult = await PaymentController.handleStripePaymentCallback({ transactionId, paymentStatus });
-                if (stripePaymentResult) {
-                    return res.status(stripePaymentResult.status).json(stripePaymentResult);
-                }
-            }
+            const finalOrderItems = [];
+            let calculatedTotalAmountFromBackend = 0;
+            const productIdsInOrder = [];
 
-            const cart = await Cart.findOne({ customer: customerId }).populate('items.product');
-            if (!cart || cart.items.length === 0) {
-                return res.status(404).json({ message: 'Không tìm thấy giỏ hàng hoặc giỏ hàng trống!' });
-            }
-
-            let totalAmount = 0;
-            const orderItems = [];
-
-            for (const cartItem of cart.items) {
-                const product = cartItem.product;
-                const quantity = cartItem.quantity;
-
+            for (const item of orderItems) {
+                const product = await Product.findById(item.productId);
                 if (!product) {
-                    console.warn(`Không tìm thấy sản phẩm với ID ${cartItem.product._id} trong cartItem.`);
-                    return res.status(400).json({ message: `Không tìm thấy sản phẩm trong cartItem: ${cartItem.product._id}.` });
+                    return res.status(404).json({ message: `Không tìm thấy sản phẩm với ID ${item.productId}.` });
                 }
 
-                // Kiểm tra tồn kho
-                if (product.stock < quantity) {
-                    return res.status(400).json({ message: `Không đủ số lượng sản phẩm ${product.name} để đặt hàng. Kho: ${product.stock}, Số lượng đặt hàng: ${quantity}` });
+                if (product.stock < item.quantity) {
+                    return res.status(400).json({ message: `Không đủ số lượng sản phẩm ${product.name} để đặt hàng. Kho: ${product.stock}, Số lượng đặt hàng: ${item.quantity}` });
                 }
 
-                const priceAtOrder = product.price;
-                totalAmount += priceAtOrder * quantity;
+                const priceAtOrder = product.price; // Lấy giá từ DB
+                calculatedTotalAmountFromBackend += priceAtOrder * item.quantity;
 
-                orderItems.push({
-                    product: product._id,
-                    quantity: quantity,
+                finalOrderItems.push({
+                    product: item.productId,
+                    quantity: item.quantity,
                     priceAtOrder: priceAtOrder
                 });
+                productIdsInOrder.push(item.productId);
             }
 
-            // Phí vận chuyển sẽ xử lý sau
-            const shippingFee = 20000;
-            totalAmount += shippingFee;
+            // Thêm phí vận chuyển vào tổng số tiền backend tự tính toán
+            calculatedTotalAmountFromBackend += shippingFee;
+            if (Math.abs(calculatedTotalAmountFromBackend - totalAmount) > 1) {
+                console.warn(`Mismatch totalAmount: Frontend ${totalAmount}, Backend ${calculatedTotalAmountFromBackend}`);
+            }
 
             const newOrderId = await generateUniqueOrderId();
 
@@ -123,57 +125,89 @@ const OrderController = {
             } else if (paymentMethod === 'COD') {
                 paymentStatusForOrder = 'PENDING';
             }
+
             // Tạo Order
             const newOrder = new Order({
                 orderId: newOrderId,
                 customer: customerId,
-                items: orderItems,
+                items: finalOrderItems,
                 shippingAddress: shippingAddressId,
                 paymentMethod: paymentMethod,
                 totalAmount: totalAmount,
+                shippingFee: shippingFee,
                 status: initialOrderStatus,
                 paymentStatus: paymentStatusForOrder,
                 transactionId: transactionId,
             });
             const savedOrder = await newOrder.save();
-
-            // Cập nhật số lượng tồn kho
-            if (paymentMethod === 'COD' || (paymentMethod === 'CREDIT_CARD' && paymentStatus === 'SUCCESSED')) {
-                for (const orderItem of orderItems) {
+            if (paymentStatusForOrder === 'SUCCESSED' || paymentMethod === 'COD') {
+                for (const orderItem of finalOrderItems) {
                     await Product.findByIdAndUpdate(
                         orderItem.product,
                         { $inc: { stock: -orderItem.quantity } }
                     );
                 }
-                await Cart.findByIdAndDelete(cart._id); // Xóa giỏ hàng
-            } else if (paymentMethod === 'CREDIT_CARD' && paymentStatus === 'FAILED') {
+
+                const customerCart = await Cart.findOne({ customer: customerId });
+                if (customerCart) {
+                    customerCart.items = customerCart.items.filter(item =>
+                        !productIdsInOrder.includes(item.product.toString())
+                    );
+                    await customerCart.save();
+                }
+            } else if (paymentStatusForOrder === 'FAILED' && paymentMethod === 'CREDIT_CARD') {
                 console.log("Thanh toán Stripe thất bại, giỏ hàng được giữ lại.");
             }
 
-            const populatedOrder = await Order.findById(savedOrder._id);
+            // Populate các trường cần thiết để gửi email
+            const populatedOrder = await Order.findById(savedOrder._id)
+                .populate({
+                    path: 'items.product',
+                    select: 'name image'
+                })
+                .populate('shippingAddress')
+                .populate({
+                    path: 'customer',
+                    populate: {
+                        path: 'user',
+                        select: 'email name'
+                    }
+                });
+
+            // Send email confirm Order
+            if (populatedOrder && populatedOrder.customer && populatedOrder.customer.user && populatedOrder.customer.user.email) {
+                await OrderConfirmationEmail(
+                    populatedOrder,
+                    populatedOrder.customer.user.email,
+                    populatedOrder.customer.user.name,
+                    populatedOrder.items.product
+                );
+            } else {
+                console.warn(`Không thể gửi email xác nhận đơn hàng #${populatedOrder.orderId}: Thiếu thông tin email khách hàng.`);
+            }
             res.status(201).json({ message: 'Tạo đơn hàng thành công!', order: populatedOrder });
 
         } catch (error) {
             console.error('Lỗi khi tạo đơn hàng:', error);
-            if (error.cause === 409) {
-                return res.status(409).json({ message: error.message });
+            if (error.name === 'ValidationError') {
+                return res.status(400).json({ message: error.message });
             }
             res.status(500).json({ message: 'Lỗi server khi tạo đơn hàng.', error: error.message });
         }
     },
+
     getOrdersByCustomer: async (req, res) => {
         try {
             const { customerId } = req.params;
-            // Tìm customer theo id, populate user để lấy email/name nếu cần
+            // Tìm customer opulate user để lấy email
             const customer = await Customer.findById(customerId).populate('user');
             if (!customer) {
                 return res.status(404).json({ message: 'Không tìm thấy khách hàng.' });
             }
-            // Lấy tất cả order có customer = customerId
             const orders = await Order.find({ customer: customerId })
                 .populate({
                     path: 'items.product',
-                    select: 'name images'
+                    select: 'name image'
                 })
                 .populate('shippingAddress')
                 .populate('shippingFee')

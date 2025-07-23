@@ -40,17 +40,19 @@ export default function LoginModal({ onClose, onSwitch }) {
         };
     
         try {
-          console.log(formData);
           const data = await AuthService.login(formData);
-       
+          console.log('Login successful:', data);
           login(data.user, data.token);
           setError(null); 
     
           onClose();
         } catch (err) {
-          console.error("Error during login:", err);
-          setError("Lỗi kết nối tới máy chủ.");
-          return;
+          if (err.message) {
+            setError(err.message);
+          } else {
+            setError("Lỗi kết nối tới máy chủ.");
+            return;
+          }
         }
   };
 

@@ -73,10 +73,12 @@ const AuthController = {
             if (!user) {
                 return res.status(404).json({ message: 'User does not exist.' });
             }
-
             const isPasswordValid = await bcrypt.compare(password, user.password);
             if (!isPasswordValid) {
                 return res.status(401).json({ message: 'Incorrect password.' });
+            }
+            if (!user.isActive) {
+                return res.status(403).json({ message: 'Tài khoản đã bị khóa hoặc chưa kích hoạt.' });
             }
 
             user.lastLogin = new Date();
@@ -119,6 +121,9 @@ const AuthController = {
                 });
                 await user.save();
                 await Customer.create({ user: user._id });
+            }
+            if (!user.isActive) {
+                return res.status(403).json({ message: 'Tài khoản đã bị khóa hoặc chưa kích hoạt.' });
             }
             console.log('User found or created:', user);
             user.lastLogin = new Date();

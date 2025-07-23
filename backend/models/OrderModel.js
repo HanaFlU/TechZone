@@ -55,9 +55,8 @@ const orderSchema = new mongoose.Schema(
             required: true,
         },
         shippingFee: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "ShippingRate",
-            required: true,
+            type: Number,
+            required: false,
         },
         paymentMethod: {
             type: String,

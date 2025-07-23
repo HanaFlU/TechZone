@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
 import Breadcrumb from '../../components/Breadcrumb';
 import CustomerService from '../../services/CustomerService';
+import UserService from '../../services/UserService';
 import {
   UserCircleIcon,
   MapPinIcon,
@@ -26,14 +27,17 @@ const AccountLayout = () => {
     setLoadingAccountData(true);
     setAccountDataError(null);
     try {
-      const profileResponse = await CustomerService.getAccountInfo(currentUserId);
+      const profileResponse = await UserService.getAccountInfo(currentUserId);
+      console.log("Profile response:", profileResponse);
       if (profileResponse.success && profileResponse.user) {
         setUserProfile(profileResponse.user);
       } else {
         throw new Error(profileResponse.message || "Không thể tải thông tin hồ sơ.");
       }
-
+      console.log("Fetching customer info for user ID:", currentUserId);
       const customerResponse = await CustomerService.getCustomerByUserId(currentUserId);
+      console.log("Customer response:", customerResponse);
+      
       if (customerResponse.success && customerResponse.customer) {
         setCustomerInfo(customerResponse.customer);
       } else {

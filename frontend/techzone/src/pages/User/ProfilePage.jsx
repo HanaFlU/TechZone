@@ -6,6 +6,7 @@ import Select from '../../components/Input/Select';
 import Button from '../../components/button/Button';
 import Notification from '../../components/button/Notification';
 import useNotification from '../../hooks/useNotification';
+import UserService from '../../services/UserService';
 
 const ProfilePage = () => {
   const { currentUserId, userProfile: initialUserProfile } = useOutletContext(); 
@@ -61,7 +62,7 @@ const ProfilePage = () => {
 
       console.log("Dữ liệu gửi đi (updateAccountInfo):", dataToSend);
 
-      const data = await CustomerService.updateAccountInfo(currentUserId, dataToSend);
+      const data = await UserService.updateAccountInfo(currentUserId, dataToSend);
 
       if (data.success && data.user) {
         setUserProfile(data.user);

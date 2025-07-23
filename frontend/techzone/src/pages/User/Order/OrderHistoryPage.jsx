@@ -195,7 +195,7 @@ const OrderHistoryPage = () => {
                   >
                     <div className="w-16 h-16 bg-gray-100 rounded-md overflow-hidden flex items-center justify-center">
                       <img
-                        src={item.product?.images && item.product.images.length > 0 ? item.product.images[0] : "/path/to/default-product-image.png"}
+                        src={item.product?.image || "/path/to/default-product-image.png"}
                         alt={item.product?.name || "Sản phẩm"}
                         className="object-cover w-full h-full"
                       />
