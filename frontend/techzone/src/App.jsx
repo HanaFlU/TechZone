@@ -45,9 +45,9 @@ const App = () => {
 
   return (
     <AuthProvider>
-      <div className='m-0 p-0 h-screen'>
+      <div className='min-h-screen flex flex-col bg-gray-50 m-0 p-0'>
         {!adminMode && <Navbar onAccountClick={() => setShowLoginModal(true)} setAdminMode={setAdminMode} />}
-        <main className='h-screen'>
+        <main className='flex-1'>
           {adminMode ? (
             <Sidebar onVisitStore={() => {
               setAdminMode(false);

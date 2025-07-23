@@ -2,7 +2,7 @@ import React from 'react'
 
 const Footer = () => {
   return (
-    <footer class="bg-dark-green shadow-sm mt-10 text-white">
+    <footer class="bg-dark-green shadow-sm mt-12 text-white">
         <div class="w-full mx-auto max-w-screen-xl p-4 md:flex md:items-center md:justify-between">
           <span class="text-sm text-white sm:text-center">© 2025 <a href="#" class="hover:underline">TechZone™</a>. All Rights Reserved.
         </span>
