@@ -8,7 +8,7 @@ class UserService {
 
     async getAccountInfo(userId) {
         try {
-            console.log('StaffService: Fetching account info for staff ID:', userId);
+            console.log('UserService: Fetching account info for user ID:', userId);
             const response = await this.api.get(`/${userId}/account`);
             return response.data;
         } catch (error) {
@@ -19,7 +19,7 @@ class UserService {
 
     async updateAccountInfo(userId, userData) {
         try {
-            console.log('StaffService: Updating account info for staff ID:', userId, 'Data:', userData);
+            console.log('UserService: Updating account info for user ID:', userId, 'Data:', userData);
             const response = await this.api.put(`/${userId}/account`, userData);
             return response.data;
         } catch (error) {
