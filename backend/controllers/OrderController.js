@@ -2,6 +2,7 @@ const Order = require('../models/OrderModel.js');
 const Cart = require('../models/CartModel.js');
 const Product = require('../models/ProductModel.js');
 const Customer = require('../models/CustomerModel.js');
+const User = require('../models/UserModel.js');
 const ShippingRate = require('../models/ShippingRateModel.js');
 const PaymentController = require('./PaymentController.js');
 const CartController = require('./CartController.js');
@@ -33,32 +34,6 @@ const generateUniqueOrderId = async () => {
 };
 
 const OrderController = {
-    // findAll: async (req, res) => {
-    //     Order.find()
-    //         .then((data) => res.status(200).json(data))
-    //         .catch((err) => res.status(500).json(err.message))
-    // },
-
-    // getOrderById: async (req, res) => {
-    //     try {
-    //         const orderId = req.params.id;
-    //         const order = await Order.findById(orderId)
-    //             .populate({
-    //                 path: 'items.product',
-    //                 select: 'name image'
-    //             })
-    //             .populate('shippingAddress')
-    //             .populate('shippingFee');
-    //         if (!order) {
-    //             return res.status(404).json({ message: 'Không tìm thấy đơn hàng.' });
-    //         }
-    //         res.status(200).json({ order: order });
-    //     } catch (error) {
-    //         console.error('Error fetching order:', error);
-    //         res.status(500).json({ message: 'Lỗi server khi lấy đơn hàng.' });
-    //     }
-    // },
-
     createOrder: async (req, res) => {
         const {
             customerId,
