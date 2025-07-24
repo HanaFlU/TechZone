@@ -159,7 +159,8 @@ const OrderForm = () => {
           const paymentIntentResponse = await PaymentService.createStripePaymentIntent({
             customerId: currentCustomerId,
             shippingAddressId: selectedAddressId,
-            amount: finalTotalAmount,
+            amount: finalTotalAmount / 1000,
+            shippingFee: shippingFee,
             currency: 'VND'
           });
 
