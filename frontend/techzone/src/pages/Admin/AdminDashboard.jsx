@@ -1,112 +1,139 @@
 import React, { useEffect, useState } from 'react';
-import { Grid, Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress, Alert } from '@mui/material';
-import { FaShoppingCart, FaUserFriends, FaMoneyBillWave } from 'react-icons/fa';
+import {
+  Typography,
+  Grid,
+  Card,
+  CardContent,
+  CircularProgress,
+  Alert,
+  Box,
+} from '@mui/material';
+import {
+  FaMoneyBillWave,
+  FaShoppingCart,
+  FaUserFriends,
+} from 'react-icons/fa';
+import { BarChart } from '@mui/x-charts/BarChart';
+import OrderService from '../../services/OrderService';
 import CustomerService from '../../services/CustomerService';
 
 const AdminDashboard = () => {
-  const [stats, setStats] = useState([
-    { label: 'Đơn hàng hôm nay', value: 0, icon: <FaShoppingCart size={40} color="#059669" /> },
-    { label: 'Khách hàng mới', value: 0, icon: <FaUserFriends size={40} color="#2563eb" /> },
-    { label: 'Doanh thu hôm nay', value: '0₫', icon: <FaMoneyBillWave size={40} color="#f59e42" /> },
-  ]);
+  const [stats, setStats] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [revenueChartData, setRevenueChartData] = useState({ days: [], revenues: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const formatCurrency = (value) => {
+    return value.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+  };
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       setLoading(true);
       setError(null);
       try {
-        // Lấy danh sách khách hàng
-        const customers = await CustomerService.getAllCustomers();
-        // Lấy đơn hàng gần đây (giả sử có hàm getRecentOrders, nếu chưa có thì dùng dữ liệu mẫu)
-        // const ordersRes = await OrderService.getRecentOrders();
-        // setOrders(ordersRes);
-        // Demo: lấy 3 khách hàng mới nhất làm orders mẫu
-        setOrders(customers.slice(-3).map((cus) => ({
-          id: cus._id,
-          customer: cus.user && typeof cus.user === 'object' ? cus.user.name : '',
-          email: cus.user && typeof cus.user === 'object' ? cus.user.email : '',
-          date: cus.createdAt ? new Date(cus.createdAt).toLocaleDateString() : '',
-          total: 'N/A',
-          status: cus.user && typeof cus.user === 'object' && cus.user.isActive ? 'Active' : 'Inactive',
-          statusColor: cus.user && typeof cus.user === 'object' && cus.user.isActive ? 'success.main' : 'text.secondary',
-        })));
-        setStats([
-          { label: 'Đơn hàng hôm nay', value: 120, icon: <FaShoppingCart size={40} color="#059669" /> },
-          { label: 'Khách hàng mới', value: customers.length, icon: <FaUserFriends size={40} color="#2563eb" /> },
-          { label: 'Doanh thu hôm nay', value: '8.500.000₫', icon: <FaMoneyBillWave size={40} color="#f59e42" /> },
+        const [customers, revenueSummary, revenueChart] = await Promise.all([
+          CustomerService.getAllCustomers(),
+          OrderService.getRevenueSummary(),
+          OrderService.getRevenuePerDayThisMonth(), // <--- bạn cần tạo API này
         ]);
-      } catch (e) {
-        setError('Không thể tải dữ liệu dashboard.');
+
+        // Stats
+        setStats([
+          {
+            label: 'Hôm nay',
+            value: formatCurrency(revenueSummary.today),
+            icon: <FaShoppingCart size={30} color="#059669" />,
+          },
+          {
+            label: 'Hôm qua',
+            value: formatCurrency(revenueSummary.yesterday),
+            icon: <FaShoppingCart size={30} color="#f87171" />,
+          },
+          {
+            label: 'Tháng này',
+            value: formatCurrency(revenueSummary.thisMonth),
+            icon: <FaMoneyBillWave size={30} color="#10b981" />,
+          },
+          {
+            label: 'Tháng trước',
+            value: formatCurrency(revenueSummary.lastMonth),
+            icon: <FaMoneyBillWave size={30} color="#6366f1" />,
+          },
+          {
+            label: 'Tổng doanh thu',
+            value: formatCurrency(revenueSummary.allTime),
+            icon: <FaMoneyBillWave size={30} color="#f59e0b" />,
+          },
+          {
+            label: 'Khách hàng mới',
+            value: customers.length,
+            icon: <FaUserFriends size={30} color="#2563eb" />,
+          },
+        ]);
+
+        // Chart
+        const chartDays = revenueChart.map(item => item.day); // dạng ['01', '02', ...]
+        const chartValues = revenueChart.map(item => item.total); // dạng [200000, 500000, ...]
+        setRevenueChartData({ days: chartDays, revenues: chartValues });
+      } catch (err) {
+        console.error(err);
+        setError('Lỗi tải dữ liệu dashboard.');
       } finally {
         setLoading(false);
       }
     };
+
     fetchDashboardData();
   }, []);
 
   return (
-    <div style={{ padding: 24 }}>
-      <Typography variant="h4" fontWeight="bold" color="success.main" gutterBottom>
-        Bảng điều khiển quản trị
+    <Box p={3}>
+      <Typography variant="h4" gutterBottom>
+        Tổng quan quản trị
       </Typography>
+
       {loading ? (
-        <CircularProgress color="success" />
+        <CircularProgress />
       ) : error ? (
         <Alert severity="error">{error}</Alert>
       ) : (
         <>
-          <Grid container spacing={3} mb={4}>
-            {stats.map((stat, idx) => (
-              <Grid item xs={12} md={4} key={idx}>
-                <Card elevation={3}>
-                  <CardContent style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    {stat.icon}
-                    <Typography variant="h5" fontWeight="bold" color="success.main" mt={1}>{stat.value}</Typography>
-                    <Typography color="text.secondary">{stat.label}</Typography>
+          <Grid container spacing={2}>
+            {stats.map((stat, index) => (
+              <Grid item xs={12} sm={6} md={4} key={index}>
+                <Card>
+                  <CardContent>
+                    <Box display="flex" alignItems="center" gap={2}>
+                      {stat.icon}
+                      <Box>
+                        <Typography variant="h6">{stat.label}</Typography>
+                        <Typography variant="body1" fontWeight="bold">
+                          {stat.value}
+                        </Typography>
+                      </Box>
+                    </Box>
                   </CardContent>
                 </Card>
               </Grid>
             ))}
           </Grid>
-          <Card elevation={3}>
-            <CardContent>
-              <Typography variant="h6" color="success.main" gutterBottom>
-                Khách hàng mới nhất
-              </Typography>
-              <TableContainer component={Paper}>
-                <Table>
-                  <TableHead>
-                    <TableRow sx={{ backgroundColor: '#e0f2f1' }}>
-                      <TableCell>ID</TableCell>
-                      <TableCell>Họ tên</TableCell>
-                      <TableCell>Email</TableCell>
-                      <TableCell>Ngày tạo</TableCell>
-                      <TableCell>Trạng thái</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {orders.map((order) => (
-                      <TableRow key={order.id}>
-                        <TableCell>{order.id}</TableCell>
-                        <TableCell>{order.customer}</TableCell>
-                        <TableCell>{order.email}</TableCell>
-                        <TableCell>{order.date}</TableCell>
-                        <TableCell>
-                          <Typography fontWeight="bold" sx={{ color: order.statusColor }}>{order.status}</Typography>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </CardContent>
-          </Card>
+
+          <Box mt={5}>
+            <Typography variant="h5" gutterBottom>
+              Biểu đồ doanh thu tháng này
+            </Typography>
+            <BarChart
+              xAxis={[{ scaleType: 'band', data: revenueChartData.days }]}
+              series={[{ data: revenueChartData.revenues, label: 'Doanh thu (VND)' }]}
+              width={800}
+              height={400}
+            />
+          </Box>
         </>
       )}
-    </div>
+    </Box>
   );
 };
 

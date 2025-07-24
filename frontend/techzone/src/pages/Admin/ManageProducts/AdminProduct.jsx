@@ -8,6 +8,7 @@ import {
   Autocomplete,
   ListItemText,
   Box,
+  TablePagination,
 } from '@mui/material';
 import { FaPlus, FaTrash, FaEdit } from 'react-icons/fa';
 import ProductService from '../../../services/ProductService';
@@ -22,6 +23,9 @@ const ProductManager = () => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -52,12 +56,25 @@ const ProductManager = () => {
     setCategories(res);
   };
 
+    const handleChangePage = (event, newPage) => {
+      setPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (event) => {
+      setRowsPerPage(parseInt(event.target.value, 10));
+      setPage(0);
+    };
+
   const handleOpen = (product = null) => {
     if (product) {
-      setFormData(product);
+    setFormData({
+      ...product,
+      images: Array.isArray(product.images) ? product.images : [],
+      specs: Array.isArray(product.specs) ? product.specs : [],
+    });
       setEditingProduct(product);
     } else {
-      setFormData({ name: '', price: '', stock: '', category: '', images: '', specs: [] });
+      setFormData({ name: '', price: '', stock: '', category: '', images: [], specs: [] });
       setEditingProduct(null);
     }
     setOpen(true);
@@ -124,13 +141,23 @@ const ProductManager = () => {
   return (
     <Card>
       <CardContent>
-        <Typography variant="h5" gutterBottom>Quản lý sản phẩm</Typography>
-        <Button variant="contained" startIcon={<FaPlus />} onClick={() => handleOpen()}>Thêm sản phẩm</Button>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <Typography variant="h5" gutterBottom style={{ color: '#328E6E', fontWeight: "bold" }}>Quản lý sản phẩm</Typography>
+          <Button
+            variant="contained"
+            startIcon={<FaPlus />}
+            style={{ backgroundColor: '#059669', fontWeight: 'bold' }}
+            onClick={() => handleOpen()}
+          >
+            Thêm sản phẩm
+          </Button>
+        </div>
         {loading ? <CircularProgress /> : (
+          <div>
           <TableContainer component={Paper} sx={{ mt: 2 }}>
             <Table>
               <TableHead>
-                <TableRow>
+                  <TableRow sx={{ backgroundColor: '#e0f2f1' }}>
                   <TableCell>Tên</TableCell>
                   <TableCell>Giá</TableCell>
                   <TableCell>Kho</TableCell>
@@ -140,7 +167,7 @@ const ProductManager = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {products.map((p) => (
+                {products.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((p) => (
                   <TableRow key={p._id}>
                     <TableCell>{p.name}</TableCell>
                     <TableCell>{p.price}đ</TableCell>
@@ -160,10 +187,20 @@ const ProductManager = () => {
               </TableBody>
             </Table>
           </TableContainer>
+          <TablePagination
+          component="div"
+          count={products.length}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          rowsPerPageOptions={[5, 10, 20]}
+            />
+        </div>
         )}
 
         <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
-          <DialogTitle>{editingProduct ? 'Cập nhật sản phẩm' : 'Thêm sản phẩm'}</DialogTitle>
+          <DialogTitle style={{ color: '#328E6E', fontWeight: "bold" }}>{editingProduct ? 'Cập nhật sản phẩm' : 'Thêm sản phẩm'}</DialogTitle>
           <DialogContent>
             <TextField label="Tên" name="name" fullWidth margin="normal" value={formData.name} onChange={handleChange} />
             <TextField label="Giá" name="price" fullWidth margin="normal" value={formData.price} onChange={handleChange} />
@@ -183,23 +220,23 @@ const ProductManager = () => {
               
             </Button>
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1 }}>
-  {formData.images?.map((img, i) => (
-    <Box key={i} sx={{ position: 'relative' }}>
-          <img src={img} alt={`img-${i}`} width="80" height="80" style={{ borderRadius: 4 }} />
-          <Button
-            size="small"
-            sx={{
-              position: 'absolute', top: 0, right: 0, minWidth: 0, padding: '2px',
-              background: 'rgba(255,255,255,0.7)'
-            }}
-            onClick={() => {
-              const newImages = formData.images.filter((_, idx) => idx !== i);
-              setFormData({ ...formData, images: newImages });
-            }}
-          >X</Button>
-        </Box>
-      ))}
-    </Box>
+            {formData.images?.map((img, i) => (
+              <Box key={i} sx={{ position: 'relative' }}>
+                    <img src={img} alt={`img-${i}`} width="80" height="80" style={{ borderRadius: 4 }} />
+                      <Button
+                        size="small"
+                        sx={{
+                          position: 'absolute', top: 0, right: 0, minWidth: 0, padding: '2px',
+                          background: 'rgba(255,255,255,0.7)'
+                        }}
+                        onClick={() => {
+                          const newImages = formData.images.filter((_, idx) => idx !== i);
+                          setFormData({ ...formData, images: newImages });
+                        }}
+                      >X</Button>
+                    </Box>
+                  ))}
+              </Box>
 
 
             <Typography variant="h6" sx={{ mt: 2 }}>Thông số kỹ thuật</Typography>
@@ -227,7 +264,7 @@ const ProductManager = () => {
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose}>Huỷ</Button>
-            <Button variant="contained" onClick={handleSubmit}>Lưu</Button>
+            <Button variant="contained" onClick={handleSubmit} style={{ backgroundColor: '#059669' }}>Lưu</Button>
           </DialogActions>
         </Dialog>
       </CardContent>

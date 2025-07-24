@@ -14,6 +14,9 @@ const CustomerAdmin = () => {
   const [editDialog, setEditDialog] = useState({ open: false, customer: null });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -54,7 +57,15 @@ const CustomerAdmin = () => {
     return null;
   };
 
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
 
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+  
   const handleFilterChange = (e) => {
     setFilter({ ...filter, [e.target.name]: e.target.value });
   };
@@ -147,10 +158,11 @@ const CustomerAdmin = () => {
     <Card elevation={3}>
       <CardContent>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <Typography variant="h5" color="success.main" fontWeight="bold" style={{ color: '#328E6E' }}>
+          <Typography variant="h5" fontWeight="bold" style={{ color: '#328E6E' }}>
             Quản lý khách hàng
           </Typography>
-          <Button variant="contained" onClick={handleAddCustomer} startIcon={<FaUserPlus />} style={{ backgroundColor: '#328E6E' }}>
+          <Button variant="contained" onClick={handleAddCustomer} startIcon={<FaUserPlus />} 
+            style={{ backgroundColor: '#328E6E' }}>
             Thêm khách hàng
           </Button>
         </div>
@@ -177,8 +189,8 @@ const CustomerAdmin = () => {
                     <TableCell align="center">Hành động</TableCell>
                   </TableRow>
                 </TableHead>
-                <TableBody>
-                  {filteredCustomers.map((customer) => (
+                    <TableBody>
+                  {filteredCustomers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((customer) => (
                     <TableRow key={customer._id}>
                       <TableCell>{new Date(customer.user?.createdAt).toLocaleDateString()}</TableCell>
                       <TableCell>{customer.user?.name}</TableCell>
@@ -199,12 +211,21 @@ const CustomerAdmin = () => {
                 </TableBody>
               </Table>
             </TableContainer>
+            <TablePagination
+              component="div"
+              count={filteredCustomers.length}
+              page={page}
+              onPageChange={handleChangePage}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              rowsPerPageOptions={[5, 10, 20]}
+            />
           </Paper>
         )}
 
         {/* Dialog sửa thông tin */}
         <Dialog open={editDialog.open} onClose={() => setEditDialog({ open: false, customer: null })} maxWidth="xs" fullWidth>
-          <DialogTitle>Sửa thông tin khách hàng</DialogTitle>
+          <DialogTitle style={{ color: '#328E6E', fontWeight: "bold" }}>Sửa thông tin khách hàng</DialogTitle>
           <DialogContent>
             {editDialog.customer && (
               <>
@@ -236,12 +257,12 @@ const CustomerAdmin = () => {
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setEditDialog({ open: false, customer: null })}>Hủy</Button>
-            <Button onClick={handleEditSave} variant="contained" color="success">Lưu</Button>
+            <Button onClick={handleEditSave} variant="contained" color="success" style={{ backgroundColor: '#059669' }}>Lưu</Button>
           </DialogActions>
         </Dialog>
         {/* Dialog thêm khách hàng */}
         <Dialog open={addDialog.open} onClose={() => setAddDialog({ open: false, fields: {} })} maxWidth="xs" fullWidth>
-          <DialogTitle>Thêm khách hàng mới</DialogTitle>
+          <DialogTitle style={{ color: '#328E6E', fontWeight: "bold" }}>Thêm khách hàng mới</DialogTitle>
           <DialogContent>
             <TextField margin="dense" label="Họ tên" name="name" value={addDialog.fields.name} onChange={e => setAddDialog({ ...addDialog, fields: { ...addDialog.fields, name: e.target.value } })} fullWidth required />
             <TextField margin="dense" label="Email" name="email" value={addDialog.fields.email} onChange={e => setAddDialog({ ...addDialog, fields: { ...addDialog.fields, email: e.target.value } })} fullWidth required />
