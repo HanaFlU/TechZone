@@ -33,10 +33,12 @@ const CartPage = () => {
     useEffect(() => {
         const fetchCart = async () => {
             if (!currentUserId) return;
+            
             setError(null);
             try {
                 const data = await CartService.getCartData(currentUserId);
                 setCartData(data);
+                // Initialize selectedItems with the current cart items
                 const initialSelected = {};
                 if (data && data.items) {
                     data.items.forEach(item => {

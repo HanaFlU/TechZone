@@ -86,7 +86,7 @@ const OrderHistoryPage = () => {
     setDetailLoading(true);
     try {
       const res = await OrderService.api.get(`/${orderId}`);
-      setSelectedOrder(res.data.order); // Backend trả về { order: <order_object> }
+      setSelectedOrder(res.data.order);
     } catch (err) {
       setError(err.response?.data?.message || "Không thể tải chi tiết đơn hàng.");
     } finally {
@@ -105,10 +105,10 @@ const OrderHistoryPage = () => {
   return (
     <div>
       <div>
-        {selectedOrder ? ( // Kiểm tra nếu có selectedOrder thì hiển thị DetailOrder
+        {selectedOrder ? (
           <DetailOrder
             selectedOrder={selectedOrder}
-            onClose={handleCloseDetail} // Truyền hàm để đóng chi tiết và quay lại
+            onClose={handleCloseDetail}
             formatCurrency={formatCurrency}
             formatTime={formatTime}
             formatDateOnly={formatDateOnly}
@@ -122,6 +122,7 @@ const OrderHistoryPage = () => {
             {[
               { key: "all", label: "Tất cả" },
               { key: "pending", label: "Chờ xác nhận" },
+              { key: "confirmed", label: "Đã xác nhận" },
               { key: "shipped", label: "Đang giao hàng" },
               { key: "delivered", label: "Đã giao hàng" },
               { key: "cancelled", label: "Đã hủy" },

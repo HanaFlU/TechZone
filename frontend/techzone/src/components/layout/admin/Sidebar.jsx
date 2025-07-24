@@ -61,8 +61,8 @@ const Sidebar = ({onVisitStore, children}) => {
             icon1: <BsPieChart className='w-5 h-5' />,
             icon2: <BsPieChartFill className='w-5 h-5' />,
             notify: false,
-            onClick: () => navigate('/admin/oders'),
-            active: location.pathname === '/admin/oders'
+            onClick: () => navigate('/admin/orders'),
+            active: location.pathname === '/admin/orders'
         },
         {
             label: 'Users',
