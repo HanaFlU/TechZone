@@ -2,17 +2,27 @@ import React, { useState } from 'react'
 import UserMenu from '../user/UserMenu'
 import { useNavigate } from 'react-router-dom';
 
-const Navbar = ({onAccountClick, setAdminMode}) => {
-  const [searchValue, setSearchValue] = useState('')
-  const [cartItemCount, setCartItemCount] = useState(0) // You can connect this to your cart state
-  const navigate = useNavigate(); 
+const Navbar = ({onAccountClick, setAdminMode, searchValue, setSearchValue, products = []}) => {
+  const [cartItemCount, setCartItemCount] = useState(0);
+  const navigate = useNavigate();
+
+  // Filter and sort products for dropdown
+  const suggestions = searchValue
+    ? products
+        .filter(p => p.name && p.name.toLowerCase().includes(searchValue.toLowerCase()))
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .slice(0, 6)
+    : [];
+
   const handleSearchChange = (e) => {
     setSearchValue(e.target.value)
   }
 
-  const handleClearSearch = () => {
-    setSearchValue('')
-  }
+  const handleClearSearch = () => setSearchValue('');
+
+  const handleSuggestionClick = (name) => {
+    setSearchValue(name);
+  };
 
   const handleSearch = () => {
     console.log('Searching for:', searchValue)
@@ -41,6 +51,7 @@ const Navbar = ({onAccountClick, setAdminMode}) => {
                 onChange={handleSearchChange}
                 placeholder="Tìm kiếm sản phẩm..."
                 className="w-full px-5 py-2 bg-white text-gray-900 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                autoComplete="off"
               />
               
               {/* Clear button (X) */}
@@ -64,6 +75,20 @@ const Navbar = ({onAccountClick, setAdminMode}) => {
                   <path d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </button>
+              {/* Dropdown suggestions */}
+              {suggestions.length > 0 && (
+                <div className="absolute left-0 top-full mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                  {suggestions.map(product => (
+                    <div
+                      key={product._id}
+                      className="px-4 py-2 cursor-pointer hover:bg-green-100 text-gray-900"
+                      onClick={() => handleSuggestionClick(product.name)}
+                    >
+                      {product.name}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
           

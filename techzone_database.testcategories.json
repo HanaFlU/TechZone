@@ -1,0 +1,1690 @@
+[{
+  "_id": {
+    "$oid": "68812be2a7546f10b0623e0f"
+  },
+  "name": "Main Board",
+  "slug": "main-board",
+  "description": "Bo mạch chủ",
+  "parent": null,
+  "icon": "https://res.cloudinary.com/drbacdode/image/upload/v1753296257/category_icons/yl25yfdelcrhlodir1ov.svg",
+  "createdAt": {
+    "$date": "2025-07-23T18:37:22.573Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T18:44:19.117Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68812ccca7546f10b0623e1a"
+  },
+  "name": "Main Board AMD",
+  "slug": "main-board-amd",
+  "description": "Bo mạch chủ của thương hiệu AMD",
+  "parent": {
+    "$oid": "68812be2a7546f10b0623e0f"
+  },
+  "icon": "https://res.cloudinary.com/drbacdode/image/upload/v1753296075/category_icons/wwqg0v91ilwypskuu6ji.svg",
+  "createdAt": {
+    "$date": "2025-07-23T18:41:16.496Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:26:00.862Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68812d10a7546f10b0623e1e"
+  },
+  "name": "Main Board Intel",
+  "slug": "main-board-intel",
+  "description": "Bo mạch chủ của thương hiệu Intel",
+  "parent": {
+    "$oid": "68812be2a7546f10b0623e0f"
+  },
+  "icon": "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/category_icons/wu9e3la14vfve7jbba8k.svg",
+  "createdAt": {
+    "$date": "2025-07-23T18:42:24.916Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T18:42:24.916Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6880f8f65c48a7e4f61d3125"
+  },
+  "name": "Màn hình",
+  "slug": "monitor",
+  "description": "Danh mục Màn hình",
+  "parent": null,
+  "icon": "monitor.svg",
+  "createdAt": {
+    "$date": "2024-06-09T12:00:00.000Z"
+  },
+  "updatedAt": {
+    "$date": "2024-06-09T12:00:00.000Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "688122b612839dc4b8e5fe2a"
+  },
+  "name": "Màn hình Gaming",
+  "slug": "gaming-monitor",
+  "description": "Nhóm con của Màn hình",
+  "parent": {
+    "$oid": "6880f8f65c48a7e4f61d3125"
+  },
+  "icon": "",
+  "createdAt": {
+    "$date": "2024-06-09T12:00:00.000Z"
+  },
+  "updatedAt": {
+    "$date": "2024-06-09T12:00:00.000Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "688140b680cdfdd23e5e87a7"
+  },
+  "name": "CPU",
+  "slug": "cpu",
+  "description": "Danh mục CPU",
+  "parent": null,
+  "icon": "cpu.svg",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:06:14.524Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T20:06:14.524Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6881451180cdfdd23e5e8826"
+  },
+  "name": "CPU Intel",
+  "slug": "cpu-intel",
+  "description": "Nhóm con của CPU",
+  "parent": {
+    "$oid": "688140b680cdfdd23e5e87a7"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:24:49.831Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:20:49.765Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6881451180cdfdd23e5e8827"
+  },
+  "name": "CPU AMD",
+  "slug": "cpu-amd",
+  "description": "Nhóm con của CPU",
+  "parent": {
+    "$oid": "688140b680cdfdd23e5e87a7"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:24:49.831Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:21:05.892Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6881469f80cdfdd23e5e88d6"
+  },
+  "name": "Gen 12th",
+  "slug": "gen-12th",
+  "description": "Nhóm con của CPU Intel",
+  "parent": {
+    "$oid": "6881451180cdfdd23e5e8826"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:31:27.449Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:21:37.566Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6881469f80cdfdd23e5e88d7"
+  },
+  "name": "RTX 5000 Series",
+  "slug": "rtx-5000-series",
+  "description": "Nhóm con của GPU",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e8955"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:31:27.449Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:21:55.791Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6881469f80cdfdd23e5e88d8"
+  },
+  "name": "Gen 13th",
+  "slug": "gen-13th",
+  "description": "Nhóm con của CPU - Intel",
+  "parent": {
+    "$oid": "6881451180cdfdd23e5e8826"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:31:27.449Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:22:11.200Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6881469f80cdfdd23e5e88d9"
+  },
+  "name": "RTX 4000 Series",
+  "slug": "rtx-4000-series",
+  "description": "Nhóm con của GPU",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e8955"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:31:27.449Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:01:29.275Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6881469f80cdfdd23e5e88da"
+  },
+  "name": "Gen 14th",
+  "slug": "gen-14th",
+  "description": "Nhóm con của CPU Intel",
+  "parent": {
+    "$oid": "6881451180cdfdd23e5e8826"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:31:27.449Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:22:34.006Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6881469f80cdfdd23e5e88db"
+  },
+  "name": "A620",
+  "slug": "a620",
+  "description": "Nhóm con của Main Board ADM",
+  "parent": {
+    "$oid": "68812ccca7546f10b0623e1a"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:31:27.450Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:25:18.450Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6881469f80cdfdd23e5e88dc"
+  },
+  "name": "B650",
+  "slug": "b650",
+  "description": "Nhóm con của Main Board AMD",
+  "parent": {
+    "$oid": "68812ccca7546f10b0623e1a"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:31:27.450Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:25:53.390Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6881469f80cdfdd23e5e88dd"
+  },
+  "name": "H610",
+  "slug": "h610",
+  "description": "Nhóm con của Mainboard Intel",
+  "parent": {
+    "$oid": "68812d10a7546f10b0623e1e"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:31:27.450Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:26:38.008Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6881469f80cdfdd23e5e88de"
+  },
+  "name": "X670",
+  "slug": "x670",
+  "description": "Nhóm con của Main Board AMD",
+  "parent": {
+    "$oid": "68812ccca7546f10b0623e1a"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:31:27.450Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:26:25.103Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6881469f80cdfdd23e5e88df"
+  },
+  "name": "Z790",
+  "slug": "z790",
+  "description": "Nhóm con của Mainboard Intel",
+  "parent": {
+    "$oid": "68812d10a7546f10b0623e1e"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:31:27.450Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:27:03.038Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6881469f80cdfdd23e5e88e0"
+  },
+  "name": "B760",
+  "slug": "b760",
+  "description": "Nhóm con của Mainboard Intel",
+  "parent": {
+    "$oid": "68812d10a7546f10b0623e1e"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:31:27.450Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:26:50.127Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6881469f80cdfdd23e5e88e1"
+  },
+  "name": "Ryzen 7000",
+  "slug": "ryzen-7000",
+  "description": "Nhóm con của CPU AMD",
+  "parent": {
+    "$oid": "6881451180cdfdd23e5e8827"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:31:27.450Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:22:49.247Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6881469f80cdfdd23e5e88e2"
+  },
+  "name": "Ryzen 5000",
+  "slug": "ryzen-5000",
+  "description": "Nhóm con của CPU AMD",
+  "parent": {
+    "$oid": "6881451180cdfdd23e5e8827"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:31:27.450Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:22:58.981Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6881469f80cdfdd23e5e88e3"
+  },
+  "name": "Ryzen 3000",
+  "slug": "ryzen-3000",
+  "description": "Nhóm con của CPU AMD",
+  "parent": {
+    "$oid": "6881451180cdfdd23e5e8827"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:31:27.450Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:23:22.358Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6881469f80cdfdd23e5e88e4"
+  },
+  "name": "RX 6000 Series",
+  "slug": "rx-6000-series",
+  "description": "Nhóm con của GPU",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e8955"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:31:27.450Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:03:21.336Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6881469f80cdfdd23e5e88e5"
+  },
+  "name": "RX 7000 Series",
+  "slug": "rx-7000-series",
+  "description": "Nhóm con của GPU",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e8955"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:31:27.450Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:03:45.217Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6881469f80cdfdd23e5e88e6"
+  },
+  "name": "Arc A700 Series",
+  "slug": "arc-a700-series",
+  "description": "Nhóm con của GPU",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e8955"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:31:27.450Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:03:52.405Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6881469f80cdfdd23e5e88e7"
+  },
+  "name": "Arc A500 Series",
+  "slug": "arc-a500-series",
+  "description": "Nhóm con của GPU",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e8955"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:31:27.450Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:03:58.729Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814aa380cdfdd23e5e8955"
+  },
+  "name": "GPU",
+  "slug": "gpu",
+  "description": "Danh mục GPU",
+  "parent": null,
+  "icon": "gpu.svg",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:48:35.649Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T20:48:35.649Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814aa380cdfdd23e5e8956"
+  },
+  "name": "RAM",
+  "slug": "ram",
+  "description": "Danh mục RAM",
+  "parent": null,
+  "icon": "ram.svg",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:48:35.649Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T20:48:35.649Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814aa380cdfdd23e5e8957"
+  },
+  "name": "Ổ Cứng",
+  "slug": "o-cung",
+  "description": "Danh mục Ổ Cứng",
+  "parent": null,
+  "icon": "ssd.svg",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:48:35.649Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T20:48:35.649Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814aa380cdfdd23e5e8958"
+  },
+  "name": "Nguồn máy tính",
+  "slug": "nguon-may-tinh",
+  "description": "Danh mục Nguồn máy tính",
+  "parent": null,
+  "icon": "psu.svg",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:48:35.649Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T20:48:35.649Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814aa380cdfdd23e5e8959"
+  },
+  "name": "Thùng máy tính",
+  "slug": "thung-may-tinh",
+  "description": "Danh mục Thùng máy tính",
+  "parent": null,
+  "icon": "case.svg",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:48:35.649Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T20:48:35.649Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814aa380cdfdd23e5e895a"
+  },
+  "name": "Tản nhiệt",
+  "slug": "tan-nhiet",
+  "description": "Danh mục Tản nhiệt",
+  "parent": null,
+  "icon": "fan.svg",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:48:35.649Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T20:48:35.649Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c8380cdfdd23e5e8c6c"
+  },
+  "name": "HDD",
+  "slug": "hdd",
+  "description": "Nhóm con của Ổ Cứng",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e8957"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:35.770Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:10:08.594Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c8380cdfdd23e5e8c6d"
+  },
+  "name": "ASUS (Nguồn máy tính)",
+  "slug": "asus-(nguon-may-tinh)",
+  "description": "Nhóm con của Nguồn máy tính",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e8958"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:35.770Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:10:18.953Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c8380cdfdd23e5e8c6e"
+  },
+  "name": "SSD SATA",
+  "slug": "ssd-sata",
+  "description": "Nhóm con của Ổ Cứng",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e8957"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:35.770Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:10:28.750Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c8380cdfdd23e5e8c6f"
+  },
+  "name": "Corsair (Nguồn máy tính)",
+  "slug": "corsair-(nguon-may-tinh)",
+  "description": "Nhóm con của Nguồn máy tính",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e8958"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:35.770Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:10:40.779Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c8380cdfdd23e5e8c70"
+  },
+  "name": "SSD NVMe",
+  "slug": "ssd-nvme",
+  "description": "Nhóm con của Ổ Cứng",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e8957"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:35.770Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:10:51.258Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c8380cdfdd23e5e8c71"
+  },
+  "name": "MSI (Nguồn máy tính)",
+  "slug": "msi-(nguon-may-tinh)",
+  "description": "Nhóm con của Nguồn máy tính",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e8958"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:35.770Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:11:59.787Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c8380cdfdd23e5e8c72"
+  },
+  "name": "Gigabyte (Nguồn máy tính)",
+  "slug": "gigabyte-(nguon-may-tinh)",
+  "description": "Nhóm con của Nguồn máy tính",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e8958"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:35.771Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:12:08.765Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c8380cdfdd23e5e8c73"
+  },
+  "name": "500W",
+  "slug": "500w",
+  "description": "Nhóm con của Nguồn máy tính",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e8958"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:35.771Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:12:24.169Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c8380cdfdd23e5e8c74"
+  },
+  "name": "650W",
+  "slug": "650w",
+  "description": "Nhóm con của Nguồn máy tính",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e8958"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:35.771Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:12:44.253Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c8380cdfdd23e5e8c75"
+  },
+  "name": "750W",
+  "slug": "750w",
+  "description": "Nhóm con của Nguồn máy tính",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e8958"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:35.771Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:13:00.660Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c8380cdfdd23e5e8c76"
+  },
+  "name": "1000W",
+  "slug": "1000w",
+  "description": "Nhóm con của Nguồn máy tính",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e8958"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:35.771Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:13:09.343Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c8380cdfdd23e5e8c77"
+  },
+  "name": "All",
+  "slug": "all",
+  "description": "Nhóm con của Nguồn máy tính",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e8958"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:35.771Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:13:24.282Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c8380cdfdd23e5e8c78"
+  },
+  "name": "RTX 3000 Series",
+  "slug": "rtx-3000-series",
+  "description": "Nhóm con của GPU",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e8955"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:35.772Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:13:39.417Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c8380cdfdd23e5e8c79"
+  },
+  "name": "RX 9000 Series",
+  "slug": "rx-9000-series",
+  "description": "Nhóm con của GPU",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e8955"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:35.772Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:13:50.521Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c9580cdfdd23e5e8c93"
+  },
+  "name": "Màn hình chuyên nghiệp",
+  "slug": "man-hinh-chuyen-nghiep",
+  "description": "Nhóm con của Màn hình",
+  "parent": {
+    "$oid": "6880f8f65c48a7e4f61d3125"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:53.086Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:14:08.235Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c9580cdfdd23e5e8c94"
+  },
+  "name": "Curved Monitor",
+  "slug": "curved-monitor",
+  "description": "Nhóm con của Màn hình",
+  "parent": {
+    "$oid": "6880f8f65c48a7e4f61d3125"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:53.086Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:14:16.579Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c9580cdfdd23e5e8c95"
+  },
+  "name": "4K Monitor",
+  "slug": "4k-monitor",
+  "description": "Nhóm con của Màn hình",
+  "parent": {
+    "$oid": "6880f8f65c48a7e4f61d3125"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:53.086Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:14:26.538Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c9580cdfdd23e5e8c96"
+  },
+  "name": "Mid Tower",
+  "slug": "mid-tower",
+  "description": "Nhóm con của Thùng máy tính",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e8959"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:53.086Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:14:48.656Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c9580cdfdd23e5e8c97"
+  },
+  "name": "ITX Case",
+  "slug": "itx-case",
+  "description": "Nhóm con của Thùng máy tính",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e8959"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:53.086Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:15:04.834Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c9580cdfdd23e5e8c98"
+  },
+  "name": "Full Tower",
+  "slug": "full-tower",
+  "description": "Nhóm con của Thùng máy tính",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e8959"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:53.086Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:15:13.921Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c9580cdfdd23e5e8c99"
+  },
+  "name": "Mini Tower",
+  "slug": "mini-tower",
+  "description": "Nhóm con của Thùng máy tính",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e8959"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:53.086Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:15:25.332Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c9580cdfdd23e5e8c9a"
+  },
+  "name": "RGB Case",
+  "slug": "rgb-case",
+  "description": "Nhóm con của Thùng máy tính",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e8959"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:53.086Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:15:40.552Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c9580cdfdd23e5e8c9b"
+  },
+  "name": "Tempered Glass",
+  "slug": "tempered-glass",
+  "description": "Nhóm con của Thùng máy tính",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e8959"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:53.086Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:15:53.471Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c9580cdfdd23e5e8c9c"
+  },
+  "name": "Air Cooler",
+  "slug": "air-cooler",
+  "description": "Nhóm con của Tản nhiệt",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e895a"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:53.086Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:16:11.686Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c9580cdfdd23e5e8c9d"
+  },
+  "name": "Thermal Paste",
+  "slug": "thermal-paste",
+  "description": "Nhóm con của Tản nhiệt",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e895a"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:53.086Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:16:19.577Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c9580cdfdd23e5e8c9e"
+  },
+  "name": "AIO Liquid Cooler",
+  "slug": "aio-liquid-cooler",
+  "description": "Nhóm con của Tản nhiệt",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e895a"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:53.086Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:16:26.345Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c9580cdfdd23e5e8c9f"
+  },
+  "name": "Fan 140mm",
+  "slug": "fan-140mm",
+  "description": "Nhóm con của Tản nhiệt",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e895a"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:53.086Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:16:34.068Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c9580cdfdd23e5e8ca0"
+  },
+  "name": "Fan 120mm",
+  "slug": "fan-120mm",
+  "description": "Nhóm con của Tản nhiệt",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e895a"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:53.086Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:16:41.744Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c9580cdfdd23e5e8ca1"
+  },
+  "name": "Custom Water Cooling",
+  "slug": "custom-water-cooling",
+  "description": "Nhóm con của Tản nhiệt",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e895a"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:53.086Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:16:49.606Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c9580cdfdd23e5e8ca2"
+  },
+  "name": "Mousepad",
+  "slug": "mousepad",
+  "description": "Nhóm con của Phụ kiện",
+  "parent": {
+    "$oid": "68814ff880cdfdd23e5e8d42"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:53.086Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:16:59.218Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c9580cdfdd23e5e8ca3"
+  },
+  "name": "Webcam",
+  "slug": "webcam",
+  "description": "Nhóm con của Phụ kiện",
+  "parent": {
+    "$oid": "68814ff880cdfdd23e5e8d42"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:53.086Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:17:08.140Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c9580cdfdd23e5e8ca4"
+  },
+  "name": "Microphone",
+  "slug": "microphone",
+  "description": "Nhóm con của Phụ kiện",
+  "parent": {
+    "$oid": "68814ff880cdfdd23e5e8d42"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:53.086Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:17:16.051Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c9580cdfdd23e5e8ca5"
+  },
+  "name": "Keyboard",
+  "slug": "keyboard",
+  "description": "Nhóm con của Phụ kiện",
+  "parent": {
+    "$oid": "68814ff880cdfdd23e5e8d42"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:53.086Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:17:22.355Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c9580cdfdd23e5e8ca6"
+  },
+  "name": "Cable",
+  "slug": "cable",
+  "description": "Nhóm con của Phụ kiện",
+  "parent": {
+    "$oid": "68814ff880cdfdd23e5e8d42"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:53.086Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:17:29.298Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c9580cdfdd23e5e8ca7"
+  },
+  "name": "Mouse",
+  "slug": "mouse",
+  "description": "Nhóm con của Phụ kiện",
+  "parent": {
+    "$oid": "68814ff880cdfdd23e5e8d42"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:53.087Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:17:36.446Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c9580cdfdd23e5e8ca8"
+  },
+  "name": "USB Hub",
+  "slug": "usb-hub",
+  "description": "Nhóm con của Phụ kiện",
+  "parent": {
+    "$oid": "68814ff880cdfdd23e5e8d42"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:53.087Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:17:43.524Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814c9580cdfdd23e5e8ca9"
+  },
+  "name": "Headset",
+  "slug": "headset",
+  "description": "Nhóm con của Phụ kiện",
+  "parent": {
+    "$oid": "68814ff880cdfdd23e5e8d42"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T20:56:53.087Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:17:49.671Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68814ff880cdfdd23e5e8d42"
+  },
+  "name": "Phụ kiện",
+  "slug": "phu-kien",
+  "description": "Danh mục Phụ kiện",
+  "parent": null,
+  "icon": "accessory.svg",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T21:11:20.371Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T21:11:20.371Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68815b6180cdfdd23e5e8e06"
+  },
+  "name": "DDR4",
+  "slug": "ddr4",
+  "description": "Nhóm con của RAM",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e8956"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T22:00:01.316Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T22:06:27.374Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68815b6180cdfdd23e5e8e07"
+  },
+  "name": "DDR5",
+  "slug": "ddr5",
+  "description": "Nhóm con của RAM",
+  "parent": {
+    "$oid": "68814aa380cdfdd23e5e8956"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T22:00:01.317Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T22:06:37.108Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68815c2880cdfdd23e5e8e34"
+  },
+  "name": "1x8GB DDR4",
+  "slug": "1x8gb-ddr4",
+  "description": "Nhóm con của DDR4",
+  "parent": {
+    "$oid": "68815b6180cdfdd23e5e8e06"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T22:03:20.335Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T22:06:45.510Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68815c2880cdfdd23e5e8e35"
+  },
+  "name": "2x8GB DDR4",
+  "slug": "2x8gb-ddr4",
+  "description": "Nhóm con của DDR4",
+  "parent": {
+    "$oid": "68815b6180cdfdd23e5e8e06"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T22:03:20.335Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T22:06:52.264Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68815c2880cdfdd23e5e8e36"
+  },
+  "name": "4x8GB DDR4",
+  "slug": "4x8gb-ddr4",
+  "description": "Nhóm con của DDR4",
+  "parent": {
+    "$oid": "68815b6180cdfdd23e5e8e06"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T22:03:20.335Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T22:07:00.772Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68815c2880cdfdd23e5e8e37"
+  },
+  "name": "1x16GB DDR4",
+  "slug": "1x16gb-ddr4",
+  "description": "Nhóm con của DDR4",
+  "parent": {
+    "$oid": "68815b6180cdfdd23e5e8e06"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T22:03:20.335Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T22:07:07.390Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68815c2880cdfdd23e5e8e38"
+  },
+  "name": "2x16GB DDR4",
+  "slug": "2x16gb-ddr4",
+  "description": "Nhóm con của DDR4",
+  "parent": {
+    "$oid": "68815b6180cdfdd23e5e8e06"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T22:03:20.335Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T22:07:14.431Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68815c2880cdfdd23e5e8e39"
+  },
+  "name": "4x16GB DDR4",
+  "slug": "4x16gb-ddr4",
+  "description": "Nhóm con của DDR4",
+  "parent": {
+    "$oid": "68815b6180cdfdd23e5e8e06"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T22:03:20.335Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T22:07:21.617Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68815c2880cdfdd23e5e8e3a"
+  },
+  "name": "1x32GB DDR4",
+  "slug": "1x32gb-ddr4",
+  "description": "Nhóm con của DDR4",
+  "parent": {
+    "$oid": "68815b6180cdfdd23e5e8e06"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T22:03:20.335Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T22:07:28.611Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68815c2880cdfdd23e5e8e3b"
+  },
+  "name": "2x32GB DDR4",
+  "slug": "2x32gb-ddr4",
+  "description": "Nhóm con của DDR4",
+  "parent": {
+    "$oid": "68815b6180cdfdd23e5e8e06"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T22:03:20.335Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T22:07:43.022Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68815c2880cdfdd23e5e8e3c"
+  },
+  "name": "1x8GB DDR5",
+  "slug": "1x8gb-ddr5",
+  "description": "Nhóm con của DDR5",
+  "parent": {
+    "$oid": "68815b6180cdfdd23e5e8e07"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T22:03:20.335Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T22:08:12.311Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68815c2880cdfdd23e5e8e3d"
+  },
+  "name": "2x8GB DDR5",
+  "slug": "2x8gb-ddr5",
+  "description": "Nhóm con của DDR5",
+  "parent": {
+    "$oid": "68815b6180cdfdd23e5e8e07"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T22:03:20.335Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T22:08:18.882Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68815c2880cdfdd23e5e8e3e"
+  },
+  "name": "4x8GB DDR5",
+  "slug": "4x8gb-ddr5",
+  "description": "Nhóm con của DDR5",
+  "parent": {
+    "$oid": "68815b6180cdfdd23e5e8e07"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T22:03:20.335Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T22:08:26.096Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68815c2880cdfdd23e5e8e3f"
+  },
+  "name": "1x16GB DDR5",
+  "slug": "1x16gb-ddr5",
+  "description": "Nhóm con của DDR5",
+  "parent": {
+    "$oid": "68815b6180cdfdd23e5e8e07"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T22:03:20.335Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T22:08:32.544Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68815c2880cdfdd23e5e8e40"
+  },
+  "name": "2x16GB DDR5",
+  "slug": "2x16gb-ddr5",
+  "description": "Nhóm con của DDR5",
+  "parent": {
+    "$oid": "68815b6180cdfdd23e5e8e07"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T22:03:20.335Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T22:08:39.086Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68815c2880cdfdd23e5e8e41"
+  },
+  "name": "4x16GB DDR5",
+  "slug": "4x16gb-ddr5",
+  "description": "Nhóm con của DDR5",
+  "parent": {
+    "$oid": "68815b6180cdfdd23e5e8e07"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T22:03:20.335Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T22:08:45.145Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68815c2880cdfdd23e5e8e42"
+  },
+  "name": "1x32GB DDR5",
+  "slug": "1x32gb-ddr5",
+  "description": "Nhóm con của DDR5",
+  "parent": {
+    "$oid": "68815b6180cdfdd23e5e8e07"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T22:03:20.335Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T22:08:51.423Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68815c2880cdfdd23e5e8e43"
+  },
+  "name": "2x32GB DDR5",
+  "slug": "2x32gb-ddr5",
+  "description": "Nhóm con của DDR5",
+  "parent": {
+    "$oid": "68815b6180cdfdd23e5e8e07"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T22:03:20.335Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T22:08:57.345Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68815c2880cdfdd23e5e8e44"
+  },
+  "name": "1x64GB DDR5",
+  "slug": "1x64gb-ddr5",
+  "description": "Nhóm con của DDR5",
+  "parent": {
+    "$oid": "68815b6180cdfdd23e5e8e07"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T22:03:20.335Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T22:09:04.002Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68815c2880cdfdd23e5e8e45"
+  },
+  "name": "2x64GB DDR5",
+  "slug": "2x64gb-ddr5",
+  "description": "Nhóm con của DDR5",
+  "parent": {
+    "$oid": "68815b6180cdfdd23e5e8e07"
+  },
+  "icon": "",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T22:03:20.335Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T22:09:10.790Z"
+  }
+}]

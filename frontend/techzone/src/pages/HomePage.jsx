@@ -138,6 +138,15 @@ const HomePage = () => {
     }, 150); // 150ms delay
   };
 
+  const getProductImage = (product) => {
+    const isGoogleImageLink = url => typeof url === 'string' && url.includes('google.com/imgres');
+    let images = [];
+    if (Array.isArray(product.image)) images = product.image;
+    else if (typeof product.image === 'string') images = [product.image];
+    images = images.filter(url => url && !isGoogleImageLink(url));
+    return images[0] || '/default-product-image.png';
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <div className="flex-1">
@@ -255,7 +264,7 @@ const HomePage = () => {
                   {filteredProducts.slice(0, 4).map(product => (
                     <div key={product._id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow flex flex-col overflow-hidden">
                       <div className="relative bg-gray-100 flex items-center justify-center" style={{height:208}}>
-                        <img src={product.image} alt={product.name} className="object-contain h-52 w-full" />
+                        <img src={getProductImage(product)} alt={product.name} className="object-contain h-52 w-full" />
                       </div>
                       <div className="p-4 flex-1 flex flex-col">
                         {product.category && <span className="text-xs text-gray-500 mb-1">{product.category.name || product.category}</span>}
@@ -297,10 +306,15 @@ const HomePage = () => {
                 <div>Đang tải sản phẩm...</div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {products.filter(product => (product.category && product.category._id === '6880f8f65c48a7e4f61d311d')).slice(0, 4).map(product => (
+                  {products.filter(product => {
+                    if (!product.category) return false;
+                    const cat = product.category;
+                    const name = typeof cat === 'object' ? (cat.name || cat.slug || '') : cat;
+                    return name.toLowerCase().includes('cpu');
+                  }).map(product => (
                     <div key={product._id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow flex flex-col overflow-hidden">
                       <div className="relative bg-gray-100 flex items-center justify-center" style={{height:208}}>
-                        <img src={product.image} alt={product.name} className="object-contain h-52 w-full" />
+                        <img src={getProductImage(product)} alt={product.name} className="object-contain h-52 w-full" />
                       </div>
                       <div className="p-4 flex-1 flex flex-col">
                         {product.category && <span className="text-xs text-gray-500 mb-1">{product.category.name || product.category}</span>}
@@ -338,7 +352,7 @@ const HomePage = () => {
                   {products.filter(product => (product.category && ['688122b612839dc4b8e5fe2a', '68814c9580cdfdd23e5e8c95', '68814c9580cdfdd23e5e8c94', '68814c9580cdfdd23e5e8c93'].includes(product.category._id))).slice(0, 4).map(product => (
                     <div key={product._id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow flex flex-col overflow-hidden">
                       <div className="relative bg-gray-100 flex items-center justify-center" style={{height:208}}>
-                        <img src={product.image || '/default-product-image.png'} alt={product.name} className="object-contain h-52 w-full" />
+                        <img src={getProductImage(product)} alt={product.name} className="object-contain h-52 w-full" />
                       </div>
                       <div className="p-4 flex-1 flex flex-col">
                         {product.category && <span className="text-xs text-gray-500 mb-1">{product.category.name || product.category}</span>}
@@ -383,7 +397,7 @@ const HomePage = () => {
                   {products.filter(product => (product.category && product.category._id === '68814ff880cdfdd23e5e8d42')).slice(0, 4).map(product => (
                     <div key={product._id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow flex flex-col overflow-hidden">
                       <div className="relative bg-gray-100 flex items-center justify-center" style={{height:208}}>
-                        <img src={product.image} alt={product.name} className="object-contain h-52 w-full" />
+                        <img src={getProductImage(product)} alt={product.name} className="object-contain h-52 w-full" />
                       </div>
                       <div className="p-4 flex-1 flex flex-col">
                         {product.category && <span className="text-xs text-gray-500 mb-1">{product.category.name || product.category}</span>}
@@ -434,7 +448,7 @@ const HomePage = () => {
                       {newsProducts.map(product => (
                         <div key={product._id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow flex flex-col overflow-hidden w-[340px] flex-shrink-0">
                           <div className="relative bg-gray-100 flex items-center justify-center" style={{height:208}}>
-                            <img src={product.image} alt={product.name} className="object-contain h-52 w-full" />
+                            <img src={getProductImage(product)} alt={product.name} className="object-contain h-52 w-full" />
                           </div>
                           <div className="p-4 flex-1 flex flex-col">
                             {product.category && <span className="text-xs text-gray-500 mb-1">{product.category.name || product.category}</span>}

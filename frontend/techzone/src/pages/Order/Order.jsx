@@ -480,7 +480,7 @@ const OrderForm = () => {
                     <div className="w-20 h-20 bg-gray-100 rounded-md flex items-center justify-center flex-shrink-0">
                       {item.product?.image ? (
                         <img
-                          src={item.product.image}
+                                                      src={item.product.image}
                           alt={item.product?.name || 'Sản phẩm'}
                           className="w-full h-full object-cover"
                         />
