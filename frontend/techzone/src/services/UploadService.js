@@ -21,6 +21,21 @@ class UploadService {
             throw error;
         }
     }
+    async uploadImage(file) {
+        try {
+            const formData = new FormData();
+            formData.append("image", file);
+            const response = await this.api.post("/image", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                }
+            });
+            return response.data.url;
+        } catch (error) {
+            console.error('UploadService Error: Failed to upload image:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    }
 
 };
 

@@ -28,7 +28,8 @@ const ProductManager = () => {
     price: '',
     stock: '',
     category: '',
-    images: '',
+    description: '',
+    images: [],
     specs: []
   });
 
@@ -56,7 +57,7 @@ const ProductManager = () => {
       setFormData(product);
       setEditingProduct(product);
     } else {
-      setFormData({ name: '', price: '', stock: '', category: '', image: '', specs: [] });
+      setFormData({ name: '', price: '', stock: '', category: '', images: '', specs: [] });
       setEditingProduct(null);
     }
     setOpen(true);
@@ -89,8 +90,13 @@ const ProductManager = () => {
   const handleMultipleImageUpload = async (e) => {
     const files = Array.from(e.target.files);
     const urls = await Promise.all(files.map(file => UploadService.uploadImage(file)));
-    setFormData({ ...formData, images: [...formData.images || [], ...urls] });
+
+    setFormData(prev => ({
+      ...prev,
+      images: [...(prev.images || []), ...urls]
+    }));
   };
+
 
 
   const handleSubmit = async () => {
@@ -141,7 +147,9 @@ const ProductManager = () => {
                     <TableCell>{p.stock}</TableCell>
                     <TableCell>{p.category?.name}</TableCell>
                     <TableCell>
-                      <img src={p.image} alt="img" width="50" height="50" />
+                      {p.images?.length > 0 && (
+                        <img src={p.images[0]} alt="img" width="50" height="50" />
+                      )}
                     </TableCell>
                     <TableCell>
                       <IconButton onClick={() => handleOpen(p)}><FaEdit /></IconButton>
@@ -175,10 +183,24 @@ const ProductManager = () => {
               
             </Button>
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1 }}>
-              {(formData.images || []).map((img, i) => (
-                <img key={i} src={img} alt={`img-${i}`} width="80" height="80" style={{ borderRadius: 4 }} />
-              ))}
-            </Box>
+  {formData.images?.map((img, i) => (
+    <Box key={i} sx={{ position: 'relative' }}>
+          <img src={img} alt={`img-${i}`} width="80" height="80" style={{ borderRadius: 4 }} />
+          <Button
+            size="small"
+            sx={{
+              position: 'absolute', top: 0, right: 0, minWidth: 0, padding: '2px',
+              background: 'rgba(255,255,255,0.7)'
+            }}
+            onClick={() => {
+              const newImages = formData.images.filter((_, idx) => idx !== i);
+              setFormData({ ...formData, images: newImages });
+            }}
+          >X</Button>
+        </Box>
+      ))}
+    </Box>
+
 
             <Typography variant="h6" sx={{ mt: 2 }}>Thông số kỹ thuật</Typography>
             {formData.specs.map((spec, index) => (
@@ -189,8 +211,6 @@ const ProductManager = () => {
               </div>
             ))}
             <Button onClick={handleAddSpec}>Thêm thông số</Button>
-            <TextField label="Mô tả ngắn" name="shortDesc" fullWidth multiline rows={3} value={formData.shortDesc || ''} onChange={handleChange} />
-
             <Typography variant="h6" sx={{ mt: 2 }}>Mô tả chi tiết</Typography>
             <Editor
               apiKey={import.meta.env.VITE_TINIMCE_API_KEY}
