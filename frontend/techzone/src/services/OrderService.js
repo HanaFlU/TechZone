@@ -67,6 +67,16 @@ class OrderService {
             throw error;
         }
     }
+    async getRevenuePerDayThisMonth() {
+        try {
+            const response = await this.api.get('/revenue/by-day');
+            return response.data;
+        } catch (error) {
+            console.error('OrderService Error: Failed to get revenue per day this month:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    }
+
 }
 
 export default new OrderService();
