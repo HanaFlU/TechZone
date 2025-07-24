@@ -4,8 +4,8 @@ const Product = require('../models/ProductModel.js');
 const Order = require('../models/OrderModel.js');
 const PaymentController = {
     createStripePaymentIntent: async (req, res) => {
-        const { customerId, shippingAddressId } = req.body;
-        if (!customerId || !shippingAddressId) {
+        const { customerId, shippingAddressId, shippingFee } = req.body;
+        if (!customerId || !shippingAddressId || shippingFee == undefined) {
             return res.status(400).json({ message: 'Thiếu thông tin khách hàng hoặc địa chỉ giao hàng.' });
         }
 
@@ -40,10 +40,11 @@ const PaymentController = {
                 });
             }
 
-            const fee = 20000;
-            totalAmount += fee;
+            totalAmount += shippingFee;
+            const amountInMinorUnits = Math.round(totalAmount / 1000);
 
-            const amountInMinorUnits = Math.round(totalAmount);
+            console.log('Final amount to send to Stripe:', amountInMinorUnits);
+            console.log('Currency for PaymentIntent:', 'vnd');
 
             const paymentIntent = await stripe.paymentIntents.create({
                 amount: amountInMinorUnits,

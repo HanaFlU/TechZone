@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
 import UserMenu from '../user/UserMenu'
+import { useNavigate } from 'react-router-dom';
 
 const Navbar = ({onAccountClick, setAdminMode}) => {
   const [searchValue, setSearchValue] = useState('')
   const [cartItemCount, setCartItemCount] = useState(0) // You can connect this to your cart state
-
+  const navigate = useNavigate(); 
   const handleSearchChange = (e) => {
     setSearchValue(e.target.value)
   }
@@ -14,13 +15,11 @@ const Navbar = ({onAccountClick, setAdminMode}) => {
   }
 
   const handleSearch = () => {
-    // TODO: Implement search functionality
     console.log('Searching for:', searchValue)
   }
 
   const handleCartClick = () => {
-    // TODO: Navigate to cart page or open cart modal
-    console.log('Cart clicked')
+    navigate('/cart');
   }
 
   return (
