@@ -10,104 +10,97 @@ const OrderConfirmationEmail = async (order, customerEmail, customerName) => {
             return;
         }
 
+        const primaryColor = '#328E6E';
+        const headerBackgroundColor = 'rgb(116, 179, 157, 0.5)';
+        const borderColor = '#d9d9d9';
+
         // Tạo HTML cho danh sách sản phẩm trong đơn hàng
         const itemsHtml = order.items.map(item => `
             <tr>
-                <td style="border: 1px solid #ddd; padding: 8px;">${item.product.name}</td>
-                <td style="border: 1px solid #ddd; padding: 8px;">${item.quantity}</td>
-                <td style="border: 1px solid #ddd; padding: 8px;">${item.priceAtOrder.toLocaleString('vi-VN')} VND</td>
-                <td style="border: 1px solid #ddd; padding: 8px;">${(item.quantity * item.priceAtOrder).toLocaleString('vi-VN')} VND</td>
+                <td style="border: 1px solid ${borderColor}; padding: 12px; text-align: left;">${item.product.name}</td>
+                <td style="border: 1px solid ${borderColor}; padding: 12px; text-align: center;">${item.quantity}</td>
+                <td style="border: 1px solid ${borderColor}; padding: 12px; text-align: right;">${item.priceAtOrder.toLocaleString('vi-VN')} VND</td>
+                <td style="border: 1px solid ${borderColor}; padding: 12px; text-align: right;">${(item.quantity * item.priceAtOrder).toLocaleString('vi-VN')} VND</td>
             </tr>
         `).join('');
 
         // Nội dung email đầy đủ bằng HTML
         const emailContent = `
-            <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-                <h2 style="color: #0056b3;">Xác Nhận Đơn Hàng Của Bạn #${order.orderId
-            }</h2>
-                <p>Kính gửi ${customerName || "Quý khách"},</p>
-                <p>Cảm ơn bạn đã đặt hàng tại cửa hàng của chúng tôi! Đơn hàng của bạn sẽ sớm được nhân viên xác nhận và sẽ được xử lý trong thời gian ngắn nhất.</p>
+            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; max-width: 800px; border: 1px solid ${primaryColor};">
+                <div style="background-color: ${primaryColor}; padding: 30px 25px; text-align: center; color: #ffffff;">
+                    <h1 style="margin: 0; font-size: 30px; font-weight: 600;">Xác Nhận Đơn Hàng Của Bạn</h1>
+                    <p style="margin: 4px 0 0; font-size: 18px;">Mã đơn hàng: <strong>#${order.orderId}</strong></p>
+                </div>
 
-                <h3>Thông Tin Đơn Hàng:</h3>
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-                    <tr>
-                        <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;">Mã Đơn Hàng:</th>
-                        <td style="border: 1px solid #ddd; padding: 8px;"><strong>#${order.orderId
-            }</strong></td>
-                    </tr>
-                    <tr>
-                        <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;">Ngày Đặt Hàng:</th>
-                        <td style="border: 1px solid #ddd; padding: 8px;">${new Date(
-                order.createdAt
-            ).toLocaleString("vi-VN", {
-                timeZone: "Asia/Ho_Chi_Minh",
-            })}</td>
-                    </tr>
-                    <tr>
-                        <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;">Tổng Tiền:</th>
-                        <td style="border: 1px solid #ddd; padding: 8px;"><strong>${order.totalAmount.toLocaleString(
-                "vi-VN"
-            )} VND</strong></td>
-                    </tr>
-                    <tr>
-                        <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;">Phương Thức Thanh Toán:</th>
-                        <td style="border: 1px solid #ddd; padding: 8px;">${order.paymentMethod === "COD"
-                ? "Thanh toán khi nhận hàng (COD)"
-                : order.paymentMethod === "CREDIT_CARD"
-                    ? "Thẻ tín dụng"
-                    : "Khác"
-            }</td>
-                    </tr>
-                    <tr>
-                        <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;">Trạng Thái Thanh Toán:</th>
-                        <td style="border: 1px solid #ddd; padding: 8px;">${order.paymentStatus === "SUCCESSED"
-                ? "Đã Thanh Toán"
-                : order.paymentStatus === "PENDING"
-                    ? "Chờ Thanh Toán"
-                    : "Thất Bại"
-            }</td>
-                    </tr>
-                    <tr>
-                        <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;">Trạng Thái Đơn Hàng:</th>
-                        <td style="border: 1px solid #ddd; padding: 8px;">${order.status
-            }</td>
-                    </tr>
-                </table>
+                <div style="padding: 0 20px;">
+                    <p style="font-size: 16px;">Kính gửi ${customerName || 'Quý khách'},</p>
+                    <p style="font-size: 16px; margin-bottom: 8px;">Cảm ơn bạn đã tin tưởng và đặt hàng tại <strong style="color: ${primaryColor};">${process.env.APP_NAME || 'TECHZONE'}</strong>! Đơn hàng của bạn đã được xác nhận thành công và sẽ sớm được xử lý trong thời gian ngắn nhất.</p>
 
-                <h3>Chi Tiết Sản Phẩm:</h3>
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-                    <thead>
+                    <h3 style="color: ${primaryColor}; border-bottom: 2px solid ${borderColor}; padding-bottom: 10px; margin-top: 30px; margin-bottom: 15px; font-size: 20px;">Thông Tin Đơn Hàng</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 15px;">
                         <tr>
-                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;">Sản Phẩm</th>
-                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;">Số Lượng</th>
-                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;">Giá Đơn Vị</th>
-                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;">Thành Tiền</th>
+                            <th style="border: 1px solid ${borderColor}; padding: 12px; text-align: left; background-color: ${headerBackgroundColor}; width: 40%;">Mã Đơn Hàng:</th>
+                            <td style="border: 1px solid ${borderColor}; padding: 12px;"><strong>#${order.orderId}</strong></td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        ${itemsHtml}
-                    </tbody>
-                </table>
+                        <tr>
+                            <th style="border: 1px solid ${borderColor}; padding: 12px; text-align: left; background-color: ${headerBackgroundColor};">Ngày Đặt Hàng:</th>
+                            <td style="border: 1px solid ${borderColor}; padding: 12px;">${new Date(order.createdAt).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</td>
+                        </tr>
+                        <tr>
+                            <th style="border: 1px solid ${borderColor}; padding: 12px; text-align: left; background-color: ${headerBackgroundColor};">Phương Thức Thanh Toán:</th>
+                            <td style="border: 1px solid ${borderColor}; padding: 12px;">${order.paymentMethod === 'COD' ? 'Thanh toán khi nhận hàng (COD)' : order.paymentMethod === 'CREDIT_CARD' ? 'Thẻ tín dụng' : 'Khác'}</td>
+                        </tr>
+                        <tr>
+                            <th style="border: 1px solid ${borderColor}; padding: 12px; text-align: left; background-color: ${headerBackgroundColor};">Trạng Thái Thanh Toán:</th>
+                            <td style="border: 1px solid ${borderColor}; padding: 12px;">${order.paymentStatus === 'SUCCESSED' ? 'Đã Thanh Toán' : order.paymentStatus === 'PENDING' ? 'Chờ Thanh Toán' : 'Thất Bại'}</td>
+                        </tr>
+                        <tr>
+                            <th style="border: 1px solid ${borderColor}; padding: 12px; text-align: left; background-color: ${headerBackgroundColor};">Trạng Thái Đơn Hàng:</th>
+                            <td style="border: 1px solid ${borderColor}; padding: 12px;">${order.status}</td>
+                        </tr>
+                        <tr>
+                            <th style="border: 1px solid ${borderColor}; padding: 12px; text-align: left; background-color: ${headerBackgroundColor};">Phí Vận Chuyển:</th>
+                            <td style="border: 1px solid ${borderColor}; padding: 12px;">${order.shippingFee ? order.shippingFee.toLocaleString('vi-VN') + ' VND' : 'Miễn phí'}</td>
+                        </tr>
+                        <tr>
+                            <th style="border: 1px solid ${borderColor}; padding: 12px; text-align: left; background-color: ${headerBackgroundColor}; font-size: 18px;">Tổng Cộng:</th>
+                            <td style="border: 1px solid ${borderColor}; padding: 12px;"><strong style="color: ${primaryColor}; font-size: 20px;">${order.totalAmount.toLocaleString('vi-VN')} VND</strong></td>
+                        </tr>
+                    </table>
 
-                <h3>Địa Chỉ Giao Hàng:</h3>
-                <p>
-                    ${order.shippingAddress?.fullName}<br/>
-                    ${order.shippingAddress?.street}, ${order.shippingAddress?.ward
-            }, ${order.shippingAddress?.district}, ${order.shippingAddress?.city
-            }<br/>
-                    Điện thoại: ${order.shippingAddress?.phone}
-                </p>
+                    <h3 style="color: ${primaryColor}; border-bottom: 2px solid ${borderColor}; padding-bottom: 10px; margin-top: 30px; margin-bottom: 15px; font-size: 20px;">Chi Tiết Sản Phẩm</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 15px;">
+                        <thead>
+                            <tr>
+                                <th style="border: 1px solid ${borderColor}; padding: 12px; text-align: left; background-color: ${headerBackgroundColor};">Tên Sản Phẩm</th>
+                                <th style="border: 1px solid ${borderColor}; padding: 12px; text-align: center; background-color: ${headerBackgroundColor};">Số Lượng</th>
+                                <th style="border: 1px solid ${borderColor}; padding: 12px; text-align: right; background-color: ${headerBackgroundColor};">Đơn Giá</th>
+                                <th style="border: 1px solid ${borderColor}; padding: 12px; text-align: right; background-color: ${headerBackgroundColor};">Thành Tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${itemsHtml}
+                        </tbody>
+                    </table>
 
-                <p>Chúng tôi sẽ sớm xử lý đơn hàng của bạn. Bạn có thể kiểm tra trạng thái đơn hàng của mình tại tài khoản của bạn.</p>
-                <p>Trân trọng,</p>
-                <p>Đội ngũ TECHZONE</p>
+                    <h3 style="color: ${primaryColor}; border-bottom: 2px solid ${borderColor}; padding-bottom: 10px; margin-top: 30px; margin-bottom: 15px; font-size: 20px;">Địa Chỉ Giao Hàng</h3>
+                    <p style="margin-bottom: 15px; font-size: 15px;">
+                        <strong>${order.shippingAddress?.fullName}</strong><br/>
+                        Số điện thoại: ${order.shippingAddress?.phone}<br/>
+                        ${order.shippingAddress?.street}, ${order.shippingAddress?.ward}, ${order.shippingAddress?.district}, ${order.shippingAddress?.city}
+                        
+                    </p>
+
+                    <p style="font-size: 16px; margin-top: 20px;">Nếu bạn có bất kỳ câu hỏi nào về đơn hàng của mình, vui lòng liên hệ với chúng tôi qua email <a style="color: ${primaryColor}; text-decoration: none; font-weight: bold;">techzone@gmail.com</a> hoặc số điện thoại <strong style="color: ${primaryColor};">0123 456 789</strong>.</p>
+                    <p style="font-size: 16px; margin-top: 4px;">Trân trọng,</p>
+                </div>
             </div>
         `;
 
         const msg = {
             to: customerEmail,
             from: process.env.SENDGRID_SENDER_EMAIL,
-            subject: `Xác nhận đơn hàng #${order.orderId} từ TECHZONE}`,
+            subject: `Xác nhận đơn hàng #${order.orderId} từ TECHZONE`,
             html: emailContent,
         };
 

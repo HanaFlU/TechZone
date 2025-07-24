@@ -20,7 +20,7 @@ import AdminStaff from './pages/Admin/ManageUsers/AdminStaff';
 import AdminCustomerOrderList from './pages/Admin/ManageUsers/AdminCustomerOrderList';
 import AdminCategory from './pages/Admin/ManageCategories/AdminCategory';
 import AdminProduct from './pages/Admin/ManageProducts/AdminProduct';
-import AdminSpec from './pages/Admin/ManageSpecifications/AdminSpec';
+import AdminOrderList from './pages/Admin/ManageOrders/AdminOrderList';
 
 import NotFoundPage from './pages/NotFoundPage';
 
@@ -61,8 +61,7 @@ const App = () => {
                   <Route path="/admin/dashboard" element={<AdminDashboard />} />
                   <Route path="/admin/products" element={<AdminProduct />} />
                   <Route path="/admin/category" element={<AdminCategory />} />
-                  <Route path="/admin/spec" element={<AdminSpec />} />
-                  {/*<Route path="/admin/orders" element={<AdminOrder />} /> */}
+                  <Route path="/admin/orders" element={<AdminOrderList />} /> 
                   <Route path="/admin/customers" element={<AdminCustomer />} />
                   <Route path="/admin/customer-order/:customerId" element={<AdminCustomerOrderList />} />
                   <Route path="/admin/staff" element={<AdminStaff />} />

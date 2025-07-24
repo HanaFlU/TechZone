@@ -4,13 +4,18 @@ class OrderService {
     constructor(apiURL = `${import.meta.env.VITE_API_URL}/orders`) {
         this.api = createApiClient(apiURL);
     }
+    async getAllOrders(filters) {
+        try {
+            const queryParams = new URLSearchParams(filters).toString();
+            console.log('OrderService: Attempting to GET all orders with filters:', queryParams);
+            const response = await this.api.get(`/?${queryParams}`);
+            return response.data;
+        } catch (error) {
+            console.error('OrderService Error: Failed to get all orders:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    }
 
-    /**
-     * Gửi yêu cầu tạo một đơn hàng mới từ giỏ hàng.
-     * Tương ứng với POST /api/orders/
-     * @param {object} orderData - Dữ liệu cần thiết để tạo đơn hàng (customerId, shippingAddressId, paymentMethod).
-     * @returns {Promise<object>} Dữ liệu của đơn hàng đã được tạo.
-     */
     async createOrder(orderData) {
         try {
             console.log('OrderService: Attempting to POST to URL:', `${this.api.defaults.baseURL}`, 'with data:', orderData);
@@ -31,6 +36,16 @@ class OrderService {
             return response.data;
         } catch (error) {
             console.error('OrderService Error: Failed to get order by id:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    }
+    async updateOrderStatus(orderId, newStatus) {
+        try {
+            console.log(`OrderService: Attempting to PUT order ${orderId} status to ${newStatus}`);
+            const response = await this.api.put(`/${orderId}/status`, { newStatus });
+            return response.data;
+        } catch (error) {
+            console.error(`OrderService Error: Failed to update order status for ${orderId}:`, error.response ? error.response.data : error.message);
             throw error;
         }
     }

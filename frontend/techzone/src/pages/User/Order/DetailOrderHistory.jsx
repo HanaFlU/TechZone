@@ -76,9 +76,10 @@ const DetailOrder = ({
                         {getStatusDisplayName(s.status)}
                       </h4>
                     </div>
+                    {s.status === "CANCELLED" && <p className="text-sm text-secondary">Đơn hàng đã bị hủy!</p>}
                     {s.status === "DELIVERED" && <p className="text-sm text-secondary">Giao hàng thành công!</p>}
                     {s.status === "SHIPPED" && <p className="text-sm text-secondary">Đang giao hàng</p>}
-                    {s.status === "CONFIRMED" && <p className="text-sm text-secondary">Đơn hàng đã được xác nhận thành công! Đang trong quá trình vận chuyển</p>}
+                    {s.status === "CONFIRMED" && <p className="text-sm text-secondary">Đơn hàng đã được xác nhận thành công! Đang chuẩn bị hàng và chờ vận chuyển</p>}
                     {s.status === "PENDING" && <p className="text-sm text-secondary">Đơn hàng đã đặt thành công! Vui lòng chờ xác nhận đơn hàng từ cửa hàng.</p>}
                   </div>
                 </div>
@@ -92,7 +93,7 @@ const DetailOrder = ({
 
       {/* Danh sách sản phẩm */}
       <div>
-        <p className="text-xl font-semibold mb-3 text-gray-800">Danh sách sản phẩm</p>
+        <p className="text-xl font-semibold mb-3 mt-4 text-gray-800">Danh sách sản phẩm</p>
         {selectedOrder.items?.map((item, idx) => (
           <div key={idx} className="flex items-center py-2 border-t border-gray-100 first:border-t-0">
             <div className="w-16 h-16 bg-gray-100 rounded-md flex-shrink-0 overflow-hidden flex items-center justify-center mr-4">

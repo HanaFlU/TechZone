@@ -52,7 +52,6 @@ const Sidebar = ({onVisitStore, children}) => {
               <div className="ml-6 mt-1 space-y-1">
                 <div className="cursor-pointer hover:text-emerald-600" onClick={() => navigate('/admin/products')}>Product</div>
                 <div className="cursor-pointer hover:text-emerald-600" onClick={() => navigate('/admin/category')}>Category</div>
-                <div className="cursor-pointer hover:text-emerald-600" onClick={() => navigate('/admin/spec')}>Specification</div>
               </div>
             )
         },
@@ -61,8 +60,8 @@ const Sidebar = ({onVisitStore, children}) => {
             icon1: <BsPieChart className='w-5 h-5' />,
             icon2: <BsPieChartFill className='w-5 h-5' />,
             notify: false,
-            onClick: () => navigate('/admin/oders'),
-            active: location.pathname === '/admin/oders'
+            onClick: () => navigate('/admin/orders'),
+            active: location.pathname === '/admin/orders'
         },
         {
             label: 'Users',
