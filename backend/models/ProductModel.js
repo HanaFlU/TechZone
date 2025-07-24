@@ -6,6 +6,7 @@ const specSchema = new mongoose.Schema({
   value: { type: String, required: true },
 }, { _id: false });
 
+
 const ProductSchema = new mongoose.Schema(
   {
     productId: {
@@ -29,10 +30,7 @@ const ProductSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
-    image: {
-      type: String,
-      default: '/default-product-image.png',
-    },
+    images: [String],
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'TestCategory',

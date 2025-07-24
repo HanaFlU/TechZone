@@ -345,6 +345,108 @@ const OrderController = {
             res.status(500).json({ message: 'Lỗi server khi cập nhật trạng thái đơn hàng.', error: error.message });
         }
     },
+    getDailyRevenue: async (req, res) => {
+        try {
+            const revenueData = await Order.aggregate([
+                {
+                    $match: {
+                        status: { $ne: 'CANCELLED' },
+                        paymentStatus: 'SUCCESSED' // hoặc thêm COD nếu bạn tính COD là đã thanh toán
+                    }
+                },
+                {
+                    $group: {
+                        _id: {
+                            $dateToString: { format: "%Y-%m-%d", date: "$orderDate" }
+                        },
+                        totalRevenue: { $sum: "$totalAmount" }
+                    }
+                },
+                {
+                    $sort: { _id: 1 }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        date: "$_id",
+                        totalRevenue: 1
+                    }
+                }
+            ]);
+
+            res.status(200).json(revenueData);
+        } catch (error) {
+            console.error("Lỗi khi tính doanh thu theo ngày:", error);
+            res.status(500).json({ message: "Lỗi server khi tính doanh thu.", error: error.message });
+        }
+    },
+    getRevenueSummary: async (req, res) => {
+        try {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+
+            const startOfThisMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            const startOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+            const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0); // ngày cuối tháng trước
+
+            const matchCondition = {
+                status: { $ne: "CANCELLED" },
+                paymentStatus: "SUCCESSED",
+            };
+
+            const [todayTotal, yesterdayTotal, thisMonthTotal, lastMonthTotal, allTimeTotal] = await Promise.all([
+                // Today
+                Order.aggregate([
+                    { $match: { ...matchCondition, orderDate: { $gte: today } } },
+                    { $group: { _id: null, total: { $sum: "$totalAmount" } } },
+                ]),
+                // Yesterday
+                Order.aggregate([
+                    {
+                        $match: {
+                            ...matchCondition,
+                            orderDate: { $gte: yesterday, $lt: today },
+                        },
+                    },
+                    { $group: { _id: null, total: { $sum: "$totalAmount" } } },
+                ]),
+                // This Month
+                Order.aggregate([
+                    { $match: { ...matchCondition, orderDate: { $gte: startOfThisMonth } } },
+                    { $group: { _id: null, total: { $sum: "$totalAmount" } } },
+                ]),
+                // Last Month
+                Order.aggregate([
+                    {
+                        $match: {
+                            ...matchCondition,
+                            orderDate: { $gte: startOfLastMonth, $lte: endOfLastMonth },
+                        },
+                    },
+                    { $group: { _id: null, total: { $sum: "$totalAmount" } } },
+                ]),
+                // All Time
+                Order.aggregate([
+                    { $match: matchCondition },
+                    { $group: { _id: null, total: { $sum: "$totalAmount" } } },
+                ]),
+            ]);
+
+            res.status(200).json({
+                today: todayTotal[0]?.total || 0,
+                yesterday: yesterdayTotal[0]?.total || 0,
+                thisMonth: thisMonthTotal[0]?.total || 0,
+                lastMonth: lastMonthTotal[0]?.total || 0,
+                allTime: allTimeTotal[0]?.total || 0,
+            });
+        } catch (error) {
+            console.error("Lỗi khi lấy tổng doanh thu:", error);
+            res.status(500).json({ message: "Lỗi server", error: error.message });
+        }
+    },
 };
 
 
