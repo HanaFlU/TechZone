@@ -1,20 +1,19 @@
 import React, { useEffect, useState, useRef } from 'react';
 import ProductService from '../services/ProductService';
 import CategoryService from '../services/CategoryService';
-import BrandService from '../services/BrandService';
-import SubcategoryService from '../services/SubcategoryService';
 
 const HomePage = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [subcategories, setSubcategories] = useState([]);
-  const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [hoveredCategory, setHoveredCategory] = useState(null);
   const [isSubcatHovered, setIsSubcatHovered] = useState(false);
+  const [hoveredSubcategory, setHoveredSubcategory] = useState(null);
   const [expandedSubcategory, setExpandedSubcategory] = useState(null);
   const submenuHideTimer = useRef(null);
   const sidebarRef = useRef(null);
+  const floatingMenuRef = useRef(null);
+  const [sidebarHeight, setSidebarHeight] = useState(0);
   const [bannerHeight, setBannerHeight] = useState(0);
   const [sidebarTop, setSidebarTop] = useState(0);
   const categoryItemRefs = useRef({});
@@ -40,73 +39,183 @@ const HomePage = () => {
       .catch(err => console.error(err));
   }, []);
 
-  useEffect(() => {
-    BrandService.getAllBrands()
-      .then(data => setBrands(data))
-      .catch(err => console.error(err));
-  }, []);
+
 
   useEffect(() => {
     if (sidebarRef.current) {
       setBannerHeight(sidebarRef.current.offsetHeight);
       setSidebarTop(sidebarRef.current.offsetTop);
+      setSidebarHeight(sidebarRef.current.clientHeight);
     }
   }, [sidebarRef, hoveredCategory]);
-
-  // Fetch subcategories on hover
-  useEffect(() => {
-    if (hoveredCategory) {
-      SubcategoryService.getSubcategoriesByCategory(hoveredCategory)
-        .then(data => setSubcategories(data))
-        .catch(() => setSubcategories([]));
-    } else {
-      setSubcategories([]);
-    }
-  }, [hoveredCategory]);
 
   const handleSubcategoryClick = (subcategoryId) => {
     setExpandedSubcategory(subcategoryId);
   };
 
+  const handleGroupHeaderClick = (groupName) => {
+    console.log('Group header clicked:', groupName);
+    // Add your navigation logic here
+    // For example: navigate to a filtered view of all items in this group
+  };
+
+  const handleChildSubcategoryClick = (subcategoryId, subcategoryName) => {
+    console.log('Child subcategory clicked:', subcategoryId, subcategoryName);
+    // Add your navigation logic here
+  };
+
   // No filtering: always show all products
   const filteredProducts = products;
+
+  // Separate main categories and subcategories from merged data
+  const mainCategories = categories.filter(cat => !cat.parent);
+  const subcategories = categories.filter(cat => cat.parent);
+
+  // Group subcategories by parent _id
+  const subcategoriesByParent = {};
+  subcategories.forEach(subcat => {
+    const parentId = typeof subcat.parent === 'object' ? subcat.parent.$oid || subcat.parent : subcat.parent || subcat.parent;
+    if (!subcategoriesByParent[parentId]) {
+      subcategoriesByParent[parentId] = [];
+    }
+    subcategoriesByParent[parentId].push(subcat);
+  });
+
+  // Recursive component for nested subcategories
+  const SubcategoryMenu = ({ subcategories, parentId, level = 0 }) => {
+    const childSubcategories = subcategories.filter(sub => sub.parent === parentId);
+    
+    if (childSubcategories.length === 0) return null;
+    
+    return (
+      <div>
+        {childSubcategories.map(subcat => (
+          <div key={subcat._id} className="relative">
+            <div className={`px-4 py-2 text-sm text-gray-700 hover:text-green-600 cursor-pointer flex justify-between items-center hover:bg-gray-50 ${level > 0 ? 'ml-4' : ''}`}>
+              <span>{subcat.name}</span>
+              {subcategoriesByParent[subcat._id] && subcategoriesByParent[subcat._id].length > 0 && (
+                <span className="text-xs text-gray-400">▶</span>
+              )}
+            </div>
+            {/* Nested subcategories */}
+            {subcategoriesByParent[subcat._id] && (
+              <div className="block bg-gray-50 border-l-2 border-green-200 ml-4">
+                <SubcategoryMenu 
+                  subcategories={subcategories} 
+                  parentId={subcat._id} 
+                  level={level + 1} 
+                />
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const handleCategoryMouseEnter = (categoryId) => {
+    if (submenuHideTimer.current) {
+      clearTimeout(submenuHideTimer.current);
+    }
+    setHoveredCategory(categoryId);
+  };
+
+  const handleCategoryMouseLeave = () => {
+    submenuHideTimer.current = setTimeout(() => {
+      setHoveredCategory(null);
+    }, 150); // 150ms delay
+  };
+
+  const handleFloatingMenuMouseEnter = () => {
+    if (submenuHideTimer.current) {
+      clearTimeout(submenuHideTimer.current);
+    }
+  };
+
+  const handleFloatingMenuMouseLeave = () => {
+    submenuHideTimer.current = setTimeout(() => {
+      setHoveredCategory(null);
+    }, 150); // 150ms delay
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <div className="flex-1">
         <div className="container mx-auto px-4 pt-0 pb-4 -mt-2">
           <div className="flex gap-8 mb-8 relative">
-            <div ref={sidebarRef} className="mt-6">
-              <CategorySidebar
-                categories={categories}
-                categoryItemRefs={categoryItemRefs}
-                hoveredCategory={hoveredCategory}
-                setHoveredCategory={setHoveredCategory}
-                isSubcatHovered={isSubcatHovered}
-                setIsSubcatHovered={setIsSubcatHovered}
-                handleCategoryMouseEnter={categoryId => {
-                  if (submenuHideTimer.current) clearTimeout(submenuHideTimer.current);
-                  setHoveredCategory(categoryId);
-                }}
-                handleCategoryMouseLeave={() => {
-                  submenuHideTimer.current = setTimeout(() => {
-                    setHoveredCategory(null);
-                  }, 120);
-                }}
-                handleSubcatMouseEnter={() => {
-                  if (submenuHideTimer.current) clearTimeout(submenuHideTimer.current);
-                  setIsSubcatHovered(true);
-                }}
-                handleSubcatMouseLeave={() => {
-                  submenuHideTimer.current = setTimeout(() => {
-                    setIsSubcatHovered(false);
-                    setHoveredCategory(null);
-                  }, 120);
-                }}
-                subcategories={subcategories}
-                expandedSubcategory={expandedSubcategory}
-                handleSubcategoryClick={handleSubcategoryClick}
-              />
+            <div
+              ref={sidebarRef}
+              className="mt-6 relative"
+              onMouseLeave={handleCategoryMouseLeave}
+            >
+              <div className="w-80 bg-white rounded-2xl shadow-lg z-10">
+                <div className="bg-green-600 rounded-t-2xl px-6 py-4">
+                  <div className="flex items-center space-x-3">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-white">
+                      <path d="M3 6H21V8H3V6ZM3 11H21V13H3V11ZM3 16H21V18H3V16Z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <h2 className="text-white font-semibold text-lg">DANH MỤC SẢN PHẨM</h2>
+                  </div>
+                </div>
+                <div className="py-2">
+                  {mainCategories.map((category, index) => (
+                    <div
+                      key={category._id}
+                      onMouseEnter={() => handleCategoryMouseEnter(category._id)}
+                      className="relative"
+                    >
+                      <div className="px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors">
+                        <div className="flex items-center space-x-3">
+                          {category.icon && (
+                            <img src={`/assets/icons/${category.icon}`} alt={category.name} className="w-6 h-6 object-contain" />
+                          )}
+                          <div className="font-medium text-gray-900">{category.name}</div>
+                        </div>
+                      </div>
+                      {index < mainCategories.length - 1 && (
+                        <div className="mx-4 border-b border-gray-200"></div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Floating subcategory menu */}
+              {hoveredCategory && subcategoriesByParent[hoveredCategory] && (
+                <div
+                  ref={floatingMenuRef}
+                  className="absolute top-0 left-full ml-2 bg-white rounded-2xl shadow-lg py-2 px-4 min-w-[400px] z-20"
+                  style={{ height: `${sidebarHeight - 20}px`, overflowY: 'auto' }}
+                  onMouseEnter={handleFloatingMenuMouseEnter}
+                  onMouseLeave={handleFloatingMenuMouseLeave}
+                >
+                  <div className="grid grid-cols-2 gap-4">
+                    {subcategoriesByParent[hoveredCategory].map(subcat => (
+                      <div key={subcat._id} className="space-y-1">
+                        <div 
+                          className="px-3 py-2 text-sm font-medium text-gray-900 bg-gray-50 rounded-lg border-l-4 border-green-500 cursor-pointer hover:bg-gray-100 transition-colors"
+                          onClick={() => handleGroupHeaderClick(subcat.name)}
+                        >
+                          {subcat.name}
+                        </div>
+                        {/* Nested subcategories for this parent */}
+                        {subcategoriesByParent[subcat._id] && (
+                          <div className="ml-2 space-y-1">
+                            {subcategoriesByParent[subcat._id].map(childSubcat => (
+                              <div
+                                key={childSubcat._id}
+                                className="px-3 py-1.5 text-sm text-gray-700 hover:text-green-600 cursor-pointer hover:bg-gray-50 rounded transition-colors"
+                                onClick={() => handleChildSubcategoryClick(childSubcat._id, childSubcat.name)}
+                              >
+                                {childSubcat.name}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
             {/* Banner/Ads Placeholder */}
             <div className="flex-1 mt-6">
@@ -155,25 +264,11 @@ const HomePage = () => {
                           WebkitLineClamp: 2,
                           WebkitBoxOrient: 'vertical'
                         }}>{product.name}</h3>
-                        {product.specs && (
+                        {product.specs && product.specs.length > 0 && (
                           <div className="text-xs text-gray-600 mb-2 flex flex-wrap gap-x-2 gap-y-1 items-center">
-                            {/* Only show type for CPU, skip other CPU specs */}
-                            {!(product.category && (product.category.name === 'CPU' || product.category === 'CPU')) && (
-                              <>
-                                {product.specs.cores && product.specs.threads && (
-                                  <span><span className="font-medium">{product.specs.cores}C/{product.specs.threads}T</span></span>
-                                )}
-                                {product.specs.base_clock && product.specs.boost_clock && (
-                                  <span><span className="font-medium">{product.specs.base_clock}→{product.specs.boost_clock}</span></span>
-                                )}
-                                {product.specs.socket && (
-                                  <span><span className="font-medium">{product.specs.socket}</span></span>
-                                )}
-                                {product.specs.tdp && (
-                                  <span><span className="font-medium">{product.specs.tdp}</span></span>
-                                )}
-                              </>
-                            )}
+                            {product.specs.slice(0, 3).map((spec, index) => (
+                              <span key={index}><span className="font-medium">{spec.label}: {spec.value}</span></span>
+                            ))}
                           </div>
                         )}
                         <div className="flex items-end gap-2 mb-2">
@@ -202,7 +297,7 @@ const HomePage = () => {
                 <div>Đang tải sản phẩm...</div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {filteredProducts.slice(0, 4).map(product => (
+                  {products.filter(product => (product.category && product.category._id === '6880f8f65c48a7e4f61d311d')).slice(0, 4).map(product => (
                     <div key={product._id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow flex flex-col overflow-hidden">
                       <div className="relative bg-gray-100 flex items-center justify-center" style={{height:208}}>
                         <img src={product.image} alt={product.name} className="object-contain h-52 w-full" />
@@ -240,10 +335,10 @@ const HomePage = () => {
                 <div>Đang tải sản phẩm...</div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {filteredProducts.slice(0, 4).map(product => (
+                  {products.filter(product => (product.category && ['688122b612839dc4b8e5fe2a', '68814c9580cdfdd23e5e8c95', '68814c9580cdfdd23e5e8c94', '68814c9580cdfdd23e5e8c93'].includes(product.category._id))).slice(0, 4).map(product => (
                     <div key={product._id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow flex flex-col overflow-hidden">
                       <div className="relative bg-gray-100 flex items-center justify-center" style={{height:208}}>
-                        <img src={product.image} alt={product.name} className="object-contain h-52 w-full" />
+                        <img src={product.image || '/default-product-image.png'} alt={product.name} className="object-contain h-52 w-full" />
                       </div>
                       <div className="p-4 flex-1 flex flex-col">
                         {product.category && <span className="text-xs text-gray-500 mb-1">{product.category.name || product.category}</span>}
@@ -252,6 +347,13 @@ const HomePage = () => {
                           WebkitLineClamp: 2,
                           WebkitBoxOrient: 'vertical'
                         }}>{product.name}</h3>
+                        {product.specs && product.specs.length > 0 && (
+                          <div className="text-xs text-gray-600 mb-2 flex flex-wrap gap-x-2 gap-y-1 items-center">
+                            {product.specs.slice(0, 3).map((spec, index) => (
+                              <span key={index}><span className="font-medium">{spec.label}: {spec.value}</span></span>
+                            ))}
+                          </div>
+                        )}
                         <div className="flex items-end gap-2 mb-2">
                           <span className="text-lg font-bold text-emerald-600">{product.price?.toLocaleString('vi-VN')}₫</span>
                         </div>
@@ -278,7 +380,7 @@ const HomePage = () => {
                 <div>Đang tải sản phẩm...</div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {filteredProducts.slice(0, 4).map(product => (
+                  {products.filter(product => (product.category && product.category._id === '68814ff880cdfdd23e5e8d42')).slice(0, 4).map(product => (
                     <div key={product._id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow flex flex-col overflow-hidden">
                       <div className="relative bg-gray-100 flex items-center justify-center" style={{height:208}}>
                         <img src={product.image} alt={product.name} className="object-contain h-52 w-full" />

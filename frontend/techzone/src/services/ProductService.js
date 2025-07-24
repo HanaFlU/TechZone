@@ -1,7 +1,6 @@
 import createApiClient from "../utils/api";
 
-
-class PeoductService {
+class ProductService {
   constructor(apiURL = `${import.meta.env.VITE_API_URL}/products`) {
     this.api = createApiClient(apiURL);
   }
@@ -41,7 +40,6 @@ class PeoductService {
       throw error;
     }
   }
+}
 
-};
-
-export default new PeoductService();
+export default new ProductService();
