@@ -1,0 +1,880 @@
+[{
+  "_id": {
+    "$oid": "68816c29f561789cfd5661e1"
+  },
+  "name": "ASUS ROG Swift PG279Q 27-inch Gaming Monitor",
+  "description": "27-inch IPS gaming monitor with 165Hz refresh rate, 1ms response time, and G-SYNC technology",
+  "price": 15990000,
+  "image": "https://example.com/images/asus-rog-swift-pg279q.jpg",
+  "category": {
+    "$oid": "688122b612839dc4b8e5fe2a"
+  },
+  "specs": [
+    {
+      "label": "Screen Size",
+      "value": "27 inch"
+    },
+    {
+      "label": "Resolution",
+      "value": "2560x1440"
+    },
+    {
+      "label": "Refresh Rate",
+      "value": "165Hz"
+    },
+    {
+      "label": "Response Time",
+      "value": "1ms"
+    },
+    {
+      "label": "Panel Type",
+      "value": "IPS"
+    }
+  ],
+  "saleEvent": null,
+  "stock": 15,
+  "productId": "9PhWUbZSx",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T23:11:37.713Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T23:11:37.713Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68816c29f561789cfd5661e2"
+  },
+  "name": "LG 27GL850-B 27-inch Gaming Monitor",
+  "description": "27-inch Nano IPS gaming monitor with 144Hz refresh rate and 1ms response time",
+  "price": 12990000,
+  "image": "https://example.com/images/lg-27gl850-b.jpg",
+  "category": {
+    "$oid": "688122b612839dc4b8e5fe2a"
+  },
+  "specs": [
+    {
+      "label": "Screen Size",
+      "value": "27 inch"
+    },
+    {
+      "label": "Resolution",
+      "value": "2560x1440"
+    },
+    {
+      "label": "Refresh Rate",
+      "value": "144Hz"
+    },
+    {
+      "label": "Response Time",
+      "value": "1ms"
+    },
+    {
+      "label": "Panel Type",
+      "value": "Nano IPS"
+    }
+  ],
+  "saleEvent": null,
+  "stock": 21,
+  "productId": "5ncd81egRG",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T23:11:37.714Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T23:25:57.895Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68816c29f561789cfd5661e3"
+  },
+  "name": "MSI Optix MAG274QRF-QD 27-inch Gaming Monitor",
+  "description": "<p><span style=\"color: #e03e2d;\">27-inch gaming monitor with 165Hz refresh rate and quantum dot technology</span></p>",
+  "price": 14990000,
+  "image": "https://example.com/images/msi-optix-mag274qrf-qd.jpg",
+  "category": {
+    "$oid": "688122b612839dc4b8e5fe2a"
+  },
+  "specs": [
+    {
+      "label": "Screen Size",
+      "value": "27 inch"
+    },
+    {
+      "label": "Resolution",
+      "value": "2560x1440"
+    },
+    {
+      "label": "Refresh Rate",
+      "value": "165Hz"
+    },
+    {
+      "label": "Response Time",
+      "value": "1ms"
+    },
+    {
+      "label": "Technology",
+      "value": "Quantum Dot"
+    }
+  ],
+  "saleEvent": null,
+  "stock": 18,
+  "productId": "vVE2jcD_QX",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T23:11:37.714Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T23:49:20.699Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68816c29f561789cfd5661e4"
+  },
+  "name": "Acer Predator XB273K 27-inch Gaming Monitor",
+  "description": "27-inch 4K gaming monitor with 144Hz refresh rate and G-SYNC Ultimate",
+  "price": 29990000,
+  "image": "https://example.com/images/acer-predator-xb273k.jpg",
+  "category": {
+    "$oid": "688122b612839dc4b8e5fe2a"
+  },
+  "specs": [
+    {
+      "label": "Screen Size",
+      "value": "27 inch"
+    },
+    {
+      "label": "Resolution",
+      "value": "3840x2160"
+    },
+    {
+      "label": "Refresh Rate",
+      "value": "144Hz"
+    },
+    {
+      "label": "Response Time",
+      "value": "1ms"
+    },
+    {
+      "label": "G-SYNC",
+      "value": "Ultimate"
+    }
+  ],
+  "saleEvent": null,
+  "stock": 6,
+  "productId": "1PhI-k-38h",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T23:11:37.714Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T23:11:37.714Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68816c29f561789cfd5661e5"
+  },
+  "name": "Samsung Odyssey G5 27-inch Gaming Monitor",
+  "description": "27-inch curved gaming monitor with 144Hz refresh rate and FreeSync Premium",
+  "price": 8990000,
+  "image": "https://example.com/images/samsung-odyssey-g5.jpg",
+  "category": {
+    "$oid": "688122b612839dc4b8e5fe2a"
+  },
+  "specs": [
+    {
+      "label": "Screen Size",
+      "value": "27 inch"
+    },
+    {
+      "label": "Resolution",
+      "value": "2560x1440"
+    },
+    {
+      "label": "Refresh Rate",
+      "value": "144Hz"
+    },
+    {
+      "label": "Response Time",
+      "value": "1ms"
+    },
+    {
+      "label": "Curvature",
+      "value": "1000R"
+    }
+  ],
+  "saleEvent": null,
+  "stock": 30,
+  "productId": "erxP0V2alr",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T23:11:37.714Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T23:11:37.714Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68816c29f561789cfd5661e6"
+  },
+  "name": "Dell UltraSharp U2720Q 27-inch 4K Monitor",
+  "description": "27-inch 4K professional monitor with 99% sRGB color coverage",
+  "price": 22990000,
+  "image": "https://example.com/images/dell-ultrasharp-u2720q.jpg",
+  "category": {
+    "$oid": "68814c9580cdfdd23e5e8c95"
+  },
+  "specs": [
+    {
+      "label": "Screen Size",
+      "value": "27 inch"
+    },
+    {
+      "label": "Resolution",
+      "value": "3840x2160"
+    },
+    {
+      "label": "Color Coverage",
+      "value": "99% sRGB"
+    },
+    {
+      "label": "Panel Type",
+      "value": "IPS"
+    },
+    {
+      "label": "USB-C",
+      "value": "Yes"
+    }
+  ],
+  "saleEvent": null,
+  "stock": 12,
+  "productId": "TFDtKDx2OH",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T23:11:37.715Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T23:11:37.715Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68816c29f561789cfd5661e7"
+  },
+  "name": "LG 32UN880-B 32-inch 4K Monitor",
+  "description": "32-inch 4K monitor with ergonomic stand and USB-C connectivity",
+  "price": 24990000,
+  "image": "https://example.com/images/lg-32un880-b.jpg",
+  "category": {
+    "$oid": "68814c9580cdfdd23e5e8c95"
+  },
+  "specs": [
+    {
+      "label": "Screen Size",
+      "value": "32 inch"
+    },
+    {
+      "label": "Resolution",
+      "value": "3840x2160"
+    },
+    {
+      "label": "Color Coverage",
+      "value": "95% DCI-P3"
+    },
+    {
+      "label": "Panel Type",
+      "value": "IPS"
+    },
+    {
+      "label": "USB-C Power",
+      "value": "60W"
+    }
+  ],
+  "saleEvent": null,
+  "stock": 10,
+  "productId": "xHT-HhvvsW",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T23:11:37.715Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T23:11:37.715Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68816c29f561789cfd5661e8"
+  },
+  "name": "BenQ PD3220U 32-inch 4K Monitor",
+  "description": "32-inch 4K professional monitor with Thunderbolt 3 connectivity",
+  "price": 32990000,
+  "image": "https://example.com/images/benq-pd3220u.jpg",
+  "category": {
+    "$oid": "68814c9580cdfdd23e5e8c95"
+  },
+  "specs": [
+    {
+      "label": "Screen Size",
+      "value": "32 inch"
+    },
+    {
+      "label": "Resolution",
+      "value": "3840x2160"
+    },
+    {
+      "label": "Color Coverage",
+      "value": "100% sRGB"
+    },
+    {
+      "label": "Panel Type",
+      "value": "IPS"
+    },
+    {
+      "label": "Thunderbolt 3",
+      "value": "Yes"
+    }
+  ],
+  "saleEvent": null,
+  "stock": 8,
+  "productId": "4fcx8kHTY-",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T23:11:37.715Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T23:11:37.715Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68816c29f561789cfd5661e9"
+  },
+  "name": "ViewSonic VP2768-4K 27-inch Professional Monitor",
+  "description": "<p><strong>27-inch 4K professional monitor with 100% sRGB color accuracy</strong></p>",
+  "price": 17990000,
+  "image": "https://example.com/images/viewsonic-vp2768-4k.jpg",
+  "category": {
+    "$oid": "68814c9580cdfdd23e5e8c95"
+  },
+  "specs": [
+    {
+      "label": "Screen Size",
+      "value": "27 inch"
+    },
+    {
+      "label": "Resolution",
+      "value": "3840x2160"
+    },
+    {
+      "label": "Color Coverage",
+      "value": "100% sRGB"
+    },
+    {
+      "label": "Panel Type",
+      "value": "IPS"
+    },
+    {
+      "label": "Calibration",
+      "value": "Hardware Calibration"
+    }
+  ],
+  "saleEvent": null,
+  "stock": 14,
+  "productId": "SuMRdrfoR5",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T23:11:37.715Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T23:46:46.645Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68816c29f561789cfd5661ea"
+  },
+  "name": "ASUS ProArt PA32UCX 32-inch 4K Monitor",
+  "description": "32-inch 4K professional monitor with Mini LED backlighting",
+  "price": 89990000,
+  "image": "https://example.com/images/asus-proart-pa32ucx.jpg",
+  "category": {
+    "$oid": "68814c9580cdfdd23e5e8c95"
+  },
+  "specs": [
+    {
+      "label": "Screen Size",
+      "value": "32 inch"
+    },
+    {
+      "label": "Resolution",
+      "value": "3840x2160"
+    },
+    {
+      "label": "Color Coverage",
+      "value": "99% Adobe RGB"
+    },
+    {
+      "label": "Panel Type",
+      "value": "IPS"
+    },
+    {
+      "label": "Backlight",
+      "value": "Mini LED"
+    }
+  ],
+  "saleEvent": null,
+  "stock": 3,
+  "productId": "pVTzAJpjn6",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T23:11:37.715Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T23:11:37.715Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68816c29f561789cfd5661eb"
+  },
+  "name": "Samsung Odyssey G7 32-inch Curved Gaming Monitor",
+  "description": "32-inch curved gaming monitor with 240Hz refresh rate and 1ms response time",
+  "price": 18990000,
+  "image": "https://example.com/images/samsung-odyssey-g7.jpg",
+  "category": {
+    "$oid": "68814c9580cdfdd23e5e8c94"
+  },
+  "specs": [
+    {
+      "label": "Screen Size",
+      "value": "32 inch"
+    },
+    {
+      "label": "Resolution",
+      "value": "2560x1440"
+    },
+    {
+      "label": "Refresh Rate",
+      "value": "240Hz"
+    },
+    {
+      "label": "Response Time",
+      "value": "1ms"
+    },
+    {
+      "label": "Curvature",
+      "value": "1000R"
+    }
+  ],
+  "saleEvent": null,
+  "stock": 8,
+  "productId": "bnWbqoNQhW",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T23:11:37.715Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T23:11:37.715Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68816c29f561789cfd5661ec"
+  },
+  "name": "AOC CQ32G1 32-inch Curved Gaming Monitor",
+  "description": "32-inch curved gaming monitor with 144Hz refresh rate and FreeSync",
+  "price": 8990000,
+  "image": "https://example.com/images/aoc-cq32g1.jpg",
+  "category": {
+    "$oid": "68814c9580cdfdd23e5e8c94"
+  },
+  "specs": [
+    {
+      "label": "Screen Size",
+      "value": "32 inch"
+    },
+    {
+      "label": "Resolution",
+      "value": "2560x1440"
+    },
+    {
+      "label": "Refresh Rate",
+      "value": "144Hz"
+    },
+    {
+      "label": "Response Time",
+      "value": "1ms"
+    },
+    {
+      "label": "Curvature",
+      "value": "1500R"
+    }
+  ],
+  "saleEvent": null,
+  "stock": 25,
+  "productId": "Fd4PhUVrY5",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T23:11:37.715Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T23:11:37.715Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68816c29f561789cfd5661ed"
+  },
+  "name": "LG 34UC79G-B 34-inch Curved Monitor",
+  "description": "34-inch ultrawide curved monitor with 144Hz refresh rate",
+  "price": 15990000,
+  "image": "https://example.com/images/lg-34uc79g-b.jpg",
+  "category": {
+    "$oid": "68814c9580cdfdd23e5e8c94"
+  },
+  "specs": [
+    {
+      "label": "Screen Size",
+      "value": "34 inch"
+    },
+    {
+      "label": "Resolution",
+      "value": "2560x1080"
+    },
+    {
+      "label": "Refresh Rate",
+      "value": "144Hz"
+    },
+    {
+      "label": "Response Time",
+      "value": "5ms"
+    },
+    {
+      "label": "Curvature",
+      "value": "1500R"
+    }
+  ],
+  "saleEvent": null,
+  "stock": 18,
+  "productId": "GM2WjpLr9f",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T23:11:37.715Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T23:11:37.715Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68816c29f561789cfd5661ee"
+  },
+  "name": "MSI Optix MPG ARTYMIS 343CQR 34-inch Curved Monitor",
+  "description": "34-inch ultrawide curved gaming monitor with 165Hz refresh rate",
+  "price": 24990000,
+  "image": "https://example.com/images/msi-optix-mpg-artymis-343cqr.jpg",
+  "category": {
+    "$oid": "68814c9580cdfdd23e5e8c94"
+  },
+  "specs": [
+    {
+      "label": "Screen Size",
+      "value": "34 inch"
+    },
+    {
+      "label": "Resolution",
+      "value": "3440x1440"
+    },
+    {
+      "label": "Refresh Rate",
+      "value": "165Hz"
+    },
+    {
+      "label": "Response Time",
+      "value": "1ms"
+    },
+    {
+      "label": "Curvature",
+      "value": "1000R"
+    }
+  ],
+  "saleEvent": null,
+  "stock": 12,
+  "productId": "nfIEG8-aof",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T23:11:37.715Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T23:11:37.715Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68816c29f561789cfd5661ef"
+  },
+  "name": "ASUS TUF Gaming VG34VQL1B 34-inch Curved Monitor",
+  "description": "34-inch ultrawide curved gaming monitor with 165Hz refresh rate and FreeSync Premium",
+  "price": 19990000,
+  "image": "https://example.com/images/asus-tuf-vg34vql1b.jpg",
+  "category": {
+    "$oid": "68814c9580cdfdd23e5e8c94"
+  },
+  "specs": [
+    {
+      "label": "Screen Size",
+      "value": "34 inch"
+    },
+    {
+      "label": "Resolution",
+      "value": "3440x1440"
+    },
+    {
+      "label": "Refresh Rate",
+      "value": "165Hz"
+    },
+    {
+      "label": "Response Time",
+      "value": "1ms"
+    },
+    {
+      "label": "Curvature",
+      "value": "1500R"
+    }
+  ],
+  "saleEvent": null,
+  "stock": 16,
+  "productId": "K3Jrcws4LY",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T23:11:37.715Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T23:11:37.715Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68816c29f561789cfd5661f0"
+  },
+  "name": "BenQ PD2700U 27-inch Professional Monitor",
+  "description": "27-inch 4K professional monitor designed for content creators",
+  "price": 19990000,
+  "image": "https://example.com/images/benq-pd2700u.jpg",
+  "category": {
+    "$oid": "68814c9580cdfdd23e5e8c93"
+  },
+  "specs": [
+    {
+      "label": "Screen Size",
+      "value": "27 inch"
+    },
+    {
+      "label": "Resolution",
+      "value": "3840x2160"
+    },
+    {
+      "label": "Color Coverage",
+      "value": "100% sRGB"
+    },
+    {
+      "label": "Panel Type",
+      "value": "IPS"
+    },
+    {
+      "label": "Calibration",
+      "value": "Hardware Calibration"
+    }
+  ],
+  "saleEvent": null,
+  "stock": 18,
+  "productId": "d4qaJ4gE43",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T23:11:37.715Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T23:11:37.715Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68816c29f561789cfd5661f1"
+  },
+  "name": "EIZO ColorEdge CG319X 31-inch Professional Monitor",
+  "description": "<p>31-inch 4K professional monitor with hardware calibration and 99% Adobe RGB coverage</p>",
+  "price": 129990000,
+  "image": "https://example.com/images/eizo-coloredge-cg319x.jpg",
+  "category": {
+    "$oid": "68814c9580cdfdd23e5e8c93"
+  },
+  "specs": [
+    {
+      "label": "Screen Size",
+      "value": "31 inch"
+    },
+    {
+      "label": "Resolution",
+      "value": "4096x2160"
+    },
+    {
+      "label": "Color Coverage",
+      "value": "99% Adobe RGB"
+    },
+    {
+      "label": "Panel Type",
+      "value": "IPS"
+    },
+    {
+      "label": "Calibration",
+      "value": "Hardware Calibration"
+    }
+  ],
+  "saleEvent": null,
+  "stock": 2,
+  "productId": "TU33xoxQYMX",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T23:11:37.715Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T23:58:10.582Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68816c29f561789cfd5661f2"
+  },
+  "name": "NEC MultiSync PA322UHD 32-inch Professional Monitor",
+  "description": "32-inch 4K professional monitor with wide color gamut and calibration software",
+  "price": 89990000,
+  "image": "https://example.com/images/nec-multisync-pa322uhd.jpg",
+  "category": {
+    "$oid": "68814c9580cdfdd23e5e8c93"
+  },
+  "specs": [
+    {
+      "label": "Screen Size",
+      "value": "32 inch"
+    },
+    {
+      "label": "Resolution",
+      "value": "3840x2160"
+    },
+    {
+      "label": "Color Coverage",
+      "value": "100% Adobe RGB"
+    },
+    {
+      "label": "Panel Type",
+      "value": "IPS"
+    },
+    {
+      "label": "Calibration",
+      "value": "Software Calibration"
+    }
+  ],
+  "saleEvent": null,
+  "stock": 4,
+  "productId": "TY6ewFiahi5",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T23:11:37.715Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T23:11:37.715Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68816c29f561789cfd5661f3"
+  },
+  "name": "HP DreamColor Z32x 32-inch Professional Monitor",
+  "description": "32-inch 4K professional monitor with DreamColor technology and factory calibration",
+  "price": 79990000,
+  "image": "https://example.com/images/hp-dreamcolor-z32x.jpg",
+  "category": {
+    "$oid": "68814c9580cdfdd23e5e8c93"
+  },
+  "specs": [
+    {
+      "label": "Screen Size",
+      "value": "32 inch"
+    },
+    {
+      "label": "Resolution",
+      "value": "3840x2160"
+    },
+    {
+      "label": "Color Coverage",
+      "value": "100% sRGB"
+    },
+    {
+      "label": "Panel Type",
+      "value": "IPS"
+    },
+    {
+      "label": "Technology",
+      "value": "DreamColor"
+    }
+  ],
+  "saleEvent": null,
+  "stock": 7,
+  "productId": "D8vO_dvA83Q",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T23:11:37.715Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T23:11:37.715Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "68816c29f561789cfd5661f4"
+  },
+  "name": "Dell UltraSharp UP3218K 32-inch Professional Monitor",
+  "description": "32-inch 8K professional monitor with exceptional color accuracy",
+  "price": 299990000,
+  "image": "https://example.com/images/dell-ultrasharp-up3218k.jpg",
+  "category": {
+    "$oid": "68814c9580cdfdd23e5e8c93"
+  },
+  "specs": [
+    {
+      "label": "Screen Size",
+      "value": "32 inch"
+    },
+    {
+      "label": "Resolution",
+      "value": "7680x4320"
+    },
+    {
+      "label": "Color Coverage",
+      "value": "100% Adobe RGB"
+    },
+    {
+      "label": "Panel Type",
+      "value": "IPS"
+    },
+    {
+      "label": "Calibration",
+      "value": "Factory Calibrated"
+    }
+  ],
+  "saleEvent": null,
+  "stock": 1,
+  "productId": "e5XeBBriBgq",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2025-07-23T23:11:37.715Z"
+  },
+  "updatedAt": {
+    "$date": "2025-07-23T23:11:37.715Z"
+  }
+}]

@@ -1,12 +1,19 @@
-import axios from 'axios';
+import createApiClient from "../utils/api";
 
-const API_URL = 'http://localhost:8000/api/products';
+class ProductService {
+    constructor(apiURL = `${import.meta.env.VITE_API_URL}/products`) {
+        this.api = createApiClient(apiURL);
+    }
 
-const ProductService = {
-  getAllProducts: async () => {
-    const response = await axios.get(API_URL);
-    return response.data;
-  }
-};
+    async getAllProducts() {
+        try {
+            const response = await this.api.get("/");
+            return response.data;
+        } catch (error) {
+            console.error('ProductService Error: Failed to fetch products:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    }
+}
 
-export default ProductService;
+export default new ProductService();

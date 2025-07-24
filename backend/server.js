@@ -16,9 +16,9 @@ const PaymentRoute = require("./routes/PaymentRoute.js");
 const shippingRateRoute = require("./routes/ShippingRateRoute.js");
 const productRoutes = require('./routes/ProductRoute');
 const CategoryRoute = require('./routes/CategoryRoute.js');
-const BrandRoute = require("./routes/BrandRoute.js");
+
 const SaleEventRoute = require("./routes/SaleEventRoute.js");
-const SubcategoryRoute = require("./routes/SubcategoryRoute.js");
+
 const UploadRoute = require("./routes/UploadRoute.js");
 connect();
 const { protect, checkPermission } = require("./midleware/AuthMiddleware.js");
@@ -51,11 +51,11 @@ app.use('/api/payments', protect, PaymentRoute);
 app.use('/api/shipping-rate', protect, shippingRateRoute);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', CategoryRoute);
-app.use('/api/brands', BrandRoute);
-app.use('/api/sale-events', SaleEventRoute);
-app.use('/api/subcategories', SubcategoryRoute);
 
-const PORT = process.env.PORT || 5000;
+app.use('/api/sale-events', SaleEventRoute);
+
+
+const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
 
 // Route not found

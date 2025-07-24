@@ -1,4 +1,10 @@
 const mongoose = require('mongoose');
+const shortid = require("shortid");
+
+const specSchema = new mongoose.Schema({
+  label: { type: String, required: true },
+  value: { type: String, required: true },
+}, { _id: false });
 
 const ProductSchema = new mongoose.Schema(
   {
@@ -6,6 +12,8 @@ const ProductSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
+      default: shortid.generate,
+      trim: true,
     },
     name: {
       type: String,
@@ -14,6 +22,7 @@ const ProductSchema = new mongoose.Schema(
     },
     description: {
       type: String,
+      trim: true,
     },
     price: {
       type: Number,
@@ -26,23 +35,10 @@ const ProductSchema = new mongoose.Schema(
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Category',
+      ref: 'TestCategory',
       required: true,
     },
-    subcategory: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Subcategory',
-      required: true,
-    },
-    brand: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Brand',
-      required: true,
-    },
-    specs: {
-      type: Object,
-      default: {},
-    },
+    specs: [specSchema],
     saleEvent: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'SaleEvent',

@@ -18,8 +18,6 @@ exports.getProducts = async (req, res) => {
   try {
     const products = await Product.find()
       .populate('category')
-      .populate('brand')
-      .populate('specs')
       .populate('saleEvent');
     res.json(products);
   } catch (err) {
