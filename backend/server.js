@@ -14,6 +14,12 @@ const CartRoute = require("./routes/CartRoute.js");
 const AuthRoute = require("./routes/AuthRoute.js");
 const PaymentRoute = require("./routes/PaymentRoute.js");
 const shippingRateRoute = require("./routes/ShippingRateRoute.js");
+const productRoutes = require('./routes/ProductRoute');
+const CategoryRoute = require('./routes/CategoryRoute.js');
+const BrandRoute = require("./routes/BrandRoute.js");
+const SaleEventRoute = require("./routes/SaleEventRoute.js");
+const SubcategoryRoute = require("./routes/SubcategoryRoute.js");
+const UploadRoute = require("./routes/UploadRoute.js");
 connect();
 const { protect, checkPermission } = require("./midleware/AuthMiddleware.js");
 
@@ -34,6 +40,7 @@ app.get("/", (req, res) => {
 });
 
 app.use('/api/auth', AuthRoute);
+app.use('/api/upload', UploadRoute);
 app.use('/api/roles', protect, checkPermission(["AD"], "MANAGE_ROLES"), RoleRoute);
 app.use('/api/users', protect, UserRoute);
 app.use('/api/customers', protect, CustomerRoute);
@@ -42,6 +49,11 @@ app.use('/api/orders', protect, OrderRoute);
 app.use('/api/carts', protect, CartRoute);
 app.use('/api/payments', protect, PaymentRoute);
 app.use('/api/shipping-rate', protect, shippingRateRoute);
+app.use('/api/products', productRoutes);
+app.use('/api/categories', CategoryRoute);
+app.use('/api/brands', BrandRoute);
+app.use('/api/sale-events', SaleEventRoute);
+app.use('/api/subcategories', SubcategoryRoute);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
@@ -53,6 +65,7 @@ app.use((req, res, next) => {
 
 // Error handler
 app.use((err, req, res, next) => {
+    console.error("Error:", err.message);
     console.error(err.stack);
     res.status(500).json({ message: "Lỗi server nội bộ." });
 });

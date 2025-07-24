@@ -62,7 +62,6 @@ const App = () => {
                   <Route path="/admin/dashboard" element={<AdminDashboard />} />
                   <Route path="/admin/products" element={<AdminProduct />} />
                   <Route path="/admin/category" element={<AdminCategory />} />
-                  <Route path="/admin/spec" element={<AdminSpec />} />
                   <Route path="/admin/orders" element={<AdminOrderList />} /> 
                   <Route path="/admin/customers" element={<AdminCustomer />} />
                   <Route path="/admin/customer-order/:customerId" element={<AdminCustomerOrderList />} />

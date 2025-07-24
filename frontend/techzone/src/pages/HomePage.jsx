@@ -1,268 +1,403 @@
-import React, { useState } from 'react'
-
-const CategorySidebar = () => {
-  const [expandedCategory, setExpandedCategory] = useState(null)
-
-  const categories = [
-    {
-      id: 1,
-      name: "CPU (Bộ vi xử lý)",
-      subcategories: ["Intel", "AMD"],
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M9 3V5H7V3H5V5H3V7H5V9H3V11H5V13H3V15H5V17H3V19H5V21H7V19H9V21H11V19H13V21H15V19H17V21H19V19H21V17H19V15H21V13H19V11H21V9H19V7H21V5H19V3H17V5H15V3H13V5H11V3H9ZM7 7H9V9H7V7ZM11 7H13V9H11V7ZM15 7H17V9H15V7ZM7 11H9V13H7V11ZM11 11H13V13H11V11ZM15 11H17V13H15V11ZM7 15H9V17H7V15ZM11 15H13V17H11V15ZM15 15H17V17H15V15Z" fill="currentColor"/>
-        </svg>
-      )
-    },
-    {
-      id: 2,
-      name: "Mainboard",
-      subcategories: ["Intel Socket", "AMD Socket"],
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M3 3H21V21H3V3ZM5 5V19H19V5H5ZM7 7H9V9H7V7ZM11 7H13V9H11V7ZM15 7H17V9H15V7ZM7 11H9V13H7V11ZM11 11H13V13H11V11ZM15 11H17V13H15V11ZM7 15H9V17H7V15ZM11 15H13V17H11V15ZM15 15H17V17H15V15Z" fill="currentColor"/>
-        </svg>
-      )
-    },
-    {
-      id: 3,
-      name: "RAM",
-      subcategories: ["DDR4", "DDR5"],
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M3 3H21V21H3V3ZM5 5V19H19V5H5ZM7 7H17V9H7V7ZM7 11H17V13H7V11ZM7 15H17V17H7V15Z" fill="currentColor"/>
-        </svg>
-      )
-    },
-    {
-      id: 4,
-      name: "GPU",
-      subcategories: ["NVIDIA", "AMD", "Intel"],
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M21 16H3V4H21V16ZM21 2H3C1.9 2 1 2.9 1 4V16C1 17.1 1.9 18 3 18H10V20H8V22H16V20H14V18H21C22.1 18 23 17.1 23 16V4C23 2.9 22.1 2 21 2ZM7 6H9V8H7V6ZM11 6H13V8H11V6ZM15 6H17V8H15V6ZM7 10H9V12H7V10ZM11 10H13V12H11V10ZM15 10H17V12H15V10Z" fill="currentColor"/>
-        </svg>
-      )
-    },
-    {
-      id: 5,
-      name: "Ổ cứng",
-      subcategories: ["HDD", "SSD", "NVMe"],
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.52 22 12 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12S7.59 4 12 4 20 7.59 20 12 16.41 20 12 20ZM12 6C8.69 6 6 8.69 6 12S8.69 18 12 18 18 15.31 18 12 15.31 6 12 6ZM12 16C9.79 16 8 14.21 8 12S9.79 8 12 8 16 9.79 16 12 14.21 16 12 16Z" fill="currentColor"/>
-        </svg>
-      )
-    },
-    {
-      id: 6,
-      name: "Màn hình",
-      subcategories: ["Gaming", "Office", "Professional"],
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M21 16H3V4H21V16ZM21 2H3C1.9 2 1 2.9 1 4V16C1 17.1 1.9 18 3 18H10V20H8V22H16V20H14V18H21C22.1 18 23 17.1 23 16V4C23 2.9 22.1 2 21 2Z" fill="currentColor"/>
-        </svg>
-      )
-    },
-    {
-      id: 7,
-      name: "Tản nhiệt",
-      subcategories: ["Air Cooling", "Liquid Cooling"],
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.52 22 12 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12S7.59 4 12 4 20 7.59 20 12 16.41 20 12 20ZM12 6C8.69 6 6 8.69 6 12S8.69 18 12 18 18 15.31 18 12 15.31 6 12 6ZM12 16C9.79 16 8 14.21 8 12S9.79 8 12 8 16 9.79 16 12 14.21 16 12 16Z" fill="currentColor"/>
-        </svg>
-      )
-    },
-    {
-      id: 8,
-      name: "Thiết bị ngoại vi",
-      subcategories: ["Chuột", "Bàn phím", "Tai nghe"],
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M20 5H4C2.9 5 2 5.9 2 7V17C2 18.1 2.9 19 4 19H20C21.1 19 22 18.1 22 17V7C22 5.9 21.1 5 20 5ZM20 17H4V7H20V17ZM6 9H8V11H6V9ZM10 9H12V11H10V9ZM14 9H16V11H14V9ZM18 9H20V11H18V9ZM6 13H8V15H6V13ZM10 13H12V15H10V13ZM14 13H16V15H14V13ZM18 13H20V15H18V13Z" fill="currentColor"/>
-        </svg>
-      )
-    },
-    {
-      id: 9,
-      name: "Phụ kiện khác",
-      subcategories: ["Cáp", "Adapter", "Bộ nguồn"],
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2L13.09 8.26L22 9L13.09 9.74L12 16L10.91 9.74L2 9L10.91 8.26L12 2Z" fill="currentColor"/>
-        </svg>
-      )
-    }
-  ]
-
-  const handleCategoryClick = (categoryId) => {
-    setExpandedCategory(expandedCategory === categoryId ? null : categoryId)
-  }
-
-  return (
-    <div className="w-80 bg-white rounded-2xl shadow-lg">
-      {/* Header */}
-      <div className="bg-green-600 rounded-t-2xl px-6 py-4">
-        <div className="flex items-center space-x-3">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-white">
-            <path d="M3 6H21V8H3V6ZM3 11H21V13H3V11ZM3 16H21V18H3V16Z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          <h2 className="text-white font-semibold text-lg">DANH MỤC SẢN PHẨM</h2>
-        </div>
-      </div>
-
-      {/* Category List */}
-      <div className="py-2">
-        {categories.map((category, index) => {
-          const isExpanded = expandedCategory === category.id
-          return (
-            <div key={category.id}>
-              <div 
-                className="px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors"
-                onClick={() => handleCategoryClick(category.id)}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="text-gray-600">
-                      {category.icon}
-                    </div>
-                    <div>
-                      <div className={`font-medium ${isExpanded ? 'text-green-600' : 'text-gray-900'}`}>
-                        {category.name}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-gray-600">
-                    <svg 
-                      width="24" 
-                      height="24" 
-                      viewBox="0 0 24 24" 
-                      fill="none"
-                      className={`transition-transform duration-200 ${isExpanded ? 'rotate-270 text-green-600' : ''}`}
-                    >
-                      <polygon points="7,10 12,15 17,10" fill="currentColor"/>
-                    </svg>
-                  </div>
-                </div>
-              </div>
-              
-              {index < categories.length - 1 && (
-                <div className="mx-4 border-b border-gray-200"></div>
-              )}
-            </div>
-          )
-        })}
-      </div>
-    </div>
-  )
-}
+import React, { useEffect, useState, useRef } from 'react';
+import ProductService from '../services/ProductService';
+import CategoryService from '../services/CategoryService';
+import BrandService from '../services/BrandService';
+import SubcategoryService from '../services/SubcategoryService';
 
 const HomePage = () => {
-  const [expandedCategory, setExpandedCategory] = useState(null)
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
+  const [brands, setBrands] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [hoveredCategory, setHoveredCategory] = useState(null);
+  const [isSubcatHovered, setIsSubcatHovered] = useState(false);
+  const [expandedSubcategory, setExpandedSubcategory] = useState(null);
+  const submenuHideTimer = useRef(null);
+  const sidebarRef = useRef(null);
+  const [bannerHeight, setBannerHeight] = useState(0);
+  const [sidebarTop, setSidebarTop] = useState(0);
+  const categoryItemRefs = useRef({});
+  const [newsIndex, setNewsIndex] = useState(0); // For Tin tức carousel
+  const newsItemsToShow = 3;
+  const newsProducts = products; // You can replace this with actual news data if available
+  const maxNewsIndex = Math.max(0, newsProducts.length - newsItemsToShow);
+  const handleNewsLeft = () => setNewsIndex(i => Math.max(0, i - 1));
+  const handleNewsRight = () => setNewsIndex(i => Math.min(maxNewsIndex, i + 1));
+  // For transition
+  const newsCarouselRef = useRef();
 
-  const categories = [
-    {
-      id: 1,
-      name: "CPU (Bộ vi xử lý)",
-      subcategories: ["Intel", "AMD"],
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M9 3V5H7V3H5V5H3V7H5V9H3V11H5V13H3V15H5V17H3V19H5V21H7V19H9V21H11V19H13V21H15V19H17V21H19V19H21V17H19V15H21V13H19V11H21V9H19V7H21V5H19V3H17V5H15V3H13V5H11V3H9ZM7 7H9V9H7V7ZM11 7H13V9H11V7ZM15 7H17V9H15V7ZM7 11H9V13H7V11ZM11 11H13V13H11V11ZM15 11H17V13H15V11ZM7 15H9V17H7V15ZM11 15H13V17H11V15ZM15 15H17V17H15V15Z" fill="currentColor"/>
-        </svg>
-      )
-    },
-    {
-      id: 2,
-      name: "Mainboard",
-      subcategories: ["Intel Socket", "AMD Socket"],
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M3 3H21V21H3V3ZM5 5V19H19V5H5ZM7 7H9V9H7V7ZM11 7H13V9H11V7ZM15 7H17V9H15V7ZM7 11H9V13H7V11ZM11 11H13V13H11V11ZM15 11H17V13H15V11ZM7 15H9V17H7V15ZM11 15H13V17H11V15ZM15 15H17V17H15V15Z" fill="currentColor"/>
-        </svg>
-      )
-    },
-    {
-      id: 3,
-      name: "RAM",
-      subcategories: ["DDR4", "DDR5"],
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M3 3H21V21H3V3ZM5 5V19H19V5H5ZM7 7H17V9H7V7ZM7 11H17V13H7V11ZM7 15H17V17H7V15Z" fill="currentColor"/>
-        </svg>
-      )
-    },
-    {
-      id: 4,
-      name: "GPU",
-      subcategories: ["NVIDIA", "AMD", "Intel"],
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M21 16H3V4H21V16ZM21 2H3C1.9 2 1 2.9 1 4V16C1 17.1 1.9 18 3 18H10V20H8V22H16V20H14V18H21C22.1 18 23 17.1 23 16V4C23 2.9 22.1 2 21 2ZM7 6H9V8H7V6ZM11 6H13V8H11V6ZM15 6H17V8H15V6ZM7 10H9V12H7V10ZM11 10H13V12H11V10ZM15 10H17V12H15V10Z" fill="currentColor"/>
-        </svg>
-      )
-    },
-    {
-      id: 5,
-      name: "Ổ cứng",
-      subcategories: ["HDD", "SSD", "NVMe"],
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.52 22 12 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12S7.59 4 12 4 20 7.59 20 12 16.41 20 12 20ZM12 6C8.69 6 6 8.69 6 12S8.69 18 12 18 18 15.31 18 12 15.31 6 12 6ZM12 16C9.79 16 8 14.21 8 12S9.79 8 12 8 16 9.79 16 12 14.21 16 12 16Z" fill="currentColor"/>
-        </svg>
-      )
-    },
-    {
-      id: 6,
-      name: "Màn hình",
-      subcategories: ["Gaming", "Office", "Professional"],
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M21 16H3V4H21V16ZM21 2H3C1.9 2 1 2.9 1 4V16C1 17.1 1.9 18 3 18H10V20H8V22H16V20H14V18H21C22.1 18 23 17.1 23 16V4C23 2.9 22.1 2 21 2Z" fill="currentColor"/>
-        </svg>
-      )
-    },
-    {
-      id: 7,
-      name: "Tản nhiệt",
-      subcategories: ["Air Cooling", "Liquid Cooling"],
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.52 22 12 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12S7.59 4 12 4 20 7.59 20 12 16.41 20 12 20ZM12 6C8.69 6 6 8.69 6 12S8.69 18 12 18 18 15.31 18 12 15.31 6 12 6ZM12 16C9.79 16 8 14.21 8 12S9.79 8 12 8 16 9.79 16 12 14.21 16 12 16Z" fill="currentColor"/>
-        </svg>
-      )
-    },
-    {
-      id: 8,
-      name: "Thiết bị ngoại vi",
-      subcategories: ["Chuột", "Bàn phím", "Tai nghe"],
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M20 5H4C2.9 5 2 5.9 2 7V17C2 18.1 2.9 19 4 19H20C21.1 19 22 18.1 22 17V7C22 5.9 21.1 5 20 5ZM20 17H4V7H20V17ZM6 9H8V11H6V9ZM10 9H12V11H10V9ZM14 9H16V11H14V9ZM18 9H20V11H18V9ZM6 13H8V15H6V13ZM10 13H12V15H10V13ZM14 13H16V15H14V13ZM18 13H20V15H18V13Z" fill="currentColor"/>
-        </svg>
-      )
-    },
-    {
-      id: 9,
-      name: "Phụ kiện khác",
-      subcategories: ["Cáp", "Adapter", "Bộ nguồn"],
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2L13.09 8.26L22 9L13.09 9.74L12 16L10.91 9.74L2 9L10.91 8.26L12 2Z" fill="currentColor"/>
-        </svg>
-      )
+  useEffect(() => {
+    ProductService.getAllProducts()
+      .then(data => setProducts(data))
+      .catch(err => console.error(err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    CategoryService.getCategories()
+      .then(data => setCategories(data))
+      .catch(err => console.error(err));
+  }, []);
+
+  useEffect(() => {
+    BrandService.getAllBrands()
+      .then(data => setBrands(data))
+      .catch(err => console.error(err));
+  }, []);
+
+  useEffect(() => {
+    if (sidebarRef.current) {
+      setBannerHeight(sidebarRef.current.offsetHeight);
+      setSidebarTop(sidebarRef.current.offsetTop);
     }
-  ]
+  }, [sidebarRef, hoveredCategory]);
 
-  const handleCategoryClick = (categoryId) => {
-    setExpandedCategory(expandedCategory === categoryId ? null : categoryId)
-  }
+  // Fetch subcategories on hover
+  useEffect(() => {
+    if (hoveredCategory) {
+      SubcategoryService.getSubcategoriesByCategory(hoveredCategory)
+        .then(data => setSubcategories(data))
+        .catch(() => setSubcategories([]));
+    } else {
+      setSubcategories([]);
+    }
+  }, [hoveredCategory]);
 
-  const CategorySidebar = () => {
-    return (
-      <div className="w-80 bg-white rounded-2xl shadow-lg">
-        {/* Header */}
-        <div className="bg-light-green rounded-t-2xl px-6 py-4">
+  const handleSubcategoryClick = (subcategoryId) => {
+    setExpandedSubcategory(subcategoryId);
+  };
+
+  // No filtering: always show all products
+  const filteredProducts = products;
+
+  return (
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <div className="flex-1">
+        <div className="container mx-auto px-4 pt-0 pb-4 -mt-2">
+          <div className="flex gap-8 mb-8 relative">
+            <div ref={sidebarRef} className="mt-6">
+              <CategorySidebar
+                categories={categories}
+                categoryItemRefs={categoryItemRefs}
+                hoveredCategory={hoveredCategory}
+                setHoveredCategory={setHoveredCategory}
+                isSubcatHovered={isSubcatHovered}
+                setIsSubcatHovered={setIsSubcatHovered}
+                handleCategoryMouseEnter={categoryId => {
+                  if (submenuHideTimer.current) clearTimeout(submenuHideTimer.current);
+                  setHoveredCategory(categoryId);
+                }}
+                handleCategoryMouseLeave={() => {
+                  submenuHideTimer.current = setTimeout(() => {
+                    setHoveredCategory(null);
+                  }, 120);
+                }}
+                handleSubcatMouseEnter={() => {
+                  if (submenuHideTimer.current) clearTimeout(submenuHideTimer.current);
+                  setIsSubcatHovered(true);
+                }}
+                handleSubcatMouseLeave={() => {
+                  submenuHideTimer.current = setTimeout(() => {
+                    setIsSubcatHovered(false);
+                    setHoveredCategory(null);
+                  }, 120);
+                }}
+                subcategories={subcategories}
+                expandedSubcategory={expandedSubcategory}
+                handleSubcategoryClick={handleSubcategoryClick}
+              />
+            </div>
+            {/* Banner/Ads Placeholder */}
+            <div className="flex-1 mt-6">
+              <div
+                className="w-full bg-gradient-to-r from-emerald-100 to-emerald-50 rounded-2xl shadow flex items-center justify-center"
+              >
+                <img
+                  src="/BUILDPC-Banner.png"
+                  alt="TechZone Banner"
+                  className="w-full h-auto object-cover rounded-2xl"
+                  style={{ display: 'block' }}
+                />
+              </div>
+            </div>
+          </div>
+          {/* Main Content Area: All Products Section */}
+          <div className="w-full">
+            {/* Original Sản phẩm nổi bật section (top) */}
+            <section className="mb-12">
+              <div className="flex items-center justify-between mb-6 relative">
+                <div className="flex items-center flex-1">
+                  <span className="h-0.5 w-16 bg-gray-300 mr-4 hidden sm:inline-block"></span>
+                  <h2 className="text-2xl font-bold text-gray-900 text-center flex-1">Sản phẩm nổi bật</h2>
+                  <span className="h-0.5 w-16 bg-gray-300 ml-4 hidden sm:inline-block"></span>
+                </div>
+                <button
+                  className="absolute right-0 top-0 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition-colors"
+                  style={{ minWidth: '110px' }}
+                >
+                  View All
+                </button>
+              </div>
+              {loading ? (
+                <div>Đang tải sản phẩm...</div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {filteredProducts.slice(0, 4).map(product => (
+                    <div key={product._id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow flex flex-col overflow-hidden">
+                      <div className="relative bg-gray-100 flex items-center justify-center" style={{height:208}}>
+                        <img src={product.image} alt={product.name} className="object-contain h-52 w-full" />
+                      </div>
+                      <div className="p-4 flex-1 flex flex-col">
+                        {product.category && <span className="text-xs text-gray-500 mb-1">{product.category.name || product.category}</span>}
+                        <h3 className="text-base font-semibold text-gray-900 mb-2 overflow-hidden" style={{
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical'
+                        }}>{product.name}</h3>
+                        {product.specs && (
+                          <div className="text-xs text-gray-600 mb-2 flex flex-wrap gap-x-2 gap-y-1 items-center">
+                            {/* Only show type for CPU, skip other CPU specs */}
+                            {!(product.category && (product.category.name === 'CPU' || product.category === 'CPU')) && (
+                              <>
+                                {product.specs.cores && product.specs.threads && (
+                                  <span><span className="font-medium">{product.specs.cores}C/{product.specs.threads}T</span></span>
+                                )}
+                                {product.specs.base_clock && product.specs.boost_clock && (
+                                  <span><span className="font-medium">{product.specs.base_clock}→{product.specs.boost_clock}</span></span>
+                                )}
+                                {product.specs.socket && (
+                                  <span><span className="font-medium">{product.specs.socket}</span></span>
+                                )}
+                                {product.specs.tdp && (
+                                  <span><span className="font-medium">{product.specs.tdp}</span></span>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        )}
+                        <div className="flex items-end gap-2 mb-2">
+                          <span className="text-lg font-bold text-emerald-600">{product.price?.toLocaleString('vi-VN')}₫</span>
+                        </div>
+                        <button className="mt-auto bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold py-2 px-4 rounded-lg transition-colors border border-emerald-200">Mua ngay</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+            {/* Duplicated section for CPU */}
+            <section className="mb-12">
+              <div className="flex items-center mb-6 relative">
+                <h2 className="text-2xl font-bold text-gray-900 mr-4 whitespace-nowrap">CPU</h2>
+                <div className="flex-1 border-t border-gray-300 mr-40"></div>
+                <button
+                  className="absolute right-0 top-0 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition-colors ml-2"
+                  style={{ minWidth: '110px' }}
+                >
+                  View All
+                </button>
+              </div>
+              {loading ? (
+                <div>Đang tải sản phẩm...</div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {filteredProducts.slice(0, 4).map(product => (
+                    <div key={product._id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow flex flex-col overflow-hidden">
+                      <div className="relative bg-gray-100 flex items-center justify-center" style={{height:208}}>
+                        <img src={product.image} alt={product.name} className="object-contain h-52 w-full" />
+                      </div>
+                      <div className="p-4 flex-1 flex flex-col">
+                        {product.category && <span className="text-xs text-gray-500 mb-1">{product.category.name || product.category}</span>}
+                        <h3 className="text-base font-semibold text-gray-900 mb-2 overflow-hidden" style={{
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical'
+                        }}>{product.name}</h3>
+                        <div className="flex items-end gap-2 mb-2">
+                          <span className="text-lg font-bold text-emerald-600">{product.price?.toLocaleString('vi-VN')}₫</span>
+                        </div>
+                        <button className="mt-auto bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold py-2 px-4 rounded-lg transition-colors border border-emerald-200">Mua ngay</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+            {/* Duplicated section for Màn hình */}
+            <section className="mb-12">
+              <div className="flex items-center mb-6 relative">
+                <h2 className="text-2xl font-bold text-gray-900 mr-4 whitespace-nowrap">Màn hình</h2>
+                <div className="flex-1 border-t border-gray-300 mr-40"></div>
+                <button
+                  className="absolute right-0 top-0 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition-colors ml-2"
+                  style={{ minWidth: '110px' }}
+                >
+                  View All
+                </button>
+              </div>
+              {loading ? (
+                <div>Đang tải sản phẩm...</div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {filteredProducts.slice(0, 4).map(product => (
+                    <div key={product._id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow flex flex-col overflow-hidden">
+                      <div className="relative bg-gray-100 flex items-center justify-center" style={{height:208}}>
+                        <img src={product.image} alt={product.name} className="object-contain h-52 w-full" />
+                      </div>
+                      <div className="p-4 flex-1 flex flex-col">
+                        {product.category && <span className="text-xs text-gray-500 mb-1">{product.category.name || product.category}</span>}
+                        <h3 className="text-base font-semibold text-gray-900 mb-2 overflow-hidden" style={{
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical'
+                        }}>{product.name}</h3>
+                        <div className="flex items-end gap-2 mb-2">
+                          <span className="text-lg font-bold text-emerald-600">{product.price?.toLocaleString('vi-VN')}₫</span>
+                        </div>
+                        <button className="mt-auto bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold py-2 px-4 rounded-lg transition-colors border border-emerald-200">Mua ngay</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+            {/* Duplicated section for Phụ kiện */}
+            <section className="mb-12">
+              <div className="flex items-center mb-6 relative">
+                <h2 className="text-2xl font-bold text-gray-900 mr-4 whitespace-nowrap">Phụ kiện</h2>
+                <div className="flex-1 border-t border-gray-300 mr-40"></div>
+                <button
+                  className="absolute right-0 top-0 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition-colors ml-2"
+                  style={{ minWidth: '110px' }}
+                >
+                  View All
+                </button>
+              </div>
+              {loading ? (
+                <div>Đang tải sản phẩm...</div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {filteredProducts.slice(0, 4).map(product => (
+                    <div key={product._id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow flex flex-col overflow-hidden">
+                      <div className="relative bg-gray-100 flex items-center justify-center" style={{height:208}}>
+                        <img src={product.image} alt={product.name} className="object-contain h-52 w-full" />
+                      </div>
+                      <div className="p-4 flex-1 flex flex-col">
+                        {product.category && <span className="text-xs text-gray-500 mb-1">{product.category.name || product.category}</span>}
+                        <h3 className="text-base font-semibold text-gray-900 mb-2 overflow-hidden" style={{
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical'
+                        }}>{product.name}</h3>
+                        <div className="flex items-end gap-2 mb-2">
+                          <span className="text-lg font-bold text-emerald-600">{product.price?.toLocaleString('vi-VN')}₫</span>
+                        </div>
+                        <button className="mt-auto bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold py-2 px-4 rounded-lg transition-colors border border-emerald-200">Mua ngay</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+            {/* Duplicated section for Sản phẩm nổi bật (bottom, now Tin tức) */}
+            <section className="mb-12">
+              <div className="flex items-center justify-between mb-6 relative">
+                <div className="flex items-center flex-1">
+                  <span className="h-0.5 w-16 bg-gray-300 mr-4 hidden sm:inline-block"></span>
+                  <h2 className="text-2xl font-bold text-gray-900 text-center flex-1">Tin tức</h2>
+                  <span className="h-0.5 w-16 bg-gray-300 ml-4 hidden sm:inline-block"></span>
+                </div>
+              </div>
+              {loading ? (
+                <div>Đang tải sản phẩm...</div>
+              ) : (
+                <div className="flex items-center justify-center gap-6">
+                  <button
+                    className="w-10 h-10 flex items-center justify-center bg-white border border-gray-300 shadow-sm hover:border-green-600 hover:bg-green-50 hover:shadow-md transition-all duration-150 active:scale-95 disabled:opacity-50"
+                    onClick={handleNewsLeft}
+                    disabled={newsIndex === 0}
+                  >
+                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+                  </button>
+                  <div className="overflow-hidden w-[1080px]">
+                    <div
+                      ref={newsCarouselRef}
+                      className="flex gap-6"
+                      style={{
+                        transform: `translateX(-${newsIndex * (340 + 24)}px)`, // 340px width + 24px gap
+                        transition: 'transform 0.4s cubic-bezier(0.4,0,0.2,1)'
+                      }}
+                    >
+                      {newsProducts.map(product => (
+                        <div key={product._id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow flex flex-col overflow-hidden w-[340px] flex-shrink-0">
+                          <div className="relative bg-gray-100 flex items-center justify-center" style={{height:208}}>
+                            <img src={product.image} alt={product.name} className="object-contain h-52 w-full" />
+                          </div>
+                          <div className="p-4 flex-1 flex flex-col">
+                            {product.category && <span className="text-xs text-gray-500 mb-1">{product.category.name || product.category}</span>}
+                            <h3 className="text-base font-semibold text-gray-900 mb-2 overflow-hidden" style={{
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical'
+                            }}>{product.name}</h3>
+                            <div className="flex items-end gap-2 mb-2">
+                              <span className="text-lg font-bold text-emerald-600">{product.price?.toLocaleString('vi-VN')}₫</span>
+                            </div>
+                            <button className="mt-auto bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold py-2 px-4 rounded-lg transition-colors border border-emerald-200">Mua ngay</button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <button
+                    className="w-10 h-10 flex items-center justify-center bg-white border border-gray-300 shadow-sm hover:border-green-600 hover:bg-green-50 hover:shadow-md transition-all duration-150 active:scale-95 disabled:opacity-50"
+                    onClick={handleNewsRight}
+                    disabled={newsIndex === maxNewsIndex}
+                  >
+                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+                  </button>
+                </div>
+              )}
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const CategorySidebar = ({
+  categories,
+  categoryItemRefs,
+  hoveredCategory,
+  setHoveredCategory,
+  isSubcatHovered,
+  handleCategoryMouseEnter,
+  handleCategoryMouseLeave,
+  handleSubcatMouseEnter,
+  handleSubcatMouseLeave,
+  subcategories,
+  expandedSubcategory,
+  handleSubcategoryClick
+}) => {
+  const activeCategoryId = hoveredCategory || (isSubcatHovered ? hoveredCategory : null);
+  const activeCatObj = categories.find(cat => cat._id === activeCategoryId);
+  const activeSubcategories = subcategories.filter(
+    sc => sc.category === activeCategoryId || (sc.category && sc.category._id === activeCategoryId)
+  );
+  const grouped = activeSubcategories.reduce((acc, subcat) => {
+    const group = subcat.group || 'Other';
+    acc[group] = acc[group] || [];
+    acc[group].push(subcat);
+    return acc;
+  }, {});
+  const showSubcatMenu = (hoveredCategory || isSubcatHovered) && activeCatObj && activeSubcategories.length > 0;
+
+  return (
+    <div className="relative">
+      <div className="w-80 bg-white rounded-2xl shadow-lg z-10">
+        <div className="bg-green-600 rounded-t-2xl px-6 py-4">
           <div className="flex items-center space-x-3">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-white">
               <path d="M3 6H21V8H3V6ZM3 11H21V13H3V11ZM3 16H21V18H3V16Z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -270,107 +405,64 @@ const HomePage = () => {
             <h2 className="text-white font-semibold text-lg">DANH MỤC SẢN PHẨM</h2>
           </div>
         </div>
-
-        {/* Category List */}
         <div className="py-2">
-          {categories.map((category, index) => {
-            const isExpanded = expandedCategory === category.id
-            return (
-              <div key={category.id}>
-                <div 
-                  className="px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors"
-                  onClick={() => handleCategoryClick(category.id)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="text-gray-600">
-                        {category.icon}
-                      </div>
-                      <div>
-                        <div className={`font-medium ${isExpanded ? 'text-green-600' : 'text-gray-900'}`}>
-                          {category.name}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-gray-600">
-                      <svg 
-                        width="24" 
-                        height="24" 
-                        viewBox="0 0 24 24" 
-                        fill="none"
-                        className={`transition-transform duration-200 ${isExpanded ? 'rotate-270 text-green-600' : ''}`}
-                      >
-                        <polygon points="7,10 12,15 17,10" fill="currentColor"/>
-                      </svg>
-                    </div>
-                  </div>
+          {categories.map((category, index) => (
+            <div
+              key={category._id}
+              ref={el => categoryItemRefs.current[category._id] = el}
+              onMouseEnter={() => handleCategoryMouseEnter(category._id)}
+              onMouseLeave={handleCategoryMouseLeave}
+            >
+              <div className="px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors">
+                <div className={`flex items-center space-x-3`}>
+                  {category.icon && (
+                    <img src={`/assets/icons/${category.icon}`} alt={category.name} className="w-6 h-6 object-contain" />
+                  )}
+                  <div className={`font-medium ${category._id === hoveredCategory ? 'text-green-600' : 'text-gray-900'}`}>{category.name}</div>
                 </div>
-                
-                {index < categories.length - 1 && (
-                  <div className="mx-4 border-b border-gray-200"></div>
-                )}
               </div>
-            )
-          })}
-        </div>
-      </div>
-    )
-  }
-
-  const SubcategorySidebar = () => {
-    if (!expandedCategory) return null
-
-    const category = categories.find(cat => cat.id === expandedCategory)
-    if (!category) return null
-
-    return (
-      <div className="w-64 bg-white rounded-2xl shadow-lg">
-        {/* Header */}
-        <div className="bg-light-green rounded-t-2xl px-6 py-4">
-          <div className="flex items-center space-x-3">
-            <div className="text-white">
-              {category.icon}
-            </div>
-            <h2 className="text-white font-semibold text-lg">{category.name}</h2>
-          </div>
-        </div>
-
-        {/* Subcategory List */}
-        <div className="py-2">
-          {category.subcategories.map((subcategory, index) => (
-            <div key={index}>
-              <div className="px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors">
-                <div className="text-gray-900 font-medium">{subcategory}</div>
-              </div>
-              {index < category.subcategories.length - 1 && (
+              {index < categories.length - 1 && (
                 <div className="mx-4 border-b border-gray-200"></div>
               )}
             </div>
           ))}
         </div>
       </div>
-    )
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 pt-0 pb-4 -mt-2">
-        <div className="flex gap-8">
-          {/* Category Sidebar */}
-          <CategorySidebar />
-          
-          {/* Subcategory Sidebar */}
-          <SubcategorySidebar />
-          
-          {/* Main Content Area */}
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-gray-900 mb-6">Trang chủ</h1>
-            <p className="text-gray-600">Nội dung trang chủ sẽ được thêm vào đây.</p>
-          </div>
+      {showSubcatMenu && (
+        <div
+          className="bg-gray-50 rounded-r-2xl shadow-lg py-2 flex absolute top-0 left-80 z-20"
+          style={{ minHeight: '100%', transition: 'opacity 0.2s', width: `${Object.keys(grouped).length * 160}px` }}
+          onMouseEnter={handleSubcatMouseEnter}
+          onMouseLeave={handleSubcatMouseLeave}
+        >
+          {Object.entries(grouped).map(([group, items]) => (
+            <div className="flex-1 p-2 min-w-[160px]" key={group}>
+              <div className={
+                group.toLowerCase() === 'intel'
+                  ? "font-semibold text-center text-blue-700 mb-2"
+                  : group.toLowerCase() === 'amd'
+                  ? "font-semibold text-center text-red-700 mb-2"
+                  : "font-semibold text-center text-blue-700 mb-2"
+              }>
+                {group}
+              </div>
+              <div className="flex flex-col">
+                {items.map(subcat => (
+                  <div
+                    key={subcat._id}
+                    className={`px-4 py-2 cursor-pointer transition-colors text-sm font-medium ${expandedSubcategory === subcat._id ? 'bg-green-100 text-green-700' : 'hover:bg-gray-100 text-gray-700'}`}
+                    onClick={() => handleSubcategoryClick(subcat._id)}
+                  >
+                    {subcat.name}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
-      </div>
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default HomePage
+export default HomePage;
