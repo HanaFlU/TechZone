@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import UserMenu from '../user/UserMenu'
+import { useNavigate } from 'react-router-dom';
 
 const Navbar = ({onAccountClick, setAdminMode, searchValue, setSearchValue, products = []}) => {
   const [cartItemCount, setCartItemCount] = useState(0);
+  const navigate = useNavigate();
 
   // Filter and sort products for dropdown
   const suggestions = searchValue
@@ -23,13 +25,11 @@ const Navbar = ({onAccountClick, setAdminMode, searchValue, setSearchValue, prod
   };
 
   const handleSearch = () => {
-    // TODO: Implement search functionality
     console.log('Searching for:', searchValue)
   }
 
   const handleCartClick = () => {
-    // TODO: Navigate to cart page or open cart modal
-    console.log('Cart clicked')
+    navigate('/cart');
   }
 
   return (
@@ -48,7 +48,7 @@ const Navbar = ({onAccountClick, setAdminMode, searchValue, setSearchValue, prod
               <input
                 type="text"
                 value={searchValue}
-                onChange={e => setSearchValue(e.target.value)}
+                onChange={handleSearchChange}
                 placeholder="Tìm kiếm sản phẩm..."
                 className="w-full px-5 py-2 bg-white text-gray-900 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 autoComplete="off"

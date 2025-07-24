@@ -6,13 +6,8 @@ import {
   Grid
 } from '@mui/material';
 
-const primaryColor = '#1976d2'; // Màu xanh dương chủ đạo
-const textColor = '#333'; // Màu chữ đậm hơn cho dễ đọc
-const lightGray = '#f5f5f5'; // Nền nhẹ
-const accentColor = '#FF5722'; // Màu cam/đỏ cho các giá trị nổi bật (ví dụ: tổng tiền)
-
-// Tương tự như trong layout hóa đơn, không cần Section component nữa
-// vì chúng ta sẽ dùng Grid để nhóm và tiêu đề inline
+const textColor = '#333';
+const lightGray = '#f5f5f5';
 
 const Info = ({ label, value, sx = {} }) => (
   <Typography variant="body2" sx={{ mb: 0.5, ...sx }}>
@@ -80,9 +75,9 @@ const DetailOrderDialog = ({
             {/* Địa chỉ */}
             <Grid item sx={{ textAlign: 'left', mt: 5}}>
                 <Typography sx={{ fontWeight: 'bold', color: textColor, mb: 1}}>Địa chỉ giao hàng</Typography>
-                <Info label="Customer" variant="body2" value={selectedOrder.customer?.user?.name || 'N/A'} />
-                <Info label="Phone" variant="body2" value={selectedOrder.shippingAddress?.phone || 'N/A'} />
-                <Info label="Address" variant="body2" value={`${selectedOrder.shippingAddress?.street}, ${selectedOrder.shippingAddress?.ward}, ${selectedOrder.shippingAddress?.district}, ${selectedOrder.shippingAddress?.city}`} />
+                <Info label="Tên khách hàng" variant="body2" value={selectedOrder.customer?.user?.name || 'N/A'} />
+                <Info label="Số điện thoại" variant="body2" value={selectedOrder.shippingAddress?.phone || 'N/A'} />
+                <Info label="Địa chỉ" variant="body2" value={`${selectedOrder.shippingAddress?.street}, ${selectedOrder.shippingAddress?.ward}, ${selectedOrder.shippingAddress?.district}, ${selectedOrder.shippingAddress?.city}`} />
             </Grid>
             {/* Lịch sử */}
             <Grid item sx={{ textAlign: 'left', mt: 4}}>
