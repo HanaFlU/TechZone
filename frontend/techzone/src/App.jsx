@@ -20,7 +20,6 @@ import AdminStaff from './pages/Admin/ManageUsers/AdminStaff';
 import AdminCustomerOrderList from './pages/Admin/ManageUsers/AdminCustomerOrderList';
 import AdminCategory from './pages/Admin/ManageCategories/AdminCategory';
 import AdminProduct from './pages/Admin/ManageProducts/AdminProduct';
-import AdminSpec from './pages/Admin/ManageSpecifications/AdminSpec';
 import AdminOrderList from './pages/Admin/ManageOrders/AdminOrderList';
 
 import NotFoundPage from './pages/NotFoundPage';
