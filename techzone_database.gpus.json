@@ -1,0 +1,412 @@
+[
+  {
+    "name": "NVIDIA GeForce RTX 5090",
+    "description": "GPU NVIDIA RTX 5090 flagship, hiệu năng gaming tối đa với ray tracing thế hệ mới",
+    "price": 45990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/nvidia_rtx_5090_1.jpg",
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/nvidia_rtx_5090_2.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88d7",
+    "specs": [
+      { "label": "Memory", "value": "24GB GDDR7" },
+      { "label": "Memory Bus", "value": "384-bit" },
+      { "label": "Base Clock", "value": "2.2 GHz" },
+      { "label": "Boost Clock", "value": "2.8 GHz" },
+      { "label": "CUDA Cores", "value": "18,432" },
+      { "label": "RT Cores", "value": "144" },
+      { "label": "Tensor Cores", "value": "576" },
+      { "label": "TDP", "value": "450W" }
+    ],
+    "stock": 3
+  },
+  {
+    "name": "NVIDIA GeForce RTX 5080 Ti",
+    "description": "GPU NVIDIA RTX 5080 Ti cao cấp, hiệu năng gaming xuất sắc",
+    "price": 28990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/nvidia_rtx_5080_ti_1.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88d7",
+    "specs": [
+      { "label": "Memory", "value": "20GB GDDR7" },
+      { "label": "Memory Bus", "value": "320-bit" },
+      { "label": "Base Clock", "value": "2.0 GHz" },
+      { "label": "Boost Clock", "value": "2.6 GHz" },
+      { "label": "CUDA Cores", "value": "14,336" },
+      { "label": "RT Cores", "value": "112" },
+      { "label": "Tensor Cores", "value": "448" },
+      { "label": "TDP", "value": "350W" }
+    ],
+    "stock": 8
+  },
+  {
+    "name": "NVIDIA GeForce RTX 5080",
+    "description": "GPU NVIDIA RTX 5080, hiệu năng gaming cao cấp với ray tracing",
+    "price": 19990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/nvidia_rtx_5080_1.jpg",
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/nvidia_rtx_5080_2.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88d7",
+    "specs": [
+      { "label": "Memory", "value": "16GB GDDR7" },
+      { "label": "Memory Bus", "value": "256-bit" },
+      { "label": "Base Clock", "value": "1.9 GHz" },
+      { "label": "Boost Clock", "value": "2.5 GHz" },
+      { "label": "CUDA Cores", "value": "10,752" },
+      { "label": "RT Cores", "value": "84" },
+      { "label": "Tensor Cores", "value": "336" },
+      { "label": "TDP", "value": "285W" }
+    ],
+    "stock": 12
+  },
+  {
+    "name": "NVIDIA GeForce RTX 4090",
+    "description": "GPU NVIDIA RTX 4090 flagship, hiệu năng gaming tối đa",
+    "price": 39990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/nvidia_rtx_4090_1.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88d9",
+    "specs": [
+      { "label": "Memory", "value": "24GB GDDR6X" },
+      { "label": "Memory Bus", "value": "384-bit" },
+      { "label": "Base Clock", "value": "2.23 GHz" },
+      { "label": "Boost Clock", "value": "2.52 GHz" },
+      { "label": "CUDA Cores", "value": "16,384" },
+      { "label": "RT Cores", "value": "144" },
+      { "label": "Tensor Cores", "value": "576" },
+      { "label": "TDP", "value": "450W" }
+    ],
+    "stock": 5
+  },
+  {
+    "name": "NVIDIA GeForce RTX 4080 Super",
+    "description": "GPU NVIDIA RTX 4080 Super, hiệu năng gaming cao cấp",
+    "price": 24990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/nvidia_rtx_4080_super_1.jpg",
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/nvidia_rtx_4080_super_2.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88d9",
+    "specs": [
+      { "label": "Memory", "value": "16GB GDDR6X" },
+      { "label": "Memory Bus", "value": "256-bit" },
+      { "label": "Base Clock", "value": "2.21 GHz" },
+      { "label": "Boost Clock", "value": "2.55 GHz" },
+      { "label": "CUDA Cores", "value": "10,240" },
+      { "label": "RT Cores", "value": "80" },
+      { "label": "Tensor Cores", "value": "320" },
+      { "label": "TDP", "value": "320W" }
+    ],
+    "stock": 10
+  },
+  {
+    "name": "NVIDIA GeForce RTX 4070 Ti Super",
+    "description": "GPU NVIDIA RTX 4070 Ti Super, hiệu năng gaming tốt",
+    "price": 15990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/nvidia_rtx_4070_ti_super_1.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88d9",
+    "specs": [
+      { "label": "Memory", "value": "16GB GDDR6X" },
+      { "label": "Memory Bus", "value": "256-bit" },
+      { "label": "Base Clock", "value": "2.34 GHz" },
+      { "label": "Boost Clock", "value": "2.61 GHz" },
+      { "label": "CUDA Cores", "value": "8,448" },
+      { "label": "RT Cores", "value": "66" },
+      { "label": "Tensor Cores", "value": "264" },
+      { "label": "TDP", "value": "285W" }
+    ],
+    "stock": 15
+  },
+  {
+    "name": "NVIDIA GeForce RTX 3090",
+    "description": "GPU NVIDIA RTX 3090 flagship, hiệu năng gaming tối đa",
+    "price": 29990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/nvidia_rtx_3090_1.jpg",
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/nvidia_rtx_3090_2.jpg"
+    ],
+    "category": "68814c8380cdfdd23e5e8c78",
+    "specs": [
+      { "label": "Memory", "value": "24GB GDDR6X" },
+      { "label": "Memory Bus", "value": "384-bit" },
+      { "label": "Base Clock", "value": "1.40 GHz" },
+      { "label": "Boost Clock", "value": "1.70 GHz" },
+      { "label": "CUDA Cores", "value": "10,496" },
+      { "label": "RT Cores", "value": "82" },
+      { "label": "Tensor Cores", "value": "328" },
+      { "label": "TDP", "value": "350W" }
+    ],
+    "stock": 8
+  },
+  {
+    "name": "NVIDIA GeForce RTX 3080 Ti",
+    "description": "GPU NVIDIA RTX 3080 Ti cao cấp, hiệu năng gaming xuất sắc",
+    "price": 19990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/nvidia_rtx_3080_ti_1.jpg"
+    ],
+    "category": "68814c8380cdfdd23e5e8c78",
+    "specs": [
+      { "label": "Memory", "value": "12GB GDDR6X" },
+      { "label": "Memory Bus", "value": "384-bit" },
+      { "label": "Base Clock", "value": "1.37 GHz" },
+      { "label": "Boost Clock", "value": "1.67 GHz" },
+      { "label": "CUDA Cores", "value": "10,240" },
+      { "label": "RT Cores", "value": "80" },
+      { "label": "Tensor Cores", "value": "320" },
+      { "label": "TDP", "value": "350W" }
+    ],
+    "stock": 12
+  },
+  {
+    "name": "NVIDIA GeForce RTX 3070",
+    "description": "GPU NVIDIA RTX 3070, hiệu năng gaming tốt",
+    "price": 12990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/nvidia_rtx_3070_1.jpg",
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/nvidia_rtx_3070_2.jpg"
+    ],
+    "category": "68814c8380cdfdd23e5e8c78",
+    "specs": [
+      { "label": "Memory", "value": "8GB GDDR6" },
+      { "label": "Memory Bus", "value": "256-bit" },
+      { "label": "Base Clock", "value": "1.50 GHz" },
+      { "label": "Boost Clock", "value": "1.73 GHz" },
+      { "label": "CUDA Cores", "value": "5,888" },
+      { "label": "RT Cores", "value": "46" },
+      { "label": "Tensor Cores", "value": "184" },
+      { "label": "TDP", "value": "220W" }
+    ],
+    "stock": 20
+  },
+  {
+    "name": "AMD Radeon RX 7900 XTX",
+    "description": "GPU AMD RX 7900 XTX flagship, hiệu năng gaming tối đa",
+    "price": 29990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/amd_rx_7900_xtx_1.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88e5",
+    "specs": [
+      { "label": "Memory", "value": "24GB GDDR6" },
+      { "label": "Memory Bus", "value": "384-bit" },
+      { "label": "Base Clock", "value": "1.9 GHz" },
+      { "label": "Boost Clock", "value": "2.5 GHz" },
+      { "label": "Stream Processors", "value": "12,288" },
+      { "label": "Ray Accelerators", "value": "96" },
+      { "label": "AI Accelerators", "value": "192" },
+      { "label": "TDP", "value": "355W" }
+    ],
+    "stock": 6
+  },
+  {
+    "name": "AMD Radeon RX 7900 XT",
+    "description": "GPU AMD RX 7900 XT cao cấp, hiệu năng gaming xuất sắc",
+    "price": 24990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/amd_rx_7900_xt_1.jpg",
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/amd_rx_7900_xt_2.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88e5",
+    "specs": [
+      { "label": "Memory", "value": "20GB GDDR6" },
+      { "label": "Memory Bus", "value": "320-bit" },
+      { "label": "Base Clock", "value": "1.5 GHz" },
+      { "label": "Boost Clock", "value": "2.4 GHz" },
+      { "label": "Stream Processors", "value": "10,752" },
+      { "label": "Ray Accelerators", "value": "84" },
+      { "label": "AI Accelerators", "value": "168" },
+      { "label": "TDP", "value": "315W" }
+    ],
+    "stock": 10
+  },
+  {
+    "name": "AMD Radeon RX 7800 XT",
+    "description": "GPU AMD RX 7800 XT, hiệu năng gaming cao cấp",
+    "price": 15990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/amd_rx_7800_xt_1.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88e5",
+    "specs": [
+      { "label": "Memory", "value": "16GB GDDR6" },
+      { "label": "Memory Bus", "value": "256-bit" },
+      { "label": "Base Clock", "value": "1.8 GHz" },
+      { "label": "Boost Clock", "value": "2.4 GHz" },
+      { "label": "Stream Processors", "value": "3,840" },
+      { "label": "Ray Accelerators", "value": "60" },
+      { "label": "AI Accelerators", "value": "120" },
+      { "label": "TDP", "value": "263W" }
+    ],
+    "stock": 15
+  },
+  {
+    "name": "AMD Radeon RX 6900 XT",
+    "description": "GPU AMD RX 6900 XT flagship, hiệu năng gaming tối đa",
+    "price": 19990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/amd_rx_6900_xt_1.jpg",
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/amd_rx_6900_xt_2.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88e4",
+    "specs": [
+      { "label": "Memory", "value": "16GB GDDR6" },
+      { "label": "Memory Bus", "value": "256-bit" },
+      { "label": "Base Clock", "value": "1.825 GHz" },
+      { "label": "Boost Clock", "value": "2.250 GHz" },
+      { "label": "Stream Processors", "value": "5,120" },
+      { "label": "Ray Accelerators", "value": "80" },
+      { "label": "AI Accelerators", "value": "160" },
+      { "label": "TDP", "value": "300W" }
+    ],
+    "stock": 8
+  },
+  {
+    "name": "AMD Radeon RX 6800 XT",
+    "description": "GPU AMD RX 6800 XT cao cấp, hiệu năng gaming xuất sắc",
+    "price": 15990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/amd_rx_6800_xt_1.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88e4",
+    "specs": [
+      { "label": "Memory", "value": "16GB GDDR6" },
+      { "label": "Memory Bus", "value": "256-bit" },
+      { "label": "Base Clock", "value": "1.825 GHz" },
+      { "label": "Boost Clock", "value": "2.250 GHz" },
+      { "label": "Stream Processors", "value": "4,608" },
+      { "label": "Ray Accelerators", "value": "72" },
+      { "label": "AI Accelerators", "value": "144" },
+      { "label": "TDP", "value": "300W" }
+    ],
+    "stock": 12
+  },
+  {
+    "name": "AMD Radeon RX 6700 XT",
+    "description": "GPU AMD RX 6700 XT, hiệu năng gaming tốt",
+    "price": 9990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/amd_rx_6700_xt_1.jpg",
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/amd_rx_6700_xt_2.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88e4",
+    "specs": [
+      { "label": "Memory", "value": "12GB GDDR6" },
+      { "label": "Memory Bus", "value": "192-bit" },
+      { "label": "Base Clock", "value": "2.321 GHz" },
+      { "label": "Boost Clock", "value": "2.581 GHz" },
+      { "label": "Stream Processors", "value": "2,560" },
+      { "label": "Ray Accelerators", "value": "40" },
+      { "label": "AI Accelerators", "value": "80" },
+      { "label": "TDP", "value": "230W" }
+    ],
+    "stock": 18
+  },
+  {
+    "name": "AMD Radeon RX 9900 XT",
+    "description": "GPU AMD RX 9900 XT flagship mới nhất, hiệu năng gaming tối đa",
+    "price": 35990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/amd_rx_9900_xt_1.jpg"
+    ],
+    "category": "68814c8380cdfdd23e5e8c79",
+    "specs": [
+      { "label": "Memory", "value": "32GB GDDR7" },
+      { "label": "Memory Bus", "value": "512-bit" },
+      { "label": "Base Clock", "value": "2.0 GHz" },
+      { "label": "Boost Clock", "value": "2.8 GHz" },
+      { "label": "Stream Processors", "value": "15,360" },
+      { "label": "Ray Accelerators", "value": "120" },
+      { "label": "AI Accelerators", "value": "240" },
+      { "label": "TDP", "value": "400W" }
+    ],
+    "stock": 3
+  },
+  {
+    "name": "Intel Arc A770",
+    "description": "GPU Intel Arc A770 flagship, hiệu năng gaming cao cấp",
+    "price": 8990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/intel_arc_a770_1.jpg",
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/intel_arc_a770_2.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88e6",
+    "specs": [
+      { "label": "Memory", "value": "16GB GDDR6" },
+      { "label": "Memory Bus", "value": "256-bit" },
+      { "label": "Base Clock", "value": "2.1 GHz" },
+      { "label": "Boost Clock", "value": "2.4 GHz" },
+      { "label": "Xe Cores", "value": "32" },
+      { "label": "Ray Tracing Units", "value": "32" },
+      { "label": "XMX Engines", "value": "512" },
+      { "label": "TDP", "value": "225W" }
+    ],
+    "stock": 10
+  },
+  {
+    "name": "Intel Arc A750",
+    "description": "GPU Intel Arc A750, hiệu năng gaming tốt",
+    "price": 6990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/intel_arc_a750_1.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88e6",
+    "specs": [
+      { "label": "Memory", "value": "8GB GDDR6" },
+      { "label": "Memory Bus", "value": "256-bit" },
+      { "label": "Base Clock", "value": "2.05 GHz" },
+      { "label": "Boost Clock", "value": "2.4 GHz" },
+      { "label": "Xe Cores", "value": "28" },
+      { "label": "Ray Tracing Units", "value": "28" },
+      { "label": "XMX Engines", "value": "448" },
+      { "label": "TDP", "value": "225W" }
+    ],
+    "stock": 15
+  },
+  {
+    "name": "Intel Arc A580",
+    "description": "GPU Intel Arc A580, hiệu năng gaming cơ bản",
+    "price": 4990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/intel_arc_a580_1.jpg",
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/intel_arc_a580_2.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88e7",
+    "specs": [
+      { "label": "Memory", "value": "8GB GDDR6" },
+      { "label": "Memory Bus", "value": "256-bit" },
+      { "label": "Base Clock", "value": "1.7 GHz" },
+      { "label": "Boost Clock", "value": "2.0 GHz" },
+      { "label": "Xe Cores", "value": "24" },
+      { "label": "Ray Tracing Units", "value": "24" },
+      { "label": "XMX Engines", "value": "384" },
+      { "label": "TDP", "value": "185W" }
+    ],
+    "stock": 20
+  },
+  {
+    "name": "Intel Arc A570",
+    "description": "GPU Intel Arc A570, hiệu năng gaming cơ bản",
+    "price": 3990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/gpus/intel_arc_a570_1.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88e7",
+    "specs": [
+      { "label": "Memory", "value": "8GB GDDR6" },
+      { "label": "Memory Bus", "value": "128-bit" },
+      { "label": "Base Clock", "value": "1.6 GHz" },
+      { "label": "Boost Clock", "value": "1.9 GHz" },
+      { "label": "Xe Cores", "value": "20" },
+      { "label": "Ray Tracing Units", "value": "20" },
+      { "label": "XMX Engines", "value": "320" },
+      { "label": "TDP", "value": "150W" }
+    ],
+    "stock": 25
+  }
+] 

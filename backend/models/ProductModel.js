@@ -30,8 +30,8 @@ const ProductSchema = new mongoose.Schema(
       min: 0,
     },
     image: {
-      type: String,
-      default: '/default-product-image.png',
+      type: [String],
+      default: ['/default-product-image.png'],
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,

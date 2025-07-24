@@ -1,0 +1,353 @@
+[
+  {
+    "name": "Intel Core i5-12400F",
+    "description": "CPU Intel Core i5 thế hệ 12, 6 cores 12 threads, hiệu năng gaming tốt",
+    "price": 3890000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/cpus/intel_core_i5_12400f_1.jpg",
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/cpus/intel_core_i5_12400f_2.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88d6",
+    "specs": [
+      { "label": "Socket", "value": "LGA 1700" },
+      { "label": "Cores/Threads", "value": "6C/12T" },
+      { "label": "Base Clock", "value": "2.5 GHz" },
+      { "label": "Boost Clock", "value": "4.4 GHz" },
+      { "label": "Cache", "value": "18MB L3" },
+      { "label": "TDP", "value": "65W" },
+      { "label": "Integrated GPU", "value": "Không có" }
+    ],
+    "stock": 25
+  },
+  {
+    "name": "Intel Core i7-12700K",
+    "description": "CPU Intel Core i7 thế hệ 12, 12 cores 20 threads, hiệu năng cao cấp",
+    "price": 8990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/cpus/intel_core_i7_12700k_1.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88d6",
+    "specs": [
+      { "label": "Socket", "value": "LGA 1700" },
+      { "label": "Cores/Threads", "value": "12C/20T" },
+      { "label": "Base Clock", "value": "3.6 GHz" },
+      { "label": "Boost Clock", "value": "5.0 GHz" },
+      { "label": "Cache", "value": "25MB L3" },
+      { "label": "TDP", "value": "125W" },
+      { "label": "Integrated GPU", "value": "Intel UHD 770" }
+    ],
+    "stock": 15
+  },
+  {
+    "name": "Intel Core i9-12900K",
+    "description": "CPU Intel Core i9 thế hệ 12 flagship, 16 cores 24 threads, hiệu năng tối đa",
+    "price": 15990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/cpus/intel_core_i9_12900k_1.jpg",
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/cpus/intel_core_i9_12900k_2.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88d6",
+    "specs": [
+      { "label": "Socket", "value": "LGA 1700" },
+      { "label": "Cores/Threads", "value": "16C/24T" },
+      { "label": "Base Clock", "value": "3.2 GHz" },
+      { "label": "Boost Clock", "value": "5.2 GHz" },
+      { "label": "Cache", "value": "30MB L3" },
+      { "label": "TDP", "value": "125W" },
+      { "label": "Integrated GPU", "value": "Intel UHD 770" }
+    ],
+    "stock": 8
+  },
+  {
+    "name": "Intel Core i5-13600K",
+    "description": "CPU Intel Core i5 thế hệ 13, 14 cores 20 threads, hiệu năng gaming xuất sắc",
+    "price": 7890000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/cpus/intel_core_i5_13600k_1.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88d8",
+    "specs": [
+      { "label": "Socket", "value": "LGA 1700" },
+      { "label": "Cores/Threads", "value": "14C/20T" },
+      { "label": "Base Clock", "value": "3.5 GHz" },
+      { "label": "Boost Clock", "value": "5.1 GHz" },
+      { "label": "Cache", "value": "24MB L3" },
+      { "label": "TDP", "value": "125W" },
+      { "label": "Integrated GPU", "value": "Intel UHD 770" }
+    ],
+    "stock": 18
+  },
+  {
+    "name": "Intel Core i7-13700K",
+    "description": "CPU Intel Core i7 thế hệ 13, 16 cores 24 threads, hiệu năng cao cấp",
+    "price": 11990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/cpus/intel_core_i7_13700k_1.jpg",
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/cpus/intel_core_i7_13700k_2.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88d8",
+    "specs": [
+      { "label": "Socket", "value": "LGA 1700" },
+      { "label": "Cores/Threads", "value": "16C/24T" },
+      { "label": "Base Clock", "value": "3.4 GHz" },
+      { "label": "Boost Clock", "value": "5.4 GHz" },
+      { "label": "Cache", "value": "30MB L3" },
+      { "label": "TDP", "value": "125W" },
+      { "label": "Integrated GPU", "value": "Intel UHD 770" }
+    ],
+    "stock": 12
+  },
+  {
+    "name": "Intel Core i9-13900K",
+    "description": "CPU Intel Core i9 thế hệ 13 flagship, 24 cores 32 threads, hiệu năng tối đa",
+    "price": 18990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/cpus/intel_core_i9_13900k_1.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88d8",
+    "specs": [
+      { "label": "Socket", "value": "LGA 1700" },
+      { "label": "Cores/Threads", "value": "24C/32T" },
+      { "label": "Base Clock", "value": "3.0 GHz" },
+      { "label": "Boost Clock", "value": "5.8 GHz" },
+      { "label": "Cache", "value": "36MB L3" },
+      { "label": "TDP", "value": "125W" },
+      { "label": "Integrated GPU", "value": "Intel UHD 770" }
+    ],
+    "stock": 6
+  },
+  {
+    "name": "Intel Core i5-14600K",
+    "description": "CPU Intel Core i5 thế hệ 14, 14 cores 20 threads, hiệu năng gaming mới nhất",
+    "price": 8990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/cpus/intel_core_i5_14600k_1.jpg",
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/cpus/intel_core_i5_14600k_2.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88da",
+    "specs": [
+      { "label": "Socket", "value": "LGA 1700" },
+      { "label": "Cores/Threads", "value": "14C/20T" },
+      { "label": "Base Clock", "value": "3.5 GHz" },
+      { "label": "Boost Clock", "value": "5.3 GHz" },
+      { "label": "Cache", "value": "24MB L3" },
+      { "label": "TDP", "value": "125W" },
+      { "label": "Integrated GPU", "value": "Intel UHD 770" }
+    ],
+    "stock": 10
+  },
+  {
+    "name": "Intel Core i7-14700K",
+    "description": "CPU Intel Core i7 thế hệ 14, 20 cores 28 threads, hiệu năng cao cấp mới nhất",
+    "price": 13990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/cpus/intel_core_i7_14700k_1.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88da",
+    "specs": [
+      { "label": "Socket", "value": "LGA 1700" },
+      { "label": "Cores/Threads", "value": "20C/28T" },
+      { "label": "Base Clock", "value": "3.4 GHz" },
+      { "label": "Boost Clock", "value": "5.6 GHz" },
+      { "label": "Cache", "value": "33MB L3" },
+      { "label": "TDP", "value": "125W" },
+      { "label": "Integrated GPU", "value": "Intel UHD 770" }
+    ],
+    "stock": 8
+  },
+  {
+    "name": "Intel Core i9-14900K",
+    "description": "CPU Intel Core i9 thế hệ 14 flagship, 24 cores 32 threads, hiệu năng tối đa",
+    "price": 20990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/cpus/intel_core_i9_14900k_1.jpg",
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/cpus/intel_core_i9_14900k_2.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88da",
+    "specs": [
+      { "label": "Socket", "value": "LGA 1700" },
+      { "label": "Cores/Threads", "value": "24C/32T" },
+      { "label": "Base Clock", "value": "3.2 GHz" },
+      { "label": "Boost Clock", "value": "6.0 GHz" },
+      { "label": "Cache", "value": "36MB L3" },
+      { "label": "TDP", "value": "125W" },
+      { "label": "Integrated GPU", "value": "Intel UHD 770" }
+    ],
+    "stock": 5
+  },
+  {
+    "name": "AMD Ryzen 5 7600X",
+    "description": "CPU AMD Ryzen 5 7000 series, 6 cores 12 threads, hiệu năng gaming tốt",
+    "price": 6890000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/cpus/amd_ryzen_5_7600x_1.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88e1",
+    "specs": [
+      { "label": "Socket", "value": "AM5" },
+      { "label": "Cores/Threads", "value": "6C/12T" },
+      { "label": "Base Clock", "value": "4.7 GHz" },
+      { "label": "Boost Clock", "value": "5.3 GHz" },
+      { "label": "Cache", "value": "38MB L3" },
+      { "label": "TDP", "value": "105W" },
+      { "label": "Integrated GPU", "value": "AMD Radeon Graphics" }
+    ],
+    "stock": 20
+  },
+  {
+    "name": "AMD Ryzen 7 7700X",
+    "description": "CPU AMD Ryzen 7 7000 series, 8 cores 16 threads, hiệu năng cao cấp",
+    "price": 9990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/cpus/amd_ryzen_7_7700x_1.jpg",
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/cpus/amd_ryzen_7_7700x_2.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88e1",
+    "specs": [
+      { "label": "Socket", "value": "AM5" },
+      { "label": "Cores/Threads", "value": "8C/16T" },
+      { "label": "Base Clock", "value": "4.5 GHz" },
+      { "label": "Boost Clock", "value": "5.4 GHz" },
+      { "label": "Cache", "value": "40MB L3" },
+      { "label": "TDP", "value": "105W" },
+      { "label": "Integrated GPU", "value": "AMD Radeon Graphics" }
+    ],
+    "stock": 15
+  },
+  {
+    "name": "AMD Ryzen 9 7900X",
+    "description": "CPU AMD Ryzen 9 7000 series, 12 cores 24 threads, hiệu năng tối đa",
+    "price": 15990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/cpus/amd_ryzen_9_7900x_1.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88e1",
+    "specs": [
+      { "label": "Socket", "value": "AM5" },
+      { "label": "Cores/Threads", "value": "12C/24T" },
+      { "label": "Base Clock", "value": "4.7 GHz" },
+      { "label": "Boost Clock", "value": "5.6 GHz" },
+      { "label": "Cache", "value": "76MB L3" },
+      { "label": "TDP", "value": "170W" },
+      { "label": "Integrated GPU", "value": "AMD Radeon Graphics" }
+    ],
+    "stock": 8
+  },
+  {
+    "name": "AMD Ryzen 5 5600X",
+    "description": "CPU AMD Ryzen 5 5000 series, 6 cores 12 threads, hiệu năng gaming tốt",
+    "price": 4890000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/cpus/amd_ryzen_5_5600x_1.jpg",
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/cpus/amd_ryzen_5_5600x_2.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88e2",
+    "specs": [
+      { "label": "Socket", "value": "AM4" },
+      { "label": "Cores/Threads", "value": "6C/12T" },
+      { "label": "Base Clock", "value": "3.7 GHz" },
+      { "label": "Boost Clock", "value": "4.6 GHz" },
+      { "label": "Cache", "value": "35MB L3" },
+      { "label": "TDP", "value": "65W" },
+      { "label": "Integrated GPU", "value": "Không có" }
+    ],
+    "stock": 30
+  },
+  {
+    "name": "AMD Ryzen 7 5800X",
+    "description": "CPU AMD Ryzen 7 5000 series, 8 cores 16 threads, hiệu năng cao cấp",
+    "price": 7890000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/cpus/amd_ryzen_7_5800x_1.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88e2",
+    "specs": [
+      { "label": "Socket", "value": "AM4" },
+      { "label": "Cores/Threads", "value": "8C/16T" },
+      { "label": "Base Clock", "value": "3.8 GHz" },
+      { "label": "Boost Clock", "value": "4.7 GHz" },
+      { "label": "Cache", "value": "36MB L3" },
+      { "label": "TDP", "value": "105W" },
+      { "label": "Integrated GPU", "value": "Không có" }
+    ],
+    "stock": 18
+  },
+  {
+    "name": "AMD Ryzen 9 5900X",
+    "description": "CPU AMD Ryzen 9 5000 series, 12 cores 24 threads, hiệu năng tối đa",
+    "price": 12990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/cpus/amd_ryzen_9_5900x_1.jpg",
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/cpus/amd_ryzen_9_5900x_2.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88e2",
+    "specs": [
+      { "label": "Socket", "value": "AM4" },
+      { "label": "Cores/Threads", "value": "12C/24T" },
+      { "label": "Base Clock", "value": "3.7 GHz" },
+      { "label": "Boost Clock", "value": "4.8 GHz" },
+      { "label": "Cache", "value": "70MB L3" },
+      { "label": "TDP", "value": "105W" },
+      { "label": "Integrated GPU", "value": "Không có" }
+    ],
+    "stock": 10
+  },
+  {
+    "name": "AMD Ryzen 5 3600X",
+    "description": "CPU AMD Ryzen 5 3000 series, 6 cores 12 threads, hiệu năng gaming cơ bản",
+    "price": 3890000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/cpus/amd_ryzen_5_3600x_1.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88e3",
+    "specs": [
+      { "label": "Socket", "value": "AM4" },
+      { "label": "Cores/Threads", "value": "6C/12T" },
+      { "label": "Base Clock", "value": "3.8 GHz" },
+      { "label": "Boost Clock", "value": "4.4 GHz" },
+      { "label": "Cache", "value": "35MB L3" },
+      { "label": "TDP", "value": "95W" },
+      { "label": "Integrated GPU", "value": "Không có" }
+    ],
+    "stock": 25
+  },
+  {
+    "name": "AMD Ryzen 7 3700X",
+    "description": "CPU AMD Ryzen 7 3000 series, 8 cores 16 threads, hiệu năng cao cấp",
+    "price": 5890000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/cpus/amd_ryzen_7_3700x_1.jpg",
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/cpus/amd_ryzen_7_3700x_2.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88e3",
+    "specs": [
+      { "label": "Socket", "value": "AM4" },
+      { "label": "Cores/Threads", "value": "8C/16T" },
+      { "label": "Base Clock", "value": "3.6 GHz" },
+      { "label": "Boost Clock", "value": "4.4 GHz" },
+      { "label": "Cache", "value": "36MB L3" },
+      { "label": "TDP", "value": "65W" },
+      { "label": "Integrated GPU", "value": "Không có" }
+    ],
+    "stock": 15
+  },
+  {
+    "name": "AMD Ryzen 9 3900X",
+    "description": "CPU AMD Ryzen 9 3000 series, 12 cores 24 threads, hiệu năng tối đa",
+    "price": 9990000,
+    "image": [
+      "https://res.cloudinary.com/drbacdode/image/upload/v1753296142/cpus/amd_ryzen_9_3900x_1.jpg"
+    ],
+    "category": "6881469f80cdfdd23e5e88e3",
+    "specs": [
+      { "label": "Socket", "value": "AM4" },
+      { "label": "Cores/Threads", "value": "12C/24T" },
+      { "label": "Base Clock", "value": "3.8 GHz" },
+      { "label": "Boost Clock", "value": "4.6 GHz" },
+      { "label": "Cache", "value": "70MB L3" },
+      { "label": "TDP", "value": "105W" },
+      { "label": "Integrated GPU", "value": "Không có" }
+    ],
+    "stock": 8
+  }
+] 
