@@ -52,7 +52,6 @@ const Sidebar = ({onVisitStore, children}) => {
               <div className="ml-6 mt-1 space-y-1">
                 <div className="cursor-pointer hover:text-emerald-600" onClick={() => navigate('/admin/products')}>Product</div>
                 <div className="cursor-pointer hover:text-emerald-600" onClick={() => navigate('/admin/category')}>Category</div>
-                <div className="cursor-pointer hover:text-emerald-600" onClick={() => navigate('/admin/spec')}>Specification</div>
               </div>
             )
         },

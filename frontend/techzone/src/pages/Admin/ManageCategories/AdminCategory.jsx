@@ -24,6 +24,7 @@ import {
   InputLabel,
   FormControl,
   CircularProgress,
+  TablePagination,
 } from "@mui/material";
 import { AiOutlineEdit } from "react-icons/ai";
 import { FaRegTrashCan } from "react-icons/fa6";
@@ -31,6 +32,9 @@ import { FaRegTrashCan } from "react-icons/fa6";
 const CategoryManager = () => {
   const [categories, setCategories] = useState([]);
   const [formDialog, setFormDialog] = useState(false);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -51,9 +55,16 @@ const CategoryManager = () => {
   useEffect(() => {
     fetchCategories();
   }, []);
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   const handleUploadIcon = async (file) => {
-    
     console.log("Uploading icon:", file.name);
     const url = await UploadService.uploadIcon(file);
     console.log("Icon uploaded successfully:", url);
@@ -125,6 +136,7 @@ const CategoryManager = () => {
         {loading ? (
           <CircularProgress color="primary" />
         ) : (
+          <div>
           <TableContainer component={Paper}>
             <Table size="small">
               <TableHead>
@@ -137,8 +149,8 @@ const CategoryManager = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {categories.map((cat) => (
-                  <TableRow key={cat._id}>
+                  {categories.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((cat) => (
+                    <TableRow key={cat._id}>
                     <TableCell>
                       {cat.icon ? <img src={cat.icon} alt="icon" width={24} height={24} /> : "-"}
                     </TableCell>
@@ -158,6 +170,16 @@ const CategoryManager = () => {
               </TableBody>
             </Table>
           </TableContainer>
+          <TablePagination
+            component="div"
+            count={categories.length}
+            page={page}
+            onPageChange={handleChangePage}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            rowsPerPageOptions={[5, 10, 20]}
+              />
+          </div>
         )}
 
         <Dialog open={formDialog} onClose={() => setFormDialog(false)} maxWidth="xs" fullWidth>

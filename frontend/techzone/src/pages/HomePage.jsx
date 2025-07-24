@@ -35,7 +35,7 @@ const HomePage = () => {
   }, []);
 
   useEffect(() => {
-    CategoryService.getAllCategories()
+    CategoryService.getCategories()
       .then(data => setCategories(data))
       .catch(err => console.error(err));
   }, []);
