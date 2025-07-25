@@ -4,5 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 
 export default function AdminRoute() {
   const { user } = useContext(AuthContext);
-  return user?.role === 'AD' ? <Outlet /> : <Navigate to="/" />;
+  const allowedRoles = ['AD', 'STAFF', 'MANGER'];
+
+  return allowedRoles.includes(user?.role) ? <Outlet /> : <Navigate to="/unauthorized " />;
 }

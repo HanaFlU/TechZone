@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 
 import Navbar from './components/layout/user/Navbar';
 import Footer from './components/layout/user/Footer';
@@ -29,17 +29,19 @@ import RegisterModal from './components/auth/RegisterModal';
 
 import ProductService from './services/ProductService';
 
-import { AuthProvider } from './context/AuthContext'
+import { AuthContext, AuthProvider } from './context/AuthContext'
 import AdminRoute from './routes/AdminRoute';
 import ProtectedRoute from './routes/ProtectedRoute';
+import { useContext } from 'react';
 
 const App = () => {
-  const [showLoginModal, setShowLoginModal] = useState(false);
+  const { showLoginModal, setShowLoginModal } = useContext(AuthContext);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [adminMode, setAdminMode] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [products, setProducts] = useState([]);
 
+  const navigate = useNavigate();
   const location = useLocation();
   useEffect(() => {
     if (location.pathname.startsWith('/admin')) {
@@ -57,7 +59,6 @@ const App = () => {
   }, []);
 
   return (
-    <AuthProvider>
       <div className='min-h-screen flex flex-col bg-gray-50 m-0 p-0'>
         {!adminMode && (
           <Navbar
@@ -69,10 +70,10 @@ const App = () => {
           />
         )}
         <main className='flex-1'>
-          {adminMode ? (
+          {!adminMode && adminMode ? (
             <Sidebar onVisitStore={() => {
               setAdminMode(false);
-              window.location.href = '/';
+              navigate('/');
             }}>
               <Routes>
                 <Route element={<AdminRoute />}>
@@ -90,19 +91,22 @@ const App = () => {
           ) : (
             <>
               <Routes>
-                <Route path='/' element={<HomePage />} />
-                <Route path='/account' element={<AccountLayout />}> 
-                  <Route index element={<ProfilePage />} />
-                  <Route path='addresses' element={<AddressesPage />} />
-                  <Route path="addresses/add" element={<AddressForm />} />
-                  <Route path="addresses/edit/:id" element={<AddressForm />} />
-                  <Route path='orders' element={<OrderHistoryPage />} />
-                </Route>
-                <Route path='/cart' element={<CartPage />} />
-                <Route path='/order' element={<OrderPage />} />
+                  <Route path='/' element={<HomePage />} />
+                  <Route path='/cart' element={<CartPage />} />
+                  <Route path='/unauthorized' element={<NotFoundPage />} />
+                  
                 <Route element={<ProtectedRoute />}>
+                  <Route path='/account' element={<AccountLayout />}> 
+                    <Route index element={<ProfilePage />} />
+                    <Route path='addresses' element={<AddressesPage />} />
+                    <Route path="addresses/add" element={<AddressForm />} />
+                    <Route path="addresses/edit/:id" element={<AddressForm />} />
+                    <Route path='orders' element={<OrderHistoryPage />} />
+                  </Route>
+                  <Route path='/order' element={<OrderPage />} />
                   {/* <Route path='' element={} /> */}
                 </Route>
+                  
                 <Route path='*' element={<NotFoundPage />} />
               </Routes>
             </>
@@ -114,14 +118,15 @@ const App = () => {
         {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} onSwitch={() => { setShowLoginModal(false); setShowRegisterModal(true); }} />}
         {showRegisterModal && <RegisterModal onClose={()=>setShowRegisterModal(false) } onSwitch={() => { setShowLoginModal(true); setShowRegisterModal(false); }} />}
       </div>
-    </AuthProvider>
   )
 }
 
 const AppWithRouter = () => (
+  <AuthProvider>
   <Router>
     <App />
   </Router>
+  </AuthProvider>
 );
 
 export default AppWithRouter;

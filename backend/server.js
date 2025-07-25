@@ -22,7 +22,6 @@ const SaleEventRoute = require("./routes/SaleEventRoute.js");
 const UploadRoute = require("./routes/UploadRoute.js");
 connect();
 const { protect, checkPermission } = require("./midleware/AuthMiddleware.js");
-
 const app = express();
 
 app.use(

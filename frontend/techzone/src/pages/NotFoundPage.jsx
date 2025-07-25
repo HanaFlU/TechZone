@@ -15,7 +15,7 @@ const NotFoundPage = () => {
       <div className="text-center md:text-left shadow-lg p-16  bg-white dark:bg-gray-800 rounded-r-4xl">
         <h1 className="text-5xl font-bold text-red-500 mb-4">404 - Not Found</h1>
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-6">
-          Trang bạn đang tìm không tồn tại hoặc đã bị xoá.
+          The page you are looking for does not exist or has been moved or you don't have permission to access it.
         </p>
         <div class={"text-center md:text-right text-xl"}>
           <a

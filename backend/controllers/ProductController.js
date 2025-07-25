@@ -1,6 +1,8 @@
 const Product = require('../models/ProductModel');
 const Category = require('../models/CategoryModel');
 const SaleEvent = require('../models/SaleEventModel');
+const findRootCategory = require('../helpers/findRootCategory');
+const getAllDescendantCategoryIds = require('../helpers/getAllDescendantCategoryIds');
 
 const ProductController = {
   createProduct: async (req, res) => {

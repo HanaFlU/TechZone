@@ -25,7 +25,16 @@ const testCategorySchema = new mongoose.Schema({
     icon: {
         type: String,
         default: ""
-    }
+    },
+    specifications: [
+        {
+            type: Object,
+            properties: {
+                key: { type: String, required: true },
+                label: { type: String, required: true },
+            },
+        }
+    ]
 }, {
     timestamps: true
 });

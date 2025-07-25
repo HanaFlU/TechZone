@@ -10,6 +10,7 @@ class UserService {
         try {
             console.log('UserService: Fetching account info for user ID:', userId);
             const response = await this.api.get(`/${userId}/account`);
+            console.log('UserService: Account info fetched successfully:', response.data);
             return response.data;
         } catch (error) {
             console.error('StaffService Error: Failed to fetch account info:', error.response ? error.response.data : error.message);
