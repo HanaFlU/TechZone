@@ -234,7 +234,7 @@ const OrderForm = () => {
     } finally {
       setPlacingOrder(false);
     }
-  }, [cartData, currentCustomerId, selectedAddressId, paymentMethod, displayNotification, navigate, stripe, elements, calculateTotal, shippingFee, setCartData ]); // Thêm calculateTotal và shippingFee vào dependency array
+  }, [cartData, currentCustomerId, selectedAddressId, paymentMethod, displayNotification, navigate, stripe, elements, calculateTotal, shippingFee, setCartData ]);
     
   // Hàm reload địa chỉ sau khi thêm mới thành công
   const reloadAddresses = useCallback(async () => {
@@ -478,9 +478,9 @@ const OrderForm = () => {
                 {cartData.items.map((item, index) => (
                   <div key={index} className="flex items-center space-x-4">
                     <div className="w-20 h-20 bg-gray-100 rounded-md flex items-center justify-center flex-shrink-0">
-                      {item.product?.image ? (
+                      {item.product?.images[0] ? (
                         <img
-                                                      src={item.product.image}
+                          src={item.product.images[0]}
                           alt={item.product?.name || 'Sản phẩm'}
                           className="w-full h-full object-cover"
                         />

@@ -143,7 +143,7 @@ const OrderController = {
             const populatedOrder = await Order.findById(savedOrder._id)
                 .populate({
                     path: 'items.product',
-                    select: 'name image'
+                    select: 'name images'
                 })
                 .populate('shippingAddress')
                 .populate({
@@ -187,7 +187,7 @@ const OrderController = {
             const orders = await Order.find({ customer: customerId })
                 .populate({
                     path: 'items.product',
-                    select: 'name image'
+                    select: 'name images'
                 })
                 .populate('shippingAddress')
                 .populate('shippingFee')
@@ -256,7 +256,7 @@ const OrderController = {
                 populate: [
                     { path: 'customer', populate: { path: 'user', select: 'name email' } },
                     { path: 'shippingAddress' },
-                    { path: 'items.product', select: 'name image' }
+                    { path: 'items.product', select: 'name images' }
                 ],
             };
 
@@ -289,7 +289,7 @@ const OrderController = {
                 })
                 .populate({
                     path: 'items.product',
-                    select: 'name image'
+                    select: 'name images'
                 })
                 .populate('shippingAddress')
 

@@ -232,7 +232,7 @@ const CartPage = () => {
                                         onChange={() => handleToggleSelectItem(item.product._id)}
                                     />
                                     <img
-                                        src={item.product.image}
+                                        src={item.product.images[0]}
                                         alt={item.product.name}
                                         className="w-16 h-16 object-cover"
                                     />
