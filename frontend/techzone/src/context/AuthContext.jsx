@@ -13,6 +13,8 @@ export const AuthProvider = ({ children }) => {
     setShowLoginModal(false);
     localStorage.setItem('user', JSON.stringify(userData));
     localStorage.setItem('token', token);
+    // Refresh the page to ensure all components are updated with new user state
+    window.location.reload();
   };
 
   const logout = () => {

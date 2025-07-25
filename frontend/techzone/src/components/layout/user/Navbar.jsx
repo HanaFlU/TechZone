@@ -1,10 +1,84 @@
-import React, { useState } from 'react'
-import UserMenu from '../user/UserMenu'
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import useAuthUser from '../../../hooks/useAuthUser';
+import CartService from '../../../services/CartService';
+import UserMenu from './UserMenu';
 
 const Navbar = ({onAccountClick, setAdminMode, searchValue, setSearchValue, products = []}) => {
   const [cartItemCount, setCartItemCount] = useState(0);
+  const [cartData, setCartData] = useState(null);
+  const [showCartDropdown, setShowCartDropdown] = useState(false);
+  const [dropdownTimer, setDropdownTimer] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { currentUserId } = useAuthUser();
+
+  // Load cart data
+  useEffect(() => {
+    const loadCartData = async () => {
+      if (currentUserId) {
+        // Logged-in user: load from backend
+        try {
+          const data = await CartService.getCartData(currentUserId);
+          setCartData(data);
+          // Calculate total quantity of all items
+          const totalQuantity = data?.items?.reduce((sum, item) => sum + (item.quantity || 1), 0) || 0;
+          setCartItemCount(totalQuantity);
+        } catch (err) {
+          console.error('Failed to load cart data:', err);
+        }
+      } else {
+        // Guest: load from localStorage
+        const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
+        setCartData({ items: guestCart });
+        // Calculate total quantity of all items
+        const totalQuantity = guestCart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+        setCartItemCount(totalQuantity);
+      }
+    };
+
+    loadCartData();
+    
+    // Listen for cart changes (for guest cart)
+    const handleStorageChange = () => {
+      if (!currentUserId) {
+        const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
+        setCartData({ items: guestCart });
+        // Calculate total quantity of all items
+        const totalQuantity = guestCart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+        setCartItemCount(totalQuantity);
+      }
+    };
+
+    // Listen for custom cart update events
+    const handleCartUpdate = () => {
+      loadCartData();
+      // Auto-show cart dropdown for 10 seconds when cart is updated
+      setShowCartDropdown(true);
+      setTimeout(() => {
+        setShowCartDropdown(false);
+      }, 10000); // 10 seconds
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('cartUpdated', handleCartUpdate);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('cartUpdated', handleCartUpdate);
+      if (dropdownTimer) {
+        clearTimeout(dropdownTimer);
+      }
+    };
+  }, [currentUserId]);
+
+  // Calculate total price
+  const calculateTotalPrice = () => {
+    if (!cartData?.items) return 0;
+    return cartData.items.reduce((total, item) => {
+      return total + (item.product?.price || 0) * item.quantity;
+    }, 0);
+  };
 
   // Filter and sort products for dropdown
   const suggestions = searchValue
@@ -96,10 +170,20 @@ const Navbar = ({onAccountClick, setAdminMode, searchValue, setSearchValue, prod
           <div className='flex items-center space-x-4'>
             <UserMenu onClick={onAccountClick} setAdminMode={setAdminMode} />
             
-            {/* Cart Icon */}
+            {/* Cart Icon with Dropdown */}
             <div className='relative'>
               <button
                 onClick={handleCartClick}
+                onMouseEnter={() => {
+                  clearTimeout(dropdownTimer);
+                  setShowCartDropdown(true);
+                }}
+                onMouseLeave={() => {
+                  const timer = setTimeout(() => {
+                    setShowCartDropdown(false);
+                  }, 500); // 500ms delay
+                  setDropdownTimer(timer);
+                }}
                 className="relative p-2 text-white hover:text-gray-200 transition-colors"
               >
                 {/* Shopping Cart Icon */}
@@ -116,6 +200,88 @@ const Navbar = ({onAccountClick, setAdminMode, searchValue, setSearchValue, prod
                   </div>
                 )}
               </button>
+
+              {/* Cart Dropdown */}
+              {showCartDropdown && location.pathname !== '/cart' && (
+                <div
+                  className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50"
+                  onMouseEnter={() => {
+                    clearTimeout(dropdownTimer);
+                    setShowCartDropdown(true);
+                  }}
+                  onMouseLeave={() => {
+                    const timer = setTimeout(() => {
+                      setShowCartDropdown(false);
+                    }, 500); // 500ms delay
+                    setDropdownTimer(timer);
+                  }}
+                >
+                  <div className="p-4">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Giỏ hàng</h3>
+                    {cartData?.items && cartData.items.length > 0 ? (
+                      <>
+                        <div className="max-h-64 overflow-y-auto space-y-3">
+                          {cartData.items.slice(0, 3).map((item) => (
+                            <div key={item.product._id} className="flex items-center space-x-3">
+                              <img 
+                                src={item.product.images?.[0] || '/default-product-image.png'} 
+                                alt={item.product.name}
+                                className="w-12 h-12 object-cover rounded"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-gray-900 truncate">
+                                  {item.product.name}
+                                </p>
+                                <p className="text-sm text-gray-500">
+                                  Số lượng: {item.quantity}
+                                </p>
+                              </div>
+                              <p className="text-sm font-semibold text-emerald-600">
+                                {(item.product.price * item.quantity).toLocaleString('vi-VN')}₫
+                              </p>
+                            </div>
+                          ))}
+                          {cartData.items.length > 3 && (
+                            <p className="text-sm text-gray-500 text-center">
+                              Và {cartData.items.length - 3} sản phẩm khác...
+                            </p>
+                          )}
+                        </div>
+                        <div className="border-t border-gray-200 pt-3 mt-3">
+                          <div className="flex justify-between items-center mb-3">
+                            <span className="font-semibold text-gray-900">Tổng cộng:</span>
+                            <span className="font-bold text-lg text-emerald-600">
+                              {calculateTotalPrice().toLocaleString('vi-VN')}₫
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => {
+                              navigate('/cart');
+                              setShowCartDropdown(false);
+                            }}
+                            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+                          >
+                            Xem giỏ hàng
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-center py-4">
+                        <p className="text-gray-500">Giỏ hàng trống</p>
+                        <button
+                          onClick={() => {
+                            navigate('/');
+                            setShowCartDropdown(false);
+                          }}
+                          className="mt-2 text-emerald-600 hover:text-emerald-700 font-medium"
+                        >
+                          Tiếp tục mua sắm
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
       </nav>

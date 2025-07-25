@@ -3,10 +3,14 @@ import ProductService from '../services/ProductService';
 import CategoryService from '../services/CategoryService';
 import CategorySidebar from '../components/layout/user/CategorySidebar';
 import ProductSection from '../components/product/ProductSection';
+import ProductCard from '../components/product/ProductCard';
 import NewsCarousel from '../components/product/NewsCarousel';
 import useAuthUser from '../hooks/useAuthUser';
 import useNotification from '../hooks/useNotification';
 import CartService from '../services/CartService';
+import { useGuestCartTransfer } from '../hooks/useGuestCartTransfer';
+import NotificationContainer from '../components/button/NotificationContainer';
+import { useStockValidation } from '../hooks/useStockValidation';
 
 const mockNews = [
   {
@@ -52,7 +56,16 @@ const HomePage = () => {
   const newsProducts = products; // You can replace this with actual news data if available
   const maxNewsIndex = Math.max(0, newsProducts.length - newsItemsToShow);
   const { currentUserId } = useAuthUser();
-  const { displayNotification } = useNotification();
+  const { 
+    notifications, 
+    displayNotification, 
+    closeNotification
+  } = useNotification();
+  const { transferGuestCartToUser } = useGuestCartTransfer(
+    currentUserId, 
+    displayNotification
+  );
+  const { validateStockForAddToCart } = useStockValidation(displayNotification);
 
   useEffect(() => {
     ProductService.getAllProducts()
@@ -72,6 +85,13 @@ const HomePage = () => {
       setSidebarHeight(sidebarRef.current.clientHeight);
     }
   }, [sidebarRef, hoveredCategory]);
+
+  // Transfer guest cart when user logs in
+  useEffect(() => {
+    if (currentUserId) {
+      transferGuestCartToUser();
+    }
+  }, [currentUserId]);
 
   // Separate main categories and subcategories from merged data
   const mainCategories = categories.filter(cat => !cat.parent);
@@ -94,14 +114,7 @@ const HomePage = () => {
   const handleGroupHeaderClick = (groupName) => {};
   const handleChildSubcategoryClick = (subcategoryId, subcategoryName) => {};
 
-  const getProductImage = (product) => {
-    const isGoogleImageLink = url => typeof url === 'string' && url.includes('google.com/imgres');
-    let images = [];
-    if (Array.isArray(product.images)) images = product.images;
-    else if (typeof product.images === 'string') images = [product.images];
-    images = images.filter(url => url && !isGoogleImageLink(url));
-    return images[0] || '/default-product-image.png';
-  };
+
 
   // CPU subcategory IDs (Intel and AMD generations)
   const cpuCategoryIds = [
@@ -115,65 +128,89 @@ const HomePage = () => {
 
   // Add to Cart handler
   const handleAddToCart = async (product) => {
+    console.log('handleAddToCart called with product:', product);
+    console.log('Product stock:', product.stock);
+    
     if (currentUserId) {
       // Logged-in user: use CartService
       try {
+        // First, get current cart to check existing quantity
+        let currentCart = [];
+        try {
+          const cartData = await CartService.getCartData(currentUserId);
+          currentCart = cartData?.items || [];
+          console.log('Current cart items:', currentCart);
+        } catch (err) {
+          console.error('Failed to get current cart:', err);
+          currentCart = [];
+        }
+
+        // Find existing item in cart
+        const existingItem = currentCart.find(item => item.product._id === product._id);
+        const currentQuantity = existingItem ? existingItem.quantity : 0;
+        
+        console.log('Stock validation:', {
+          existingItem,
+          currentQuantity,
+          productStock: product.stock
+        });
+
+        // Validate stock using the hook
+        if (!validateStockForAddToCart(product, currentQuantity)) {
+          return;
+        }
+
         await CartService.addToCart(currentUserId, product._id, 1);
-        displayNotification('Đã thêm sản phẩm vào giỏ hàng!', 'success');
+        // Dispatch event to update navbar cart
+        window.dispatchEvent(new Event('cartUpdated'));
       } catch (err) {
-        displayNotification('Thêm vào giỏ hàng thất bại!', 'error');
+        if (err.response?.data?.message) {
+          displayNotification(err.response.data.message, 'error');
+        } else {
+          displayNotification('Thêm vào giỏ hàng thất bại!', 'error');
+        }
       }
     } else {
       // Guest: use localStorage
       let guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
       const existing = guestCart.find(item => item.productId === product._id);
+      const currentQuantity = existing ? existing.quantity : 0;
+      
+      console.log('Guest cart validation:', {
+        existing,
+        currentQuantity,
+        productStock: product.stock
+      });
+
+      // Validate stock using the hook
+      if (!validateStockForAddToCart(product, currentQuantity)) {
+        return;
+      }
+
       if (existing) {
         existing.quantity += 1;
       } else {
         guestCart.push({ productId: product._id, quantity: 1, product });
       }
       localStorage.setItem('guestCart', JSON.stringify(guestCart));
-      displayNotification('Đã thêm sản phẩm vào giỏ hàng!', 'success');
+      // Dispatch event to update navbar cart
+      window.dispatchEvent(new Event('cartUpdated'));
     }
   };
 
   // ProductCard render function
   const renderProductCard = (product) => (
-                    <div key={product._id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow flex flex-col overflow-hidden">
-                      <div className="relative bg-gray-100 flex items-center justify-center" style={{height:208}}>
-                        <img src={product.images[0]} alt={product.name} className="object-contain h-52 w-full" />
-                      </div>
-                      <div className="p-4 flex-1 flex flex-col">
-                        {product.category && <span className="text-xs text-gray-500 mb-1">{product.category.name || product.category}</span>}
-                        <h3 className="text-base font-semibold text-gray-900 mb-2 overflow-hidden" style={{
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical'
-                        }}>{product.name}</h3>
-                        {product.specs && product.specs.length > 0 && (
-                          <div className="text-xs text-gray-600 mb-2 flex flex-wrap gap-x-2 gap-y-1 items-center">
-                            {product.specs.slice(0, 3).map((spec, index) => (
-                              <span key={index}><span className="font-medium">{spec.label}: {spec.value}</span></span>
-                            ))}
-                          </div>
-                        )}
-                        <div className="flex items-end gap-2 mb-2">
-                          <span className="text-lg font-bold text-emerald-600">{product.price?.toLocaleString('vi-VN')}₫</span>
-                        </div>
-                <button
-          className="mt-auto bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold py-2 px-4 rounded-lg transition-colors border border-emerald-200"
-          onClick={() => handleAddToCart(product)}
-                >
-          Thêm vào giỏ hàng
-                </button>
-              </div>
-                      </div>
+    <ProductCard
+      key={product._id}
+      product={product}
+      onAddToCart={() => handleAddToCart(product)}
+    />
   );
 
   // NewsCard render function for mock news
   const renderNewsCard = (news) => (
     <div key={news._id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow flex flex-col overflow-hidden w-[340px] flex-shrink-0">
-                      <div className="relative bg-gray-100 flex items-center justify-center" style={{height:208}}>
+      <div className="relative bg-white flex items-center justify-center" style={{height:208}}>
         <img src={news.image} alt={news.title} className="object-contain h-52 w-full" />
                       </div>
                       <div className="p-4 flex-1 flex flex-col">
@@ -190,6 +227,10 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
+      <NotificationContainer
+        notifications={notifications}
+        onClose={closeNotification}
+      />
       <div className="flex-1">
         <div className="container mx-auto px-4 pt-0 pb-4 -mt-2">
           <div className="flex gap-8 mb-8 relative">
@@ -209,7 +250,7 @@ const HomePage = () => {
                 handleGroupHeaderClick={handleGroupHeaderClick}
                 handleChildSubcategoryClick={handleChildSubcategoryClick}
               />
-                </div>
+            </div>
             {/* Banner/Ads Placeholder */}
             <div className="flex-1 mt-6">
               <div
@@ -222,8 +263,8 @@ const HomePage = () => {
                   style={{ display: 'block' }}
                 />
               </div>
-                      </div>
-                    </div>
+            </div>
+          </div>
           {/* Main Content Area: All Products Section */}
           <div className="w-full">
             <ProductSection
@@ -235,9 +276,9 @@ const HomePage = () => {
             <ProductSection
               title="CPU"
               products={products.filter(product => {
-                if (!product.category) return false;
-                const catId = typeof product.category === 'object' ? product.category._id : product.category;
-                return cpuCategoryIds.includes(catId);
+                    if (!product.category) return false;
+                    const catId = typeof product.category === 'object' ? product.category._id : product.category;
+                    return cpuCategoryIds.includes(catId);
               }).slice(0, 4)}
               loading={loading}
               renderProduct={renderProductCard}

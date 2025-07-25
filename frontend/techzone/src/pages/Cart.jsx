@@ -4,16 +4,17 @@ import CartService from '../services/CartService';
 import ShippingService from '../services/ShippingRate';
 import Button from '../components/button/Button';
 import { MinusIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
-import Notification from '../components/button/Notification';
+import NotificationContainer from '../components/button/NotificationContainer';
 import Breadcrumb from '../components/Breadcrumb';
 import { Link } from 'react-router-dom';
 import useAuthUser from '../hooks/useAuthUser';
 import useNotification from '../hooks/useNotification';
+import LoginModal from '../components/auth/LoginModal';
+import { useGuestCartTransfer } from '../hooks/useGuestCartTransfer';
+import { useStockValidation } from '../hooks/useStockValidation';
 const CartPage = () => {
     const {
-        notificationMessage, 
-        notificationType, 
-        showNotification, 
+        notifications,
         displayNotification, 
         closeNotification
     } = useNotification();
@@ -27,7 +28,19 @@ const CartPage = () => {
     const [cartData, setCartData] = useState(null);
     const [selectedItems, setSelectedItems] = useState({});
     const [shippingFee, setShippingFee] = useState(20000);
+    const [showLoginModal, setShowLoginModal] = useState(false);
     const navigate = useNavigate();
+
+    // Transfer guest cart to user account
+    const { transferGuestCartToUser } = useGuestCartTransfer(
+        currentUserId, 
+        displayNotification, 
+        setCartData, 
+        setSelectedItems
+    );
+
+    // Stock validation hook
+    const { validateStockForQuantityUpdate } = useStockValidation(displayNotification);
 
     // Fetch cartData for logged-in or guest user
     useEffect(() => {
@@ -69,9 +82,45 @@ const CartPage = () => {
         fetchCart();
     }, [currentUserId]);
 
+    // Transfer guest cart when user logs in
+    useEffect(() => {
+        if (currentUserId) {
+            transferGuestCartToUser();
+        }
+    }, [currentUserId]);
+
+    // Handle successful login
+    const handleSuccessfulLogin = () => {
+        setShowLoginModal(false);
+        // Refresh the page to ensure all components are updated with new user state
+        window.location.reload();
+    };
+
     const handleQuantityChange = async (productId, newQuantity) => {
+        console.log('handleQuantityChange called:', { productId, newQuantity });
         if (!cartData) return;
         if (newQuantity < 1) return;
+        
+        // Find the product to check stock
+        const cartItem = cartData.items.find(item => item.product._id === productId);
+        if (!cartItem) {
+            console.log('Cart item not found for productId:', productId);
+            return;
+        }
+        
+        console.log('Cart item found:', cartItem);
+        console.log('Stock validation:', {
+            newQuantity,
+            productStock: cartItem.product.stock,
+            willExceed: newQuantity > cartItem.product.stock
+        });
+        
+        // Validate stock using the hook
+        if (!validateStockForQuantityUpdate(cartItem.product, newQuantity)) {
+            return;
+        }
+        
+        console.log('Stock validation passed, proceeding with update...');
         displayNotification('Cập nhật số lượng thành công!', 'success');
         setError(null);
         if (currentUserId && cartData._id) {
@@ -79,8 +128,14 @@ const CartPage = () => {
             try {
                 const updatedCart = await CartService.updateCartItemQuantity(cartData._id, productId, newQuantity);
                 setCartData(updatedCart.cart);
+                // Dispatch event to update navbar cart
+                window.dispatchEvent(new Event('cartUpdated'));
             } catch (err) {
-                displayNotification('Cập nhật số lượng thất bại!', 'error');
+                if (err.response?.data?.message) {
+                    displayNotification(err.response.data.message, 'error');
+                } else {
+                    displayNotification('Cập nhật số lượng thất bại!', 'error');
+                }
                 setError(err);
             }
         } else {
@@ -93,6 +148,8 @@ const CartPage = () => {
             // Update state
             const items = guestCart.map(item => ({ product: item.product, quantity: item.quantity }));
             setCartData({ items });
+            // Dispatch event to update navbar cart
+            window.dispatchEvent(new Event('cartUpdated'));
         }
     };
 
@@ -111,6 +168,8 @@ const CartPage = () => {
                     delete newState[productId];
                     return newState;
                 });
+                // Dispatch event to update navbar cart
+                window.dispatchEvent(new Event('cartUpdated'));
             } catch (err) {
                 displayNotification('Xóa sản phẩm thất bại!', 'error');
                 setError(err);
@@ -128,6 +187,8 @@ const CartPage = () => {
                 delete newState[productId];
                 return newState;
             });
+            // Dispatch event to update navbar cart
+            window.dispatchEvent(new Event('cartUpdated'));
         }
     };
 
@@ -183,6 +244,12 @@ const CartPage = () => {
             return;
         }
 
+        // Check if user is logged in
+        if (!currentUserId) {
+            setShowLoginModal(true);
+            return;
+        }
+
         const itemsToCheckout = cartData.items.filter(item => selectedItems[item.product._id]);
         
         const checkoutCart = {
@@ -220,13 +287,10 @@ const CartPage = () => {
         <div className="container mx-auto px-8 py-2 font-sans">
             <Breadcrumb items={[{ label: "Giỏ hàng" }]} />
             <h1 className="text-2xl font-bold mb-6 text-gray-800">Giỏ hàng của tôi</h1>
-            {showNotification && (
-                <Notification
-                    message={notificationMessage}
-                    type={notificationType}
-                    onClose={closeNotification}
-                />
-            )}
+            <NotificationContainer
+                notifications={notifications}
+                onClose={closeNotification}
+            />
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-5 text-gray-800 text-base">
                 {/* Left side */}
                 <div className="lg:col-span-3 bg-white rounded-lg h-fit space-y-5">
@@ -289,7 +353,6 @@ const CartPage = () => {
                                         <span className="w-24 text-gray-800 font-medium border-l border-r border-gray-300 py-1">{item.quantity}</span>
                                         <button
                                             onClick={() => handleQuantityChange(item.product._id, item.quantity + 1)}
-                                            disabled={item.quantity >= item.product.stock}
                                             className="p-2 text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-colors duration-200"
                                         >
                                             <PlusIcon className="h-5 w-5" />
@@ -349,6 +412,14 @@ const CartPage = () => {
                     </div>
                 </div>
             </div>
+            
+            {/* Login Modal for guest users */}
+            {showLoginModal && (
+                <LoginModal 
+                    onClose={handleSuccessfulLogin}
+                    onSwitch={() => setShowLoginModal(false)}
+                />
+            )}
         </div>
     );
 };
