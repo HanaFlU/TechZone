@@ -16,6 +16,16 @@ class RoleService {
         }
     }
 
+    async getAllStaffRoles() {
+        try {
+            const response = await this.api.get("/staff");
+            return response.data;
+        } catch (error) {
+            console.error('RoleService Error: Failed to fetch staff roles:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    }
+
     // async getRoleById(roleId) {
     //     try {
     //         const response = await this.api.get(`/${roleId}`);

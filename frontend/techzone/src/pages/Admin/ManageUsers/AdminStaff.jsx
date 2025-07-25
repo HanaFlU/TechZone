@@ -30,7 +30,7 @@ const StaffAdmin = () => {
       try {
         const [staffData, roleData] = await Promise.all([
           StaffService.getAllStaffs(),
-          RoleService.getAllRoles()
+          RoleService.getAllStaffRoles()
         ]);
         setStaffs(staffData);
         setRoles(roleData);

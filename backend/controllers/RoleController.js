@@ -33,6 +33,18 @@ const RoleController = {
             res.status(500).json({ message: 'Server error while fetching roles.' });
         }
     },
+    // Get all staff roles
+    getAllStaffRoles: async (req, res) => {
+        try {
+            const roles = await Role.find({
+                name: { $ne: "CUS" }
+            });
+            res.status(200).json(roles);
+        } catch (error) {
+            console.error('Error fetching staff roles:', error);
+            res.status(500).json({ message: 'Server error while fetching staff roles.' });
+        }
+    },
     // Update a role
     updateRole: async (req, res) => {
         const { id } = req.params;
