@@ -36,6 +36,24 @@ const ProductController = {
     }
   },
 
+  getProductById: async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      const product = await Product.findById(id)
+        .populate('category', 'name')
+        .populate('saleEvent');
+
+      if (!product) {
+        return res.status(404).json({ success: false, message: 'Không tìm thấy sản phẩm' });
+      }
+
+      res.json({ success: true, data: product });
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  },
+
   updateProduct: async (req, res) => {
     try {
       const { id } = req.params;

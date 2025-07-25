@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const ProductCard = ({ product, onAddToCart }) => {
   const getProductImage = (product) => {
@@ -7,21 +8,25 @@ const ProductCard = ({ product, onAddToCart }) => {
     if (Array.isArray(product.images)) images = product.images;
     else if (typeof product.images === 'string') images = [product.images];
     images = images.filter(url => url && !isGoogleImageLink(url));
-    return images[0] || '/default-product-image.png';
+    return images[0] || '/default-product-image.svg';
   };
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow flex flex-col overflow-hidden">
-      <div className="relative bg-white flex items-center justify-center" style={{height:208}}>
-        <img src={getProductImage(product)} alt={product.name} className="object-contain h-52 w-full" />
-      </div>
+      <Link to={`/product/${product._id}`} className="block">
+        <div className="relative bg-white flex items-center justify-center" style={{height:208}}>
+          <img src={getProductImage(product)} alt={product.name} className="object-contain h-52 w-full" />
+        </div>
+      </Link>
       <div className="p-4 flex-1 flex flex-col">
         {product.category && <span className="text-xs text-gray-500 mb-1">{product.category.name || product.category}</span>}
-        <h3 className="text-base font-semibold text-gray-900 mb-2 overflow-hidden" style={{
-          display: '-webkit-box',
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: 'vertical'
-        }}>{product.name}</h3>
+        <Link to={`/product/${product._id}`} className="block">
+          <h3 className="text-base font-semibold text-gray-900 mb-2 overflow-hidden hover:text-emerald-600 transition-colors" style={{
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical'
+          }}>{product.name}</h3>
+        </Link>
         {product.specs && product.specs.length > 0 && (
           <div className="text-xs text-gray-600 mb-2 flex flex-wrap gap-x-2 gap-y-1 items-center">
             {product.specs.slice(0, 3).map((spec, index) => (

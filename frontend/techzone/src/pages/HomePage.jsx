@@ -8,7 +8,6 @@ import NewsCarousel from '../components/product/NewsCarousel';
 import useAuthUser from '../hooks/useAuthUser';
 import useNotification from '../hooks/useNotification';
 import CartService from '../services/CartService';
-import { useGuestCartTransfer } from '../hooks/useGuestCartTransfer';
 import NotificationContainer from '../components/button/NotificationContainer';
 import { useStockValidation } from '../hooks/useStockValidation';
 
@@ -61,11 +60,48 @@ const HomePage = () => {
     displayNotification, 
     closeNotification
   } = useNotification();
-  const { transferGuestCartToUser } = useGuestCartTransfer(
-    currentUserId, 
-    displayNotification
-  );
   const { validateStockForAddToCart } = useStockValidation(displayNotification);
+
+  // Transfer guest cart when user logs in
+  const transferGuestCartToUser = async () => {
+    if (!currentUserId) return;
+    
+    try {
+      const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
+      if (guestCart.length === 0) return;
+
+      console.log('Starting guest cart transfer:', { guestCart, currentUserId });
+
+      // Convert guest cart format to match backend expectations
+      const guestCartItems = guestCart.map(item => ({
+        productId: item.product._id,
+        quantity: item.quantity
+      }));
+
+      const result = await CartService.transferGuestCartToUser(currentUserId, guestCartItems);
+      
+      if (result.success) {
+        displayNotification(result.message, 'success');
+        
+        // Show warnings if any
+        if (result.warnings && result.warnings.length > 0) {
+          result.warnings.forEach(warning => {
+            displayNotification(warning, 'warning');
+          });
+        }
+        
+        // Clear guest cart after successful transfer
+        localStorage.removeItem('guestCart');
+        console.log('Guest cart cleared from localStorage');
+        
+        // Dispatch cart updated event
+        window.dispatchEvent(new Event('cartUpdated'));
+      }
+    } catch (err) {
+      console.error('Failed to transfer guest cart:', err);
+      displayNotification('Không thể chuyển sản phẩm vào tài khoản!', 'error');
+    }
+  };
 
   useEffect(() => {
     ProductService.getAllProducts()

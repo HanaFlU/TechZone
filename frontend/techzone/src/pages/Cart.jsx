@@ -10,7 +10,6 @@ import { Link } from 'react-router-dom';
 import useAuthUser from '../hooks/useAuthUser';
 import useNotification from '../hooks/useNotification';
 import LoginModal from '../components/auth/LoginModal';
-import { useGuestCartTransfer } from '../hooks/useGuestCartTransfer';
 import { useStockValidation } from '../hooks/useStockValidation';
 const CartPage = () => {
     const {
@@ -32,12 +31,59 @@ const CartPage = () => {
     const navigate = useNavigate();
 
     // Transfer guest cart to user account
-    const { transferGuestCartToUser } = useGuestCartTransfer(
-        currentUserId, 
-        displayNotification, 
-        setCartData, 
-        setSelectedItems
-    );
+    const transferGuestCartToUser = async () => {
+        if (!currentUserId) return;
+        
+        try {
+            const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
+            if (guestCart.length === 0) return;
+
+            console.log('Starting guest cart transfer:', { guestCart, currentUserId });
+
+            // Convert guest cart format to match backend expectations
+            const guestCartItems = guestCart.map(item => ({
+                productId: item.product._id,
+                quantity: item.quantity
+            }));
+
+            const result = await CartService.transferGuestCartToUser(currentUserId, guestCartItems);
+            
+            if (result.success) {
+                displayNotification(result.message, 'success');
+                
+                // Show warnings if any
+                if (result.warnings && result.warnings.length > 0) {
+                    result.warnings.forEach(warning => {
+                        displayNotification(warning, 'warning');
+                    });
+                }
+                
+                // Clear guest cart after successful transfer
+                localStorage.removeItem('guestCart');
+                console.log('Guest cart cleared from localStorage');
+                
+                // Update cart data with the result
+                if (result.cartData) {
+                    setCartData(result.cartData);
+                    
+                    // Initialize selectedItems
+                    const initialSelected = {};
+                    if (result.cartData && result.cartData.items) {
+                        result.cartData.items.forEach(item => {
+                            initialSelected[item.product._id] = true;
+                        });
+                    }
+                    setSelectedItems(initialSelected);
+                }
+                
+                // Dispatch cart updated event
+                window.dispatchEvent(new Event('cartUpdated'));
+            }
+        } catch (err) {
+            console.error('Failed to transfer guest cart:', err);
+            displayNotification('Không thể chuyển sản phẩm vào tài khoản!', 'error');
+        }
+    };
 
     // Stock validation hook
     const { validateStockForQuantityUpdate } = useStockValidation(displayNotification);
