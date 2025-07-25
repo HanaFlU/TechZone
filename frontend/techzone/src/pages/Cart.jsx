@@ -29,63 +29,105 @@ const CartPage = () => {
     const [shippingFee, setShippingFee] = useState(20000);
     const navigate = useNavigate();
 
-    // Fetch cartData
+    // Fetch cartData for logged-in or guest user
     useEffect(() => {
         const fetchCart = async () => {
-            if (!currentUserId) return;
-            
             setError(null);
-            try {
-                const data = await CartService.getCartData(currentUserId);
-                setCartData(data);
-                // Initialize selectedItems with the current cart items
-                const initialSelected = {};
-                if (data && data.items) {
-                    data.items.forEach(item => {
-                        initialSelected[item.product._id] = true;
-                    });
+            if (currentUserId) {
+                try {
+                    const data = await CartService.getCartData(currentUserId);
+                    setCartData(data);
+                    // Initialize selectedItems with the current cart items
+                    const initialSelected = {};
+                    if (data && data.items) {
+                        data.items.forEach(item => {
+                            initialSelected[item.product._id] = true;
+                        });
+                    }
+                    setSelectedItems(initialSelected);
+                } catch (err) {
+                    console.error('Failed to fetch cart data:', err);
+                    setError(err);
                 }
+            } else {
+                // Guest: load from localStorage
+                const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
+                // Convert guestCart to the same structure as user cartData
+                const items = guestCart.map(item => ({
+                    product: item.product,
+                    quantity: item.quantity
+                }));
+                setCartData({ items });
+                // Initialize selectedItems
+                const initialSelected = {};
+                items.forEach(item => {
+                    initialSelected[item.product._id] = true;
+                });
                 setSelectedItems(initialSelected);
-            } catch (err) {
-                console.error('Failed to fetch cart data:', err);
-                setError(err);
             }
         };
-
         fetchCart();
     }, [currentUserId]);
 
     const handleQuantityChange = async (productId, newQuantity) => {
-        if (!currentUserId || !cartData || !cartData._id) return;
-
+        if (!cartData) return;
         if (newQuantity < 1) return;
         displayNotification('Cập nhật số lượng thành công!', 'success');
         setError(null);
-        try {
-            const updatedCart = await CartService.updateCartItemQuantity(cartData._id, productId, newQuantity);
-            setCartData(updatedCart.cart);
-        } catch (err) {
-            displayNotification('Cập nhật số lượng thất bại!', 'error');
-            setError(err);
+        if (currentUserId && cartData._id) {
+            // Logged-in user: update via CartService
+            try {
+                const updatedCart = await CartService.updateCartItemQuantity(cartData._id, productId, newQuantity);
+                setCartData(updatedCart.cart);
+            } catch (err) {
+                displayNotification('Cập nhật số lượng thất bại!', 'error');
+                setError(err);
+            }
+        } else {
+            // Guest: update localStorage
+            let guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
+            guestCart = guestCart.map(item =>
+                item.product._id === productId ? { ...item, quantity: newQuantity } : item
+            );
+            localStorage.setItem('guestCart', JSON.stringify(guestCart));
+            // Update state
+            const items = guestCart.map(item => ({ product: item.product, quantity: item.quantity }));
+            setCartData({ items });
         }
     };
 
     // Xóa sản phẩm khỏi giỏ hàng
     const handleRemoveItem = async (productId) => {
-        if (!currentUserId || !cartData || !cartData._id) return;
+        if (!cartData) return;
         displayNotification('Xóa sản phẩm thành công!', 'success');
         setError(null);
-        try {
-            const updatedCart = await CartService.removeCartItem(cartData._id, productId);
-            setCartData(updatedCart.cart);
+        if (currentUserId && cartData._id) {
+            // Logged-in user: update via CartService
+            try {
+                const updatedCart = await CartService.removeCartItem(cartData._id, productId);
+                setCartData(updatedCart.cart);
+                setSelectedItems(prev => {
+                    const newState = { ...prev };
+                    delete newState[productId];
+                    return newState;
+                });
+            } catch (err) {
+                displayNotification('Xóa sản phẩm thất bại!', 'error');
+                setError(err);
+            }
+        } else {
+            // Guest: update localStorage
+            let guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
+            guestCart = guestCart.filter(item => item.product._id !== productId);
+            localStorage.setItem('guestCart', JSON.stringify(guestCart));
+            // Update state
+            const items = guestCart.map(item => ({ product: item.product, quantity: item.quantity }));
+            setCartData({ items });
             setSelectedItems(prev => {
                 const newState = { ...prev };
                 delete newState[productId];
                 return newState;
             });
-        } catch (err) {
-            displayNotification('Xóa sản phẩm thất bại!', 'error');
-            setError(err);
         }
     };
 
@@ -157,18 +199,7 @@ const CartPage = () => {
         return <div className="text-center py-10">Đang kiểm tra trạng thái đăng nhập...</div>;
     }
 
-    if (authError) {
-        return (
-            <div className="text-center text-red-600 py-10">
-                <h2 className="text-xl font-bold mb-4">Lỗi xác thực!</h2>
-                <p>{authError}</p>
-                <Button onClick={() => navigate('/login')} variant="primary" className="mt-4">
-                    Đăng nhập ngay
-                </Button>
-            </div>
-        );
-    }
-
+    // Only show error if there is a real error (not just 'not logged in')
     if (error) {
         return <div className="text-center py-10 text-red-500">Lỗi: {error.message || 'Lỗi không xác định.'}</div>;
     }
@@ -178,9 +209,7 @@ const CartPage = () => {
             <div className="text-center py-10">
                 <h1 className="text-3xl font-bold mb-4 text-gray-800">Giỏ hàng của bạn đang trống!</h1>
                 <p className="text-lg text-gray-600">Hãy thêm sản phẩm vào giỏ hàng để bắt đầu mua sắm.</p>
-                <Button className="mt-6" variant="primary" onClick={() => navigate('/')}>
-                    Tiếp tục mua sắm
-                </Button>
+                <Button className="mt-6" variant="primary" onClick={() => navigate('/')}>Tiếp tục mua sắm</Button>
             </div>
         );
     }

@@ -33,12 +33,13 @@ const Navbar = ({onAccountClick, setAdminMode, searchValue, setSearchValue, prod
   }
 
   return (
-      <nav className='bg-dark-green text-white px-4 py-3 flex justify-between items-center' >
+      <nav className='bg-dark-green text-white px-4 py-3 flex justify-between items-center sticky top-0 z-50' >
           <div className='flex items-center'>
             <img 
               src="/TECHZONE-Logo.png" 
               alt="TechZone Logo" 
-              className="h-15 w-auto"
+              className="h-15 w-auto cursor-pointer"
+              onClick={() => navigate('/')}
             />
           </div>
           
