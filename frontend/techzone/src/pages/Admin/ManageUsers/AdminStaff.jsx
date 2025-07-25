@@ -3,7 +3,8 @@ import {
   Typography, Card, CardContent, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Paper, Button, TextField, Dialog, DialogTitle,
   DialogContent, DialogActions, IconButton, CircularProgress, Alert, Select,
-  MenuItem, InputLabel, FormControl
+  MenuItem, InputLabel, FormControl,
+  TablePagination
 } from '@mui/material';
 import { FaUserPlus } from 'react-icons/fa';
 import { AiOutlineEdit } from 'react-icons/ai';
@@ -19,6 +20,9 @@ const StaffAdmin = () => {
   const [editDialog, setEditDialog] = useState({ open: false, staff: null });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   useEffect(() => {
     const fetchStaffsAndRoles = async () => {
@@ -43,7 +47,14 @@ const StaffAdmin = () => {
   const handleFilterChange = (e) => {
     setFilter({ ...filter, [e.target.name]: e.target.value });
   };
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
 
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
   const filteredStaffs = staffs.filter(s =>
     (s.name || '').toLowerCase().includes(filter.name.toLowerCase()) &&
     (s.email || '').toLowerCase().includes(filter.email.toLowerCase()) &&
@@ -131,7 +142,7 @@ const StaffAdmin = () => {
     <Card elevation={3}>
       <CardContent>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-          <Typography variant="h5" fontWeight="bold" style={{ color: '#328E6E' }}>
+          <Typography variant="h5" fontWeight="bold" style={{ color: '#328E6E', fontWeight: "bold" }}>
             Quản lý nhân viên
           </Typography>
           <Button
@@ -154,45 +165,56 @@ const StaffAdmin = () => {
           <CircularProgress color="primary" />
         ) : error ? (
           <Alert severity="error">{error}</Alert>
-        ) : (
-          <TableContainer component={Paper}>
-            <Table size="small">
-              <TableHead>
-                <TableRow style={{ backgroundColor: '#E0F2F1' }}>
-                  <TableCell>Họ tên</TableCell>
-                  <TableCell>Email</TableCell>
-                  <TableCell>SĐT</TableCell>
-                  <TableCell>Quyền</TableCell>
-                  <TableCell>Trạng thái</TableCell>
-                  <TableCell align="center">Hành động</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filteredStaffs.map((s) => (
-                  <TableRow key={s._id}>
-                    <TableCell>{s.name}</TableCell>
-                    <TableCell>{s.email}</TableCell>
-                    <TableCell>{s.phone}</TableCell>
-                    <TableCell>{s.role?.name || 'Chưa phân quyền'}</TableCell>
-                    <TableCell>
-                      <Typography color={s.isActive ? 'success.main' : 'text.secondary'} fontWeight="bold">
-                        {s.isActive ? 'Active' : 'Inactive'}
-                      </Typography>
-                    </TableCell>
-                    <TableCell align="center">
-                      <IconButton color="info" onClick={() => handleEdit(s)}><AiOutlineEdit /></IconButton>
-                      <IconButton color="error" onClick={() => handleDelete(s)}><FaRegTrashCan /></IconButton>
-                    </TableCell>
+          ) : (
+          <div>
+            <TableContainer component={Paper}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow style={{ backgroundColor: '#E0F2F1' }}>
+                    <TableCell>Họ tên</TableCell>
+                    <TableCell>Email</TableCell>
+                    <TableCell>SĐT</TableCell>
+                    <TableCell>Quyền</TableCell>
+                    <TableCell>Trạng thái</TableCell>
+                    <TableCell align="center">Hành động</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                </TableHead>
+                <TableBody>
+                  {filteredStaffs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((s) => (
+                    <TableRow key={s._id}>
+                      <TableCell>{s.name}</TableCell>
+                      <TableCell>{s.email}</TableCell>
+                      <TableCell>{s.phone}</TableCell>
+                      <TableCell>{s.role?.name || 'Chưa phân quyền'}</TableCell>
+                      <TableCell>
+                        <Typography color={s.isActive ? 'success.main' : 'text.secondary'} fontWeight="bold">
+                          {s.isActive ? 'Active' : 'Inactive'}
+                        </Typography>
+                      </TableCell>
+                      <TableCell align="center">
+                        <IconButton color="info" onClick={() => handleEdit(s)}><AiOutlineEdit /></IconButton>
+                        <IconButton color="error" onClick={() => handleDelete(s)}><FaRegTrashCan /></IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TablePagination
+              component="div"
+              count={filteredStaffs.length}
+              page={page}
+              onPageChange={handleChangePage}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              rowsPerPageOptions={[5, 10, 20]}
+            />
+          </div>
         )}
 
         {/* Dialog thêm nhân viên */}
         <Dialog open={addDialog.open} onClose={() => setAddDialog({ open: false, fields: {} })} maxWidth="xs" fullWidth>
-          <DialogTitle>Thêm nhân viên</DialogTitle>
+          <DialogTitle style={{ color: '#328E6E', fontWeight: "bold" }}>Thêm nhân viên</DialogTitle>
           <DialogContent>
             <TextField margin="dense" label="Họ tên" name="name" fullWidth value={addDialog.fields.name} onChange={handleEditChange} />
             <TextField margin="dense" label="SĐT" name="phone" fullWidth value={addDialog.fields.phone} onChange={handleEditChange} />
@@ -214,13 +236,18 @@ const StaffAdmin = () => {
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setAddDialog({ open: false, fields: {} })}>Hủy</Button>
-            <Button onClick={handleAdd} variant="contained" color="success">Lưu</Button>
+            <Button onClick={handleAdd} 
+              variant="contained"
+              style={{ backgroundColor: '#059669' }}
+            >
+              Lưu
+            </Button>
           </DialogActions>
         </Dialog>
 
         {/* Dialog sửa nhân viên */}
         <Dialog open={editDialog.open} onClose={() => setEditDialog({ open: false, staff: null })} maxWidth="xs" fullWidth>
-          <DialogTitle>Sửa thông tin nhân viên</DialogTitle>
+          <DialogTitle style={{ color: '#328E6E', fontWeight: "bold" }}>Sửa thông tin nhân viên</DialogTitle>
           <DialogContent>
             {editDialog.staff && (
               <>
@@ -264,7 +291,13 @@ const StaffAdmin = () => {
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setEditDialog({ open: false, staff: null })}>Hủy</Button>
-            <Button onClick={handleEditSave} variant="contained" color="success">Lưu</Button>
+            <Button
+              onClick={handleEditSave}
+              variant="contained"
+              style={{ backgroundColor: '#059669' }}
+            >
+              Lưu
+            </Button>
           </DialogActions>
         </Dialog>
       </CardContent>

@@ -6,6 +6,7 @@ const specSchema = new mongoose.Schema({
   value: { type: String, required: true },
 }, { _id: false });
 
+
 const ProductSchema = new mongoose.Schema(
   {
     productId: {

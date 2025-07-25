@@ -33,7 +33,7 @@ const CategoryManager = () => {
   const [categories, setCategories] = useState([]);
   const [formDialog, setFormDialog] = useState(false);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const [form, setForm] = useState({
     name: "",
@@ -125,10 +125,17 @@ const CategoryManager = () => {
     <Card elevation={3} style={{ margin: "1rem" }}>
       <CardContent>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-          <Typography variant="h5" fontWeight="bold" color="primary">
-            Quản lý Danh mục
+          <Typography variant="h5"
+            fontWeight="bold"
+            style={{ color: '#059669', fontWeight: 'bold' }}
+          >
+            Quản lý danh mục
           </Typography>
-          <Button variant="contained" color="success" onClick={() => setFormDialog(true)}>
+          <Button
+            variant="contained"
+            onClick={() => setFormDialog(true)}
+            style={{ backgroundColor: '#059669', color: '#fff' }}
+          >
             Thêm danh mục
           </Button>
         </div>
@@ -140,7 +147,7 @@ const CategoryManager = () => {
           <TableContainer component={Paper}>
             <Table size="small">
               <TableHead>
-                <TableRow sx={{ backgroundColor: '#f0fdf4' }}>
+                  <TableRow sx={{ backgroundColor: '#e0f2f1' }}>
                   <TableCell>Icon</TableCell>
                   <TableCell>Tên</TableCell>
                   <TableCell>Mô tả</TableCell>
@@ -183,7 +190,7 @@ const CategoryManager = () => {
         )}
 
         <Dialog open={formDialog} onClose={() => setFormDialog(false)} maxWidth="xs" fullWidth>
-          <DialogTitle>{form.id ? "Cập nhật danh mục" : "Thêm danh mục"}</DialogTitle>
+          <DialogTitle style={{color: "#328E6E"}}>{form.id ? "Cập nhật danh mục" : "Thêm danh mục"}</DialogTitle>
           <DialogContent>
             <TextField
               margin="dense"
@@ -231,7 +238,10 @@ const CategoryManager = () => {
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setFormDialog(false)}>Hủy</Button>
-            <Button onClick={handleSubmit} variant="contained" color="success">
+            <Button
+              onClick={handleSubmit}
+              variant="contained"
+              style={{ backgroundColor: '#328E6E' }}>
               {form.id ? "Cập nhật" : "Lưu"}
             </Button>
           </DialogActions>
