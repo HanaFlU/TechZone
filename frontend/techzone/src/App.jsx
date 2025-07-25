@@ -70,7 +70,7 @@ const App = () => {
           />
         )}
         <main className='flex-1'>
-          {!adminMode && adminMode ? (
+          {adminMode ? (
             <Sidebar onVisitStore={() => {
               setAdminMode(false);
               navigate('/');

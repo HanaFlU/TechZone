@@ -5,6 +5,10 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
   Grid
 } from '@mui/material';
+import {
+  getPaymentMethodName,
+  getPaymentStatusName
+} from '../../../hooks/useOrderFormat';
 
 const textColor = '#333';
 const lightGray = '#f5f5f5';
@@ -14,24 +18,6 @@ const Info = ({ label, value, sx = {} }) => (
     <Typography variant="body2" component="span" color={textColor}>{label}:</Typography> {value}
   </Typography>
 );
-
-const getPaymentMethodName = (code) => {
-  switch (code) {
-    case 'COD': return 'COD';
-    case 'CREDIT_CARD': return 'Credit Card';
-    case 'E_WALLET': return 'E-Wallet';
-    default: return 'Unknown';
-  }
-};
-
-const getPaymentStatusName = (status) => {
-  switch (status) {
-    case 'SUCCESSED': return 'Success';
-    case 'PENDING': return 'Pending';
-    case 'FAILED': return 'Failed';
-    default: return 'Unknown';
-  }
-};
 
 const DetailOrderDialog = ({
   open,

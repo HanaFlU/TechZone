@@ -6,7 +6,7 @@ import {
     CircularProgress, Alert, IconButton,
     Dialog, DialogTitle, DialogContent, DialogActions,
     FormControl, InputLabel, Select, MenuItem,
-    Pagination,
+    TablePagination,
     Box,
     Chip,
     Grid
@@ -18,10 +18,16 @@ import { PiPrinterFill } from "react-icons/pi";
 import OrderService from '../../../services/OrderService';
 import DetailOrderDialog from './DetailOrderDialog';
 import PrintOrder from './PrintOrder';
+import {
+    formatDateTime,
+    getStatusDisplayName,
+    getStatusChipColor
+} from '../../../hooks/useOrderFormat';
 const AdminOrderList = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
     const [filter, setFilter] = useState({
         customerNameOrEmail: '',
         status: '',
@@ -37,7 +43,7 @@ const AdminOrderList = () => {
     const [statusUpdateDialogOpen, setStatusUpdateDialogOpen] = useState(false);
     const [currentUpdateStatus, setCurrentUpdateStatus] = useState('');
 
-    const primaryColor = '#328E6E'; // Main green color
+    const primaryColor = '#328E6E';
     
     const componentRef = useRef();
     const [selectedOrderToPrint, setSelectedOrderToPrint] = useState(null);
@@ -52,12 +58,11 @@ const AdminOrderList = () => {
         } catch (err) {
             console.error('Error fetching order list:', err);
             setError('Could not load order list. Please try again.');
-            console.error('Error loading orders!'); // Thay thế toast.error
+            console.error('Error loading orders!');
         } finally {
             setLoading(false);
         }
     }, [filter]);
-
     useEffect(() => {
         fetchOrders();
     }, [fetchOrders]);
@@ -93,9 +98,16 @@ const AdminOrderList = () => {
     };
 
     const handleChangePage = (event, newPage) => {
-        setFilter(prevFilter => ({ ...prevFilter, page: newPage }));
+        setFilter(prevFilter => ({ ...prevFilter, page: newPage + 1 }));
     };
 
+    const handleChangeRowsPerPage = (event) => {
+        setFilter(prevFilter => ({
+            ...prevFilter,
+            limit: parseInt(event.target.value, 10),
+            page: 1,
+        }));
+    };
     const handleViewDetails = async (order) => {
         try {
             const response = await OrderService.getOrderById(order._id);
@@ -111,8 +123,6 @@ const AdminOrderList = () => {
         setDetailsDialogOpen(false);
         setSelectedOrder(null);
     };
-
-
 
     const handleCloseStatusUpdateDialog = () => {
         setStatusUpdateDialogOpen(false);
@@ -147,76 +157,32 @@ const AdminOrderList = () => {
             setError('Không thể cập nhật trạng thái đơn hàng. Vui lòng thử lại.');
         }
     };
-
-    const formatDateTime = (isoString) => {
-        if (!isoString) return '';
-        const date = new Date(isoString);
-        return date.toLocaleString('vi-VN', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-        }).replace(',', '');
-    };
-
-    const getStatusChipColor = (status) => {
-        switch (status) {
-            case 'PENDING':
-                return 'warning';
-            case 'CONFIRMED':
-                return 'info';
-            case 'SHIPPED':
-                return 'primary';
-            case 'DELIVERED':
-                return 'success';
-            case 'CANCELLED':
-                return 'error';
-            default:
-                return 'default';
-        }
-    };
-
-    const getStatusDisplayName = (status) => {
-        switch (status) {
-            case 'PENDING': return 'Chờ xác nhận';
-            case 'CONFIRMED': return 'Đã xác nhận';
-            case 'SHIPPED': return 'Đang giao hàng';
-            case 'DELIVERED': return 'Đã giao hàng';
-            case 'CANCELLED': return 'Đã hủy';
-            default: return status;
-        }
-    };
     const availableStatuses = ['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
 
     
-const handlePrint = useReactToPrint({
-    content: () => componentRef.current,
-    documentTitle: `Hóa_don_${selectedOrderToPrint?.orderId || 'error'}`, // Dùng selectedOrderToPrint
-    pageStyle: `@page { size: A4; margin: 0; } body { margin: 0; }`
-});
+    const handlePrint = useReactToPrint({
+        content: () => componentRef.current,
+        documentTitle: `Hóa_don_${selectedOrderToPrint?.orderId || 'error'}`, // Dùng selectedOrderToPrint
+        pageStyle: `@page { size: A4; margin: 0; } body { margin: 0; }`
+    });
 
 // Hàm này sẽ chỉ thiết lập dữ liệu cho hóa đơn
 const triggerPrint = async (order) => {
     try {
         const response = await OrderService.getOrderById(order._id);
-        setSelectedOrderToPrint(response.order); // Cập nhật state mới
-        // KHÔNG gọi handlePrint ở đây nữa
+        setSelectedOrderToPrint(response.order);
     } catch (err) {
         console.error('Error fetching order details for printing:', err);
         setError('Không thể tải chi tiết đơn hàng để in.');
     }
 };
 
-// Sử dụng useEffect để theo dõi selectedOrderToPrint và kích hoạt in khi nó thay đổi
 useEffect(() => {
     if (selectedOrderToPrint) {
         handlePrint();
-        setSelectedOrderToPrint(null); // Đặt lại sau khi in để tránh in lại không cần thiết
+        setSelectedOrderToPrint(null);
     }
-}, [selectedOrderToPrint, handlePrint]); // Thêm handlePrint vào dependency array
-
+}, [selectedOrderToPrint, handlePrint]);
 
     return (
         <Card elevation={3}>
@@ -351,16 +317,16 @@ useEffect(() => {
                                                         
                                                     />
                                                 </TableCell>
-                                                <TableCell align="right">
+                                                <TableCell>
                                                     <FormControl variant="outlined" size="small" sx={{  alignItems: "center" }}>
                                                         <Select
                                                             value={order.status}
                                                             onChange={(e) => handleUpdateStatusInline(order._id, e.target.value)}
                                                             displayEmpty
                                                             sx={{
-                                                            width: '160px',
+                                                            width: '150px',
                                                             display: 'flex',
-                                                            textAlign: 'start'
+                                                            textAlign: 'left'
                                                             }}
                                                         >
                                                             {availableStatuses.map((statusOption) => (
@@ -370,7 +336,6 @@ useEffect(() => {
                                                             ))}
                                                         </Select>
                                                     </FormControl>
-                                                    {/* Các Icon khác bên cạnh Select */}
                                                     <IconButton sx={{ ml: 2 }} size="small" color="warning" onClick={() => handleViewDetails(order)} title="Xem chi tiết">
                                                         <IoEyeOutline />
                                                     </IconButton>
@@ -384,16 +349,15 @@ useEffect(() => {
                                 </TableBody>
                             </Table>
                         </TableContainer>
-                        {totalOrders > filter.limit && (
-                            <Box display="flex" justifyContent="center" my={2}>
-                                <Pagination
-                                    count={Math.ceil(totalOrders / filter.limit)}
-                                    page={filter.page}
-                                    onChange={handleChangePage}
-                                    color="primary"
-                                />
-                            </Box>
-                        )}
+                        <TablePagination
+                            component="div"
+                            count={totalOrders}
+                            page={filter.page - 1}
+                            onPageChange={handleChangePage}
+                            rowsPerPage={filter.limit}
+                            onRowsPerPageChange={handleChangeRowsPerPage}
+                            rowsPerPageOptions={[5, 10, 20]}
+                        />
                     </Paper>
                 )}
 
@@ -434,7 +398,6 @@ useEffect(() => {
                         </Button>
                     </DialogActions>
                 </Dialog>
-
             </CardContent>
         </Card>
     );
