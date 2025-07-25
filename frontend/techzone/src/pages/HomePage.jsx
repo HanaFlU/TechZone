@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import ProductService from '../services/ProductService';
 import CategoryService from '../services/CategoryService';
+// import SubcategoryMenu from '../components/category/SubcategoryMenu';
 
 const HomePage = () => {
   const [products, setProducts] = useState([]);
