@@ -4,6 +4,7 @@ import OrderService from '../../services/OrderService';
 import CustomerService from '../../services/CustomerService';
 import PaymentService from '../../services/PaymentService';
 import ShippingService from '../../services/ShippingRate';
+import VoucherService from '../../services/VoucherService';
 import AddressForm from '../User/Address/AddressForm';
 
 import Breadcrumb from '../../components/Breadcrumb';
@@ -27,7 +28,7 @@ const OrderForm = () => {
   const [customerAddresses, setCustomerAddresses] = useState([]);
   const [selectedAddressId, setSelectedAddressId] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('COD');
-  const [shippingFee, setShippingFee] = useState(20000);
+  const [shippingFee, setShippingFee] = useState(80000);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -37,6 +38,10 @@ const OrderForm = () => {
   const [editAddress, setEditAddress] = useState(null);
   const stripe = useStripe();
   const elements = useElements();
+
+  const [voucherCodeInput, setVoucherCodeInput] = useState('');
+  const [appliedVoucher, setAppliedVoucher] = useState(null); // Lưu thông tin voucher đã áp dụng
+  const [discountAmount, setDiscountAmount] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -83,7 +88,7 @@ const OrderForm = () => {
     fetchData();
   }, [navigate, displayNotification]);
 
-  const calculateTotal = useCallback(() => {
+  const calculateSubTotal = useCallback(() => {
     if (!cartData || !cartData.items) return 0;
     return cartData.items.reduce((sum, item) => {
       return sum + (item.product?.price || 0) * item.quantity;
@@ -92,17 +97,61 @@ const OrderForm = () => {
   // Hàm tính phí ship
   useEffect(() => {
     const fetchShippingFee = async () => {
-      const total = calculateTotal();
+      const subtotal = calculateSubTotal();
       const token = localStorage.getItem('token');
       try {
-        const fee = await ShippingService.getShippingFee(total, token);
+        const fee = await ShippingService.getShippingFee(subtotal, token);
         setShippingFee(fee);
       } catch {
-        setShippingFee(50000);
+        setShippingFee(80000);
       }
     };
     if (cartData && cartData.items) fetchShippingFee();
-  }, [cartData]);
+  }, [cartData, calculateSubTotal]);
+
+    const handleApplyVoucher = useCallback(async () => {
+        if (!voucherCodeInput) {
+            displayNotification("Vui lòng nhập mã voucher.", "warning");
+            return;
+        }
+        if (!currentCustomerId) {
+            displayNotification("Không tìm thấy thông tin khách hàng để áp dụng voucher.", "error");
+            return;
+        }
+
+        const subtotal = calculateSubTotal();
+        if (subtotal <= 0) {
+            displayNotification("Giỏ hàng của bạn trống hoặc tổng tiền không hợp lệ.", "warning");
+            return;
+        }
+
+        try {
+            const res = await VoucherService.applyVoucher(voucherCodeInput, subtotal, currentCustomerId);
+            if (res.success) {
+                const { voucher, discountAmount } = res.data;
+                setAppliedVoucher(voucher);
+                setDiscountAmount(discountAmount);
+                displayNotification(`Áp dụng voucher thành công: ${res.data.discountAppliedDescription}`, "success");
+            } else {
+                setAppliedVoucher(null);
+                setDiscountAmount(0);
+                displayNotification(res.message || "Lỗi không xác định khi áp dụng voucher.", "error");
+            }
+        } catch (err) {
+            setAppliedVoucher(null);
+            setDiscountAmount(0);
+            const errorMessage = err.message || err.response?.data?.message || "Đã xảy ra lỗi khi áp dụng voucher.";
+            displayNotification(errorMessage, "error");
+        }
+  }, [voucherCodeInput, calculateSubTotal, currentCustomerId, displayNotification]);
+  
+  const calculateFinalTotal = useCallback(() => {
+        let currentSubtotal = calculateSubTotal();
+        let finalShipping = shippingFee;
+        currentSubtotal = currentSubtotal + finalShipping - discountAmount;
+        if (currentSubtotal < 0) currentSubtotal = 0;
+        return currentSubtotal;
+    }, [calculateSubTotal, shippingFee, discountAmount]);
 
   const handlePlaceOrder = useCallback(async () => {
     if (!currentCustomerId) {
@@ -131,7 +180,7 @@ const OrderForm = () => {
     }
     setPlacingOrder(true);
     try {
-      const finalTotalAmount = calculateTotal() + shippingFee;
+      const finalTotalAmount = calculateFinalTotal();
       const detailedOrderItems = checkoutData.items.map(item => ({
         productId: item.product._id,
         quantity: item.quantity,
@@ -159,8 +208,9 @@ const OrderForm = () => {
           const paymentIntentResponse = await PaymentService.createStripePaymentIntent({
             customerId: currentCustomerId,
             shippingAddressId: selectedAddressId,
-            amount: finalTotalAmount / 1000,
+            amount: finalTotalAmount,
             shippingFee: shippingFee,
+            discountAmount: discountAmount,
             currency: 'VND'
           });
 
@@ -211,13 +261,14 @@ const OrderForm = () => {
           shippingFee: shippingFee,
           transactionId: stripeTransactionId,
           paymentStatus: finalPaymentStatus,
+          discountAmount: discountAmount
       };
       
       const orderResponse = await OrderService.createOrder(orderCreationPayload);
       if (orderResponse.order) {
         localStorage.removeItem('checkoutData');
         
-        const finalMessage = finalPaymentStatus === 'SUCCESSED' || paymentMethod === 'COD' ? // Thông báo thành công nếu thanh toán thành công hoặc là COD
+        const finalMessage = finalPaymentStatus === 'SUCCESSED' || paymentMethod === 'COD' ?
             'Đơn hàng đã được tạo thành công!' :
             'Đơn hàng đã được ghi nhận nhưng thanh toán thất bại.';
         displayNotification(finalMessage, (finalPaymentStatus === 'SUCCESSED' || paymentMethod === 'COD') ? 'success' : 'error');
@@ -234,7 +285,9 @@ const OrderForm = () => {
     } finally {
       setPlacingOrder(false);
     }
-  }, [cartData, currentCustomerId, selectedAddressId, paymentMethod, displayNotification, navigate, stripe, elements, calculateTotal, shippingFee, setCartData ]);
+  }, [cartData, currentCustomerId, selectedAddressId, paymentMethod, 
+      displayNotification, navigate, stripe, elements, 
+      calculateSubTotal, calculateFinalTotal, shippingFee, setCartData ]);
     
   // Hàm reload địa chỉ sau khi thêm mới thành công
   const reloadAddresses = useCallback(async () => {
@@ -389,12 +442,34 @@ const OrderForm = () => {
                   <input
                     type="text"
                     placeholder="Nhập mã voucher"
+                    value={voucherCodeInput}
+                    onChange={(e) => setVoucherCodeInput(e.target.value)}
                     className="flex-grow p-3 bg-gray-300/30 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-700"
                   />
-                  <button className="bg-white text-light-green font-medium border-2 border-light-green px-6 py-2 rounded-lg  hover:bg-emerald-700 hover:text-white transition-colors">
+                  <button 
+                    onClick={handleApplyVoucher}
+                    className="bg-white text-light-green font-medium border-2 border-light-green px-6 py-2 rounded-lg  hover:bg-emerald-700 hover:text-white transition-colors"
+                  >
                     ÁP DỤNG
                   </button>
                 </div>
+                {appliedVoucher && (
+                  <div className="mt-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-md text-sm">
+                      <p className="font-semibold">Voucher đã áp dụng: {appliedVoucher.code}</p>
+                      <p>{appliedVoucher.description}</p>
+                      <button
+                          onClick={() => {
+                              setAppliedVoucher(null);
+                              setDiscountAmount(0);
+                              setVoucherCodeInput('');
+                              displayNotification("Voucher đã được hủy.", "info");
+                          }}
+                          className="text-red-500 hover:text-red-700 mt-2 text-xs"
+                      >
+                          Hủy voucher
+                      </button>
+                  </div>
+              )}
               </div>
 
               {/* Phương thức thanh toán */}
@@ -428,7 +503,7 @@ const OrderForm = () => {
 
                 {paymentMethod === 'COD' && (
                   <p className="text-sm text-gray-600 mt-4">
-                    Vui lòng chuẩn bị đủ {(calculateTotal() + 20000).toLocaleString()}₫ để thanh toán cho nhân viên giao hàng.
+                    Vui lòng chuẩn bị đủ {(calculateFinalTotal() + shippingFee).toLocaleString()}₫ để thanh toán cho nhân viên giao hàng.
                   </p>
                 )}
                 {paymentMethod === 'CREDIT_CARD' && (
@@ -508,7 +583,7 @@ const OrderForm = () => {
               <div className="border-t-2 border-[#F6F6F6] pt-4 mt-4 space-y-2 text-gray-700">
                 <div className="flex justify-between text-sm">
                   <span>Tổng tạm tính:</span>
-                  <span className="font-medium">{calculateTotal().toLocaleString()}₫</span>
+                  <span className="font-medium">{calculateSubTotal().toLocaleString()}₫</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Phí vận chuyển:</span>
@@ -518,9 +593,15 @@ const OrderForm = () => {
                     <span className="font-medium">{shippingFee.toLocaleString()}₫</span>
                   )}
                 </div>
+                {discountAmount > 0 && (
+                  <div className="flex justify-between text-sm text-red-600">
+                    <span>Voucher giảm giá:</span>
+                    <span className="font-medium">-{discountAmount.toLocaleString()}₫</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm font-medium items-center pt-2">
                   <span>Thành tiền:</span>
-                  <span className='text-lg font-bold text-light-green'>{(calculateTotal() + shippingFee).toLocaleString()}₫</span>
+                  <span className='text-lg font-bold text-light-green'>{calculateFinalTotal().toLocaleString()}₫</span>
                 </div>
                 <p className="text-xs text-secondary text-right">(Đã bao gồm VAT)</p>
               </div>

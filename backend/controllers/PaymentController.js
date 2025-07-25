@@ -4,7 +4,7 @@ const Product = require('../models/ProductModel.js');
 const Order = require('../models/OrderModel.js');
 const PaymentController = {
     createStripePaymentIntent: async (req, res) => {
-        const { customerId, shippingAddressId, shippingFee } = req.body;
+        const { customerId, shippingAddressId, shippingFee, discountAmount } = req.body;
         if (!customerId || !shippingAddressId || shippingFee == undefined) {
             return res.status(400).json({ message: 'Thiếu thông tin khách hàng hoặc địa chỉ giao hàng.' });
         }
@@ -15,9 +15,9 @@ const PaymentController = {
                 return res.status(404).json({ message: 'Không tìm thấy giỏ hàng hoặc giỏ hàng trống!' });
             }
 
-            let totalAmount = 0;
+            let productTotalAmount = 0;
             const orderItemsForPayment = [];
-
+            // Lấy sai chỗ
             for (const cartItem of cart.items) {
                 const product = cartItem.product;
                 const quantity = cartItem.quantity;
@@ -32,7 +32,7 @@ const PaymentController = {
                     return res.status(400).json({ message: `Không đủ số lượng sản phẩm ${product.name} trong kho. Kho: ${product.stock}, Số lượng đặt: ${quantity}` });
                 }
 
-                totalAmount += product.price * quantity;
+                productTotalAmount += product.price * quantity;
                 orderItemsForPayment.push({
                     productId: product._id.toString(),
                     quantity: quantity,
@@ -40,11 +40,10 @@ const PaymentController = {
                 });
             }
 
-            totalAmount += shippingFee;
-            const amountInMinorUnits = Math.round(totalAmount / 1000);
+            const totalAmount = productTotalAmount - discountAmount + shippingFee;
+            const amountInMinorUnits = Math.round(totalAmount);
 
             console.log('Final amount to send to Stripe:', amountInMinorUnits);
-            console.log('Currency for PaymentIntent:', 'vnd');
 
             const paymentIntent = await stripe.paymentIntents.create({
                 amount: amountInMinorUnits,

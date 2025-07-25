@@ -13,6 +13,15 @@ class ProductService {
       throw error;
     }
   }
+  async getProductById(productId) {
+    try {
+      const response = await this.api.get(`/${productId}`);
+      return response.data.data;
+    } catch (error) {
+      console.error('ProductService Error: Failed to fetch product:', error.response ? error.response.data : error.message);
+      throw error;
+    }
+  }
   async createProduct(productData) {
     try {
       const response = await this.api.post("/", productData);

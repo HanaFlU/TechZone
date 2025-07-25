@@ -8,7 +8,7 @@ const DetailOrder = ({
   formatTime,
   formatDateOnly,
   getStatusDisplayName,
-  getPaymentMethodDisplayName,
+  getPaymentMethodName,
 }) => {
   if (!selectedOrder) return null;
 
@@ -133,7 +133,7 @@ const DetailOrder = ({
       </div>
       <div className="flex pl-[34vw] justify-between border-t pt-2 text-secondary border-gray-200">
               <span>Phương thức thanh toán</span>
-              <span className="font-semibold text-gray-800">{getPaymentMethodDisplayName(selectedOrder.paymentMethod)}</span>
+              <span className="font-semibold text-gray-800">{getPaymentMethodName(selectedOrder.paymentMethod)}</span>
           </div>
     </div>
   );

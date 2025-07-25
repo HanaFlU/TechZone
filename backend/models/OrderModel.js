@@ -80,6 +80,11 @@ const orderSchema = new mongoose.Schema(
             required: true,
             min: 0,
         },
+        discountAmount: {
+            type: Number,
+            required: false,
+            min: 0,
+        }
     },
     { timestamps: true }
 );

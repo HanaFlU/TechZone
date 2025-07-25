@@ -78,6 +78,20 @@ class CartService {
             throw error;
         }
     }
+
+    async transferGuestCartToUser(userId, guestCartItems) {
+        if (!userId || !guestCartItems || guestCartItems.length === 0) {
+            console.error('CartService Error: userId and guestCartItems are required for guest cart transfer.');
+            throw new Error('Missing parameters for guest cart transfer.');
+        }
+        try {
+            const response = await this.api.post(`/${userId}/transfer-guest-cart`, { guestCartItems });
+            return response.data;
+        } catch (error) {
+            console.error('CartService Error: Failed to transfer guest cart:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    }
 }
 
 export default new CartService();

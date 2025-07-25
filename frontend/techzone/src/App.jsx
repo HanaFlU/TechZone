@@ -6,6 +6,7 @@ import Footer from './components/layout/user/Footer';
 import Sidebar from './components/layout/admin/Sidebar';
 
 import HomePage from './pages/HomePage';
+import ProductDetailPage from './pages/ProductDetailPage';
 import AccountLayout from './pages/User/AccountLayout';
 import ProfilePage from './pages/User/ProfilePage';
 import AddressesPage from './pages/User/Address/AddressesPage';
@@ -92,6 +93,7 @@ const App = () => {
             <>
               <Routes>
                   <Route path='/' element={<HomePage />} />
+                  <Route path='/product/:id' element={<ProductDetailPage />} />
                   <Route path='/cart' element={<CartPage />} />
                   <Route path='/unauthorized' element={<NotFoundPage />} />
                   

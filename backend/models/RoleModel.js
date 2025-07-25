@@ -20,7 +20,8 @@ const roleSchema = new mongoose.Schema({
             "READ_ORDER",
             "UPDATE_ORDER",
             "DELETE_ORDER",
-            "MANAGE_USERS"
+            "MANAGE_USERS",
+            "MANAGE_VOUCHERS"
         ],
     },
     createdAt: {

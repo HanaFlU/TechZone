@@ -4,16 +4,16 @@ import CartService from '../services/CartService';
 import ShippingService from '../services/ShippingRate';
 import Button from '../components/button/Button';
 import { MinusIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
-import Notification from '../components/button/Notification';
+import NotificationContainer from '../components/button/NotificationContainer';
 import Breadcrumb from '../components/Breadcrumb';
 import { Link } from 'react-router-dom';
 import useAuthUser from '../hooks/useAuthUser';
 import useNotification from '../hooks/useNotification';
+import LoginModal from '../components/auth/LoginModal';
+import { useStockValidation } from '../hooks/useStockValidation';
 const CartPage = () => {
     const {
-        notificationMessage, 
-        notificationType, 
-        showNotification, 
+        notifications,
         displayNotification, 
         closeNotification
     } = useNotification();
@@ -27,65 +27,214 @@ const CartPage = () => {
     const [cartData, setCartData] = useState(null);
     const [selectedItems, setSelectedItems] = useState({});
     const [shippingFee, setShippingFee] = useState(20000);
+    const [showLoginModal, setShowLoginModal] = useState(false);
     const navigate = useNavigate();
 
-    // Fetch cartData
-    useEffect(() => {
-        const fetchCart = async () => {
-            if (!currentUserId) return;
+    // Transfer guest cart to user account
+    const transferGuestCartToUser = async () => {
+        if (!currentUserId) return;
+        
+        try {
+            const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
+            if (guestCart.length === 0) return;
+
+            console.log('Starting guest cart transfer:', { guestCart, currentUserId });
+
+            // Convert guest cart format to match backend expectations
+            const guestCartItems = guestCart.map(item => ({
+                productId: item.product._id,
+                quantity: item.quantity
+            }));
+
+            const result = await CartService.transferGuestCartToUser(currentUserId, guestCartItems);
             
-            setError(null);
-            try {
-                const data = await CartService.getCartData(currentUserId);
-                setCartData(data);
-                // Initialize selectedItems with the current cart items
-                const initialSelected = {};
-                if (data && data.items) {
-                    data.items.forEach(item => {
-                        initialSelected[item.product._id] = true;
+            if (result.success) {
+                displayNotification(result.message, 'success');
+                
+                // Show warnings if any
+                if (result.warnings && result.warnings.length > 0) {
+                    result.warnings.forEach(warning => {
+                        displayNotification(warning, 'warning');
                     });
                 }
+                
+                // Clear guest cart after successful transfer
+                localStorage.removeItem('guestCart');
+                console.log('Guest cart cleared from localStorage');
+                
+                // Update cart data with the result
+                if (result.cartData) {
+                    setCartData(result.cartData);
+                    
+                    // Initialize selectedItems
+                    const initialSelected = {};
+                    if (result.cartData && result.cartData.items) {
+                        result.cartData.items.forEach(item => {
+                            initialSelected[item.product._id] = true;
+                        });
+                    }
+                    setSelectedItems(initialSelected);
+                }
+                
+                // Dispatch cart updated event
+                window.dispatchEvent(new Event('cartUpdated'));
+            }
+        } catch (err) {
+            console.error('Failed to transfer guest cart:', err);
+            displayNotification('Không thể chuyển sản phẩm vào tài khoản!', 'error');
+        }
+    };
+
+    // Stock validation hook
+    const { validateStockForQuantityUpdate } = useStockValidation(displayNotification);
+
+    // Fetch cartData for logged-in or guest user
+    useEffect(() => {
+        const fetchCart = async () => {
+            setError(null);
+            if (currentUserId) {
+                try {
+                    const data = await CartService.getCartData(currentUserId);
+                    setCartData(data);
+                    // Initialize selectedItems with the current cart items
+                    const initialSelected = {};
+                    if (data && data.items) {
+                        data.items.forEach(item => {
+                            initialSelected[item.product._id] = true;
+                        });
+                    }
+                    setSelectedItems(initialSelected);
+                } catch (err) {
+                    console.error('Failed to fetch cart data:', err);
+                    setError(err);
+                }
+            } else {
+                // Guest: load from localStorage
+                const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
+                // Convert guestCart to the same structure as user cartData
+                const items = guestCart.map(item => ({
+                    product: item.product,
+                    quantity: item.quantity
+                }));
+                setCartData({ items });
+                // Initialize selectedItems
+                const initialSelected = {};
+                items.forEach(item => {
+                    initialSelected[item.product._id] = true;
+                });
                 setSelectedItems(initialSelected);
-            } catch (err) {
-                console.error('Failed to fetch cart data:', err);
-                setError(err);
             }
         };
-
         fetchCart();
     }, [currentUserId]);
 
-    const handleQuantityChange = async (productId, newQuantity) => {
-        if (!currentUserId || !cartData || !cartData._id) return;
+    // Transfer guest cart when user logs in
+    useEffect(() => {
+        if (currentUserId) {
+            transferGuestCartToUser();
+        }
+    }, [currentUserId]);
 
+    // Handle successful login
+    const handleSuccessfulLogin = () => {
+        setShowLoginModal(false);
+        // Refresh the page to ensure all components are updated with new user state
+        window.location.reload();
+    };
+
+    const handleQuantityChange = async (productId, newQuantity) => {
+        console.log('handleQuantityChange called:', { productId, newQuantity });
+        if (!cartData) return;
         if (newQuantity < 1) return;
+        
+        // Find the product to check stock
+        const cartItem = cartData.items.find(item => item.product._id === productId);
+        if (!cartItem) {
+            console.log('Cart item not found for productId:', productId);
+            return;
+        }
+        
+        console.log('Cart item found:', cartItem);
+        console.log('Stock validation:', {
+            newQuantity,
+            productStock: cartItem.product.stock,
+            willExceed: newQuantity > cartItem.product.stock
+        });
+        
+        // Validate stock using the hook
+        if (!validateStockForQuantityUpdate(cartItem.product, newQuantity)) {
+            return;
+        }
+        
+        console.log('Stock validation passed, proceeding with update...');
         displayNotification('Cập nhật số lượng thành công!', 'success');
         setError(null);
-        try {
-            const updatedCart = await CartService.updateCartItemQuantity(cartData._id, productId, newQuantity);
-            setCartData(updatedCart.cart);
-        } catch (err) {
-            displayNotification('Cập nhật số lượng thất bại!', 'error');
-            setError(err);
+        if (currentUserId && cartData._id) {
+            // Logged-in user: update via CartService
+            try {
+                const updatedCart = await CartService.updateCartItemQuantity(cartData._id, productId, newQuantity);
+                setCartData(updatedCart.cart);
+                // Dispatch event to update navbar cart
+                window.dispatchEvent(new Event('cartUpdated'));
+            } catch (err) {
+                if (err.response?.data?.message) {
+                    displayNotification(err.response.data.message, 'error');
+                } else {
+                    displayNotification('Cập nhật số lượng thất bại!', 'error');
+                }
+                setError(err);
+            }
+        } else {
+            // Guest: update localStorage
+            let guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
+            guestCart = guestCart.map(item =>
+                item.product._id === productId ? { ...item, quantity: newQuantity } : item
+            );
+            localStorage.setItem('guestCart', JSON.stringify(guestCart));
+            // Update state
+            const items = guestCart.map(item => ({ product: item.product, quantity: item.quantity }));
+            setCartData({ items });
+            // Dispatch event to update navbar cart
+            window.dispatchEvent(new Event('cartUpdated'));
         }
     };
 
     // Xóa sản phẩm khỏi giỏ hàng
     const handleRemoveItem = async (productId) => {
-        if (!currentUserId || !cartData || !cartData._id) return;
+        if (!cartData) return;
         displayNotification('Xóa sản phẩm thành công!', 'success');
         setError(null);
-        try {
-            const updatedCart = await CartService.removeCartItem(cartData._id, productId);
-            setCartData(updatedCart.cart);
+        if (currentUserId && cartData._id) {
+            // Logged-in user: update via CartService
+            try {
+                const updatedCart = await CartService.removeCartItem(cartData._id, productId);
+                setCartData(updatedCart.cart);
+                setSelectedItems(prev => {
+                    const newState = { ...prev };
+                    delete newState[productId];
+                    return newState;
+                });
+                // Dispatch event to update navbar cart
+                window.dispatchEvent(new Event('cartUpdated'));
+            } catch (err) {
+                displayNotification('Xóa sản phẩm thất bại!', 'error');
+                setError(err);
+            }
+        } else {
+            // Guest: update localStorage
+            let guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
+            guestCart = guestCart.filter(item => item.product._id !== productId);
+            localStorage.setItem('guestCart', JSON.stringify(guestCart));
+            // Update state
+            const items = guestCart.map(item => ({ product: item.product, quantity: item.quantity }));
+            setCartData({ items });
             setSelectedItems(prev => {
                 const newState = { ...prev };
                 delete newState[productId];
                 return newState;
             });
-        } catch (err) {
-            displayNotification('Xóa sản phẩm thất bại!', 'error');
-            setError(err);
+            // Dispatch event to update navbar cart
+            window.dispatchEvent(new Event('cartUpdated'));
         }
     };
 
@@ -141,6 +290,12 @@ const CartPage = () => {
             return;
         }
 
+        // Check if user is logged in
+        if (!currentUserId) {
+            setShowLoginModal(true);
+            return;
+        }
+
         const itemsToCheckout = cartData.items.filter(item => selectedItems[item.product._id]);
         
         const checkoutCart = {
@@ -157,18 +312,7 @@ const CartPage = () => {
         return <div className="text-center py-10">Đang kiểm tra trạng thái đăng nhập...</div>;
     }
 
-    if (authError) {
-        return (
-            <div className="text-center text-red-600 py-10">
-                <h2 className="text-xl font-bold mb-4">Lỗi xác thực!</h2>
-                <p>{authError}</p>
-                <Button onClick={() => navigate('/login')} variant="primary" className="mt-4">
-                    Đăng nhập ngay
-                </Button>
-            </div>
-        );
-    }
-
+    // Only show error if there is a real error (not just 'not logged in')
     if (error) {
         return <div className="text-center py-10 text-red-500">Lỗi: {error.message || 'Lỗi không xác định.'}</div>;
     }
@@ -178,9 +322,7 @@ const CartPage = () => {
             <div className="text-center py-10">
                 <h1 className="text-3xl font-bold mb-4 text-gray-800">Giỏ hàng của bạn đang trống!</h1>
                 <p className="text-lg text-gray-600">Hãy thêm sản phẩm vào giỏ hàng để bắt đầu mua sắm.</p>
-                <Button className="mt-6" variant="primary" onClick={() => navigate('/')}>
-                    Tiếp tục mua sắm
-                </Button>
+                <Button className="mt-6" variant="primary" onClick={() => navigate('/')}>Tiếp tục mua sắm</Button>
             </div>
         );
     }
@@ -191,13 +333,10 @@ const CartPage = () => {
         <div className="container mx-auto px-8 py-2 font-sans">
             <Breadcrumb items={[{ label: "Giỏ hàng" }]} />
             <h1 className="text-2xl font-bold mb-6 text-gray-800">Giỏ hàng của tôi</h1>
-            {showNotification && (
-                <Notification
-                    message={notificationMessage}
-                    type={notificationType}
-                    onClose={closeNotification}
-                />
-            )}
+            <NotificationContainer
+                notifications={notifications}
+                onClose={closeNotification}
+            />
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-5 text-gray-800 text-base">
                 {/* Left side */}
                 <div className="lg:col-span-3 bg-white rounded-lg h-fit space-y-5">
@@ -260,7 +399,6 @@ const CartPage = () => {
                                         <span className="w-24 text-gray-800 font-medium border-l border-r border-gray-300 py-1">{item.quantity}</span>
                                         <button
                                             onClick={() => handleQuantityChange(item.product._id, item.quantity + 1)}
-                                            disabled={item.quantity >= item.product.stock}
                                             className="p-2 text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-colors duration-200"
                                         >
                                             <PlusIcon className="h-5 w-5" />
@@ -320,6 +458,14 @@ const CartPage = () => {
                     </div>
                 </div>
             </div>
+            
+            {/* Login Modal for guest users */}
+            {showLoginModal && (
+                <LoginModal 
+                    onClose={handleSuccessfulLogin}
+                    onSwitch={() => setShowLoginModal(false)}
+                />
+            )}
         </div>
     );
 };
