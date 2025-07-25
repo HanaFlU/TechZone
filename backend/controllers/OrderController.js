@@ -44,9 +44,10 @@ const OrderController = {
             orderItems,
             totalAmount,
             shippingFee,
+            discountAmount
         } = req.body;
 
-        console.log('Nhận yêu cầu tạo đơn hàng:', { customerId, shippingAddressId, paymentMethod, transactionId, paymentStatus, totalAmount, shippingFee, orderItems });
+        console.log('Nhận yêu cầu tạo đơn hàng:', { customerId, shippingAddressId, paymentMethod, transactionId, paymentStatus, totalAmount, shippingFee, orderItems, discountAmount });
         if (!customerId || !shippingAddressId || !paymentMethod || !orderItems || orderItems.length === 0 || totalAmount === undefined) {
             return res.status(400).json({ message: 'Thiếu thông tin bắt buộc để tạo đơn hàng hoặc giỏ hàng trống!' });
         }
@@ -78,7 +79,7 @@ const OrderController = {
             }
 
             // Thêm phí vận chuyển vào tổng số tiền backend tự tính toán
-            calculatedTotalAmountFromBackend += shippingFee;
+            calculatedTotalAmountFromBackend = calculatedTotalAmountFromBackend + shippingFee - discountAmount;
             if (Math.abs(calculatedTotalAmountFromBackend - totalAmount) > 1) {
                 console.warn(`Mismatch totalAmount: Frontend ${totalAmount}, Backend ${calculatedTotalAmountFromBackend}`);
             }
@@ -117,7 +118,8 @@ const OrderController = {
                 status: initialOrderStatus,
                 paymentStatus: paymentStatusForOrder,
                 transactionId: transactionId,
-                statusHistory: initialStatusHistory
+                statusHistory: initialStatusHistory,
+                discountAmount: discountAmount
             });
             const savedOrder = await newOrder.save();
             if (paymentStatusForOrder === 'SUCCESSED' || paymentMethod === 'COD') {

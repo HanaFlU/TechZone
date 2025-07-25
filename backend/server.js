@@ -13,9 +13,10 @@ const OrderRoute = require("./routes/OrderRoute.js");
 const CartRoute = require("./routes/CartRoute.js");
 const AuthRoute = require("./routes/AuthRoute.js");
 const PaymentRoute = require("./routes/PaymentRoute.js");
-const shippingRateRoute = require("./routes/ShippingRateRoute.js");
+const ShippingRateRoute = require("./routes/ShippingRateRoute.js");
 const productRoutes = require('./routes/ProductRoute');
 const CategoryRoute = require('./routes/CategoryRoute.js');
+const VoucherRoute = require("./routes/VoucherRoute.js");
 
 const SaleEventRoute = require("./routes/SaleEventRoute.js");
 
@@ -47,7 +48,8 @@ app.use('/api/staffs', protect, StaffRoute);
 app.use('/api/orders', protect, OrderRoute);
 app.use('/api/carts', protect, CartRoute);
 app.use('/api/payments', protect, PaymentRoute);
-app.use('/api/shipping-rate', protect, shippingRateRoute);
+app.use('/api/shipping-rate', protect, ShippingRateRoute);
+app.use('/api/vouchers', protect, VoucherRoute);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', CategoryRoute);
 

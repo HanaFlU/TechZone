@@ -5,6 +5,15 @@ import Button from "../../../components/button/Button";
 import DetailOrder from "./DetailOrderHistory";
 import { ClockIcon } from "@heroicons/react/24/outline";
 
+import {
+  formatCurrency,
+  formatTime,
+  formatDateOnly,
+  getStatusDisplayName,
+  getPaymentMethodName,
+} from "../../../hooks/useOrderFormat";
+
+
 const OrderHistoryPage = () => {
   const { customerId } = useOutletContext();
   const [orders, setOrders] = useState([]);
@@ -13,56 +22,6 @@ const OrderHistoryPage = () => {
   const [detailLoading, setDetailLoading] = useState(false);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("all");
-
-  // Format tiền
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-    }).format(amount);
-  };
-
-  // Format thời gian
-  const formatTime = (isoString) => {
-    if (!isoString) return "";
-    const date = new Date(isoString);
-    return date.toLocaleTimeString('vi-VN', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    });
-  };
-
-  // Format ngày
-  const formatDateOnly = (isoString) => {
-    if (!isoString) return "";
-    const date = new Date(isoString);
-    return date.toLocaleDateString('vi-VN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
-  };
-
-  const getStatusDisplayName = (status) => {
-    switch (status) {
-      case "PENDING": return "Chờ xác nhận";
-      case "CONFIRMED": return "Đã xác nhận";
-      case "SHIPPED": return "Đang giao hàng";
-      case "DELIVERED": return "Đã giao hàng";
-      case "CANCELLED": return "Đã hủy";
-      default: return status;
-    }
-  };
-
-  const getPaymentMethodDisplayName = (method) => {
-    switch (method) {
-      case "COD": return "Thanh toán khi nhận hàng";
-      case "CREDIT_CARD": return "Thẻ tín dụng/Ghi nợ";
-      case "E_WALLET": return "Ví điện tử";
-      default: return method;
-    }
-  };
 
   // Lấy danh sách đơn hàng của customer
   useEffect(() => {
@@ -113,7 +72,7 @@ const OrderHistoryPage = () => {
             formatTime={formatTime}
             formatDateOnly={formatDateOnly}
             getStatusDisplayName={getStatusDisplayName}
-            getPaymentMethodDisplayName={getPaymentMethodDisplayName}
+            getPaymentMethodName={getPaymentMethodName}
           />
         ) : (
         <>
