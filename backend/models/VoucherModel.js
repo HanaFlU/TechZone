@@ -65,6 +65,5 @@ VoucherSchema.pre('save', function (next) {
     }
     next();
 });
-// Index cho code để tìm kiếm nhanh
-VoucherSchema.index({ code: 1 });
+
 module.exports = mongoose.model('Voucher', VoucherSchema);
