@@ -3,7 +3,6 @@ const TestCategory = require("../models/CategoryModel");
 
 async function findRootCategory(categoryId) {
     const category = await TestCategory.findById(categoryId).lean();
-    console.log("findRootCategory", categoryId, category);
 
     if (!category) return null;
     if (!category.parent) return category;

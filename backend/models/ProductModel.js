@@ -4,7 +4,7 @@ const shortid = require("shortid");
 const specSchema = new mongoose.Schema({
   key: { type: String, required: true },
   label: { type: String, required: true },
-  value: { type: String, required: true },
+  value: { type: String, default: "" },
 }, { _id: false });
 
 

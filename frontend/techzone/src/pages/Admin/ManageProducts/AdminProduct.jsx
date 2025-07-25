@@ -10,7 +10,12 @@ import {
   Box,
   TablePagination,
 } from '@mui/material';
-import { FaPlus, FaTrash, FaEdit } from 'react-icons/fa';
+import { FaPlus } from 'react-icons/fa';
+import { AiOutlineEdit } from "react-icons/ai";
+import { FaRegTrashCan } from "react-icons/fa6";
+import { RiCloseLargeLine, RiImageAddLine } from "react-icons/ri";
+
+
 import ProductService from '../../../services/ProductService';
 import CategoryService from '../../../services/CategoryService';
 import UploadService from '../../../services/UploadService';
@@ -52,7 +57,6 @@ const ProductManager = () => {
 
   const fetchCategories = async () => {
     const res = await CategoryService.getCategories();
-    console.log("Fetched categories:", res);
     setCategories(res);
   };
 
@@ -179,8 +183,8 @@ const ProductManager = () => {
                       )}
                     </TableCell>
                     <TableCell>
-                      <IconButton onClick={() => handleOpen(p)}><FaEdit /></IconButton>
-                      <IconButton onClick={() => handleDelete(p._id)}><FaTrash /></IconButton>
+                      <IconButton color="info" size="medium" onClick={() => handleOpen(p)}><AiOutlineEdit /></IconButton>
+                      <IconButton color="error" size="medium" onClick={() => handleDelete(p._id)}><FaRegTrashCan /></IconButton>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -209,12 +213,12 @@ const ProductManager = () => {
             <CategoryTreeSelect
               categories={categories}
               selectedId={formData.category._id}
-              onSelect={(id) => setFormData({ ...formData, category: id })}
+              onSelect={(id) => setFormData({ ...formData, category: id }) }
             />
             <Typography variant="h6" sx={{ mt: 2 }}>Hình ảnh</Typography>
 
 
-            <Button component="label">
+            <Button startIcon={<RiImageAddLine />} component="label">
               Tải ảnh lên
               <input hidden multiple type="file" onChange={handleMultipleImageUpload} />  
               
@@ -239,22 +243,24 @@ const ProductManager = () => {
               </Box>
 
 
-            <Typography variant="h6" sx={{ mt: 2 }}>Thông số kỹ thuật</Typography>
+            <Typography variant="h6" sx={{ mt: 2, mb:2 }}>Thông số kỹ thuật</Typography>
             {formData.specs.map((spec, index) => (
               <div key={index} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                <TextField label="Label" value={spec.label} onChange={(e) => handleSpecChange(index, 'label', e.target.value)} />
-                <TextField label="Value" value={spec.value} onChange={(e) => handleSpecChange(index, 'value', e.target.value)} />
-                <Button color="error" onClick={() => handleRemoveSpec(index)}>Xoá</Button>
+                <TextField variant="filled" size="small" label="Label" value={spec.label} onChange={(e) => handleSpecChange(index, 'label', e.target.value)} />
+                <TextField variant="filled" size="small" label="Value" value={spec.value} onChange={(e) => handleSpecChange(index, 'value', e.target.value)} />
+                <IconButton color="error" size="medium" onClick={() => handleRemoveSpec(index)}><RiCloseLargeLine /></IconButton>
               </div>
             ))}
-            <Button onClick={handleAddSpec}>Thêm thông số</Button>
+            <Button size="small" startIcon={<FaPlus />} color="success" onClick={handleAddSpec}>
+              Thêm thông số
+            </Button>
             <Typography variant="h6" sx={{ mt: 2 }}>Mô tả chi tiết</Typography>
             <Editor
               apiKey={import.meta.env.VITE_TINIMCE_API_KEY}
               initialValue={formData.description || ''}
               value={formData.description || ''}
               init={{
-                height: 300,
+                height: 1000,
                 menubar: false,
                 plugins: ['link', 'image', 'code', 'lists', 'table','colorpicker', 'textcolor', 'autoresize'],
                 toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | bullist numlist outdent indent | code | link image table | forecolor backcolor',

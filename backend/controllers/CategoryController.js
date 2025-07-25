@@ -1,4 +1,5 @@
 const Category = require('../models/CategoryModel');
+const Product = require('../models/ProductModel');
 const slugify = require('slugify');
 
 exports.createCategory = async (req, res) => {
@@ -45,7 +46,7 @@ exports.updateCategory = async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
-
+    console.log("Update Category Data:", updateData);
     // If slug is not provided, generate it
     if (!updateData.slug) {
       updateData.slug = slugify(updateData.name, { lower: true });
@@ -54,12 +55,31 @@ exports.updateCategory = async (req, res) => {
     // Check if category with the same slug already exists
     const existingCategory = await Category.findOne({ slug: updateData.slug, _id: { $ne: id } });
     if (existingCategory) {
-      return res.status(400).json({ message: "Category with this slug already exists" });
+      return res.status(400).json({ message: "Category with this slug already exists. Please change your category name or try to use another slug." });
     }
 
     const updatedCategory = await Category.findByIdAndUpdate(id, updateData, { new: true });
     if (!updatedCategory) {
       return res.status(404).json({ message: "Category not found" });
+    }
+
+    if (updateData.specifications) {
+      // Lấy tất cả id danh mục con
+      const descendantIds = await getAllDescendantCategoryIds(id);
+      const allCategoryIds = [id, ...descendantIds];
+
+      // Tạo mảng spec kế thừa (giá trị value để trống)
+      const inheritedSpec = updateData.specifications.map((item) => ({
+        key: item.key,
+        label: item.label,
+        value: "",
+      }));
+
+      // Cập nhật tất cả sản phẩm có category nằm trong danh sách đó
+      await Product.updateMany(
+        { category: { $in: allCategoryIds } },
+        { $set: { spec: inheritedSpec } }
+      );
     }
 
     res.json(updatedCategory);
