@@ -27,6 +27,7 @@ import NotFoundPage from './pages/NotFoundPage';
 import LoginModal from './components/auth/LoginModal';
 import RegisterModal from './components/auth/RegisterModal';
 
+import ProductService from './services/ProductService';
 
 import { AuthProvider } from './context/AuthContext'
 import AdminRoute from './routes/AdminRoute';
@@ -36,6 +37,8 @@ const App = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [adminMode, setAdminMode] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
+  const [products, setProducts] = useState([]);
 
   const location = useLocation();
   useEffect(() => {
@@ -46,10 +49,25 @@ const App = () => {
     }
   }, [location.pathname]);
 
+  useEffect(() => {
+    // Fetch all products for Navbar search suggestions
+    ProductService.getAllProducts()
+      .then(data => setProducts(data))
+      .catch(err => console.error(err));
+  }, []);
+
   return (
     <AuthProvider>
       <div className='min-h-screen flex flex-col bg-gray-50 m-0 p-0'>
-        {!adminMode && <Navbar onAccountClick={() => setShowLoginModal(true)} setAdminMode={setAdminMode} />}
+        {!adminMode && (
+          <Navbar
+            onAccountClick={() => setShowLoginModal(true)}
+            setAdminMode={setAdminMode}
+            searchValue={searchValue}
+            setSearchValue={setSearchValue}
+            products={products}
+          />
+        )}
         <main className='flex-1'>
           {adminMode ? (
             <Sidebar onVisitStore={() => {

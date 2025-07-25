@@ -141,11 +141,22 @@ const HomePage = () => {
   const getProductImage = (product) => {
     const isGoogleImageLink = url => typeof url === 'string' && url.includes('google.com/imgres');
     let images = [];
-    if (Array.isArray(product.image)) images = product.image;
-    else if (typeof product.image === 'string') images = [product.image];
+    if (Array.isArray(product.images)) images = product.images;
+    else if (typeof product.images === 'string') images = [product.images];
     images = images.filter(url => url && !isGoogleImageLink(url));
     return images[0] || '/default-product-image.png';
   };
+
+
+  // CPU subcategory IDs (Intel and AMD generations)
+  const cpuCategoryIds = [
+    "6881469f80cdfdd23e5e88d6", // Gen 12th
+    "6881469f80cdfdd23e5e88d8", // Gen 13th
+    "6881469f80cdfdd23e5e88da", // Gen 14th
+    "6881469f80cdfdd23e5e88e1", // Ryzen 7000
+    "6881469f80cdfdd23e5e88e2", // Ryzen 5000
+    "6881469f80cdfdd23e5e88e3", // Ryzen 3000
+  ];
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -176,7 +187,7 @@ const HomePage = () => {
                       <div className="px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors">
                         <div className="flex items-center space-x-3">
                           {category.icon && (
-                            <img src={`/assets/icons/${category.icon}`} alt={category.name} className="w-6 h-6 object-contain" />
+                            <img src={`${category.icon}`} alt="NaN" className="w-6 h-6 object-contain" />
                           )}
                           <div className="font-medium text-gray-900">{category.name}</div>
                         </div>
@@ -308,10 +319,11 @@ const HomePage = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                   {products.filter(product => {
                     if (!product.category) return false;
-                    const cat = product.category;
-                    const name = typeof cat === 'object' ? (cat.name || cat.slug || '') : cat;
-                    return name.toLowerCase().includes('cpu');
-                  }).map(product => (
+                    const catId = typeof product.category === 'object' ? product.category._id : product.category;
+                    return cpuCategoryIds.includes(catId);
+                  })
+                  .slice(0, 4) // Show only 4 items
+                  .map(product => (
                     <div key={product._id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow flex flex-col overflow-hidden">
                       <div className="relative bg-gray-100 flex items-center justify-center" style={{height:208}}>
                         <img src={getProductImage(product)} alt={product.name} className="object-contain h-52 w-full" />
