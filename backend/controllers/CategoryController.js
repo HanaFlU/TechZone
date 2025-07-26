@@ -1,38 +1,32 @@
 const Category = require('../models/CategoryModel');
 const Product = require('../models/ProductModel');
-const slugify = require('slugify');
 
+const getAllDescendantCategoryIds = require('../helpers/getAllDescendantCategoryIds');
+const { generateSlug, ensureSlug, isDuplicateSlug } = require('../helpers/slugHelper');
+const generateKeyFromLabel = require('../helpers/generateKeyFromeLabel');
+
+// Tạo một danh mục hoặc nhiều danh mục
 exports.createCategory = async (req, res) => {
   try {
     if (Array.isArray(req.body)) {
-      // create slug for each category if don't have one
-      if (req.body.some(category => !category.slug)) {
-        req.body.forEach(category => {
-          category.slug = slugify(category.name, { lower: true });
-        });
-      }
-      // Bulk insert
-      const categories = await Category.insertMany(req.body);
-      res.status(201).json(categories);
-    } else {
-      // create slug if not provided
-      if (!req.body.slug) {
-        req.body.slug = slugify(req.body.name, { lower: true });
-      }
-      // Check if category with the same slug already exists
-      const existingCategory = await Category.findOne({ slug: req.body.slug });
-      if (existingCategory) {
-        return res.status(400).json({ message: "Category with this slug already exists" });
-      }
-      // Single insert
-      const category = await Category.create(req.body);
-      res.status(201).json(category);
+      const categoriesWithSlug = req.body.map((category) => ensureSlug(category));
+      const inserted = await Category.insertMany(categoriesWithSlug);
+      return res.status(201).json(inserted);
     }
+
+    const data = ensureSlug(req.body);
+    if (await isDuplicateSlug(data.slug)) {
+      return res.status(400).json({ message: 'Category with this slug already exists' });
+    }
+
+    const category = await Category.create(data);
+    res.status(201).json(category);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 };
 
+// Lấy tất cả danh mục
 exports.getCategories = async (req, res) => {
   try {
     const categories = await Category.find();
@@ -45,40 +39,66 @@ exports.getCategories = async (req, res) => {
 exports.updateCategory = async (req, res) => {
   try {
     const { id } = req.params;
-    const updateData = req.body;
-    console.log("Update Category Data:", updateData);
-    // If slug is not provided, generate it
-    if (!updateData.slug) {
-      updateData.slug = slugify(updateData.name, { lower: true });
+    const updateData = ensureSlug({ ...req.body });
+
+    if (await isDuplicateSlug(updateData.slug, id)) {
+      return res.status(400).json({ message: 'Category with this slug already exists' });
     }
 
-    // Check if category with the same slug already exists
-    const existingCategory = await Category.findOne({ slug: updateData.slug, _id: { $ne: id } });
-    if (existingCategory) {
-      return res.status(400).json({ message: "Category with this slug already exists. Please change your category name or try to use another slug." });
+    let inheritedSpec = null;
+    let deletedKeys = [];
+
+    if (Array.isArray(updateData.specifications)) {
+      inheritedSpec = updateData.specifications.map(({ label }) => ({
+        label,
+        key: generateKeyFromLabel(label),
+        value: ''
+      }));
+      updateData.specifications = inheritedSpec;
+
+      // Lấy danh sách key cũ từ category gốc
+      const originalCategory = await Category.findById(id);
+      const originalKeys = (originalCategory?.specifications || []).map(s => generateKeyFromLabel(s.label));
+      const newKeys = inheritedSpec.map(s => s.key);
+
+      deletedKeys = originalKeys.filter(key => !newKeys.includes(key));
     }
 
     const updatedCategory = await Category.findByIdAndUpdate(id, updateData, { new: true });
-    if (!updatedCategory) {
-      return res.status(404).json({ message: "Category not found" });
-    }
+    if (!updatedCategory) return res.status(404).json({ message: 'Category not found' });
 
-    if (updateData.specifications) {
-      // Lấy tất cả id danh mục con
+    if (inheritedSpec) {
       const descendantIds = await getAllDescendantCategoryIds(id);
       const allCategoryIds = [id, ...descendantIds];
 
-      // Tạo mảng spec kế thừa (giá trị value để trống)
-      const inheritedSpec = updateData.specifications.map((item) => ({
-        key: item.key,
-        label: item.label,
-        value: "",
-      }));
-
-      // Cập nhật tất cả sản phẩm có category nằm trong danh sách đó
+      // Cập nhật sản phẩm: xóa các spec có key bị xóa và thêm/cập nhật inheritedSpec
       await Product.updateMany(
         { category: { $in: allCategoryIds } },
-        { $set: { spec: inheritedSpec } }
+        [
+          {
+            $set: {
+              specs: {
+                $concatArrays: [
+                  // Giữ lại các spec KHÔNG bị xóa và KHÔNG trùng key với inheritedSpec (để thay thế)
+                  {
+                    $filter: {
+                      input: "$specs",
+                      as: "s",
+                      cond: {
+                        $and: [
+                          { $not: { $in: ["$$s.key", deletedKeys] } },
+                          { $not: { $in: ["$$s.key", inheritedSpec.map(s => s.key)] } }
+                        ]
+                      }
+                    }
+                  },
+                  // Thêm hoặc cập nhật inheritedSpec
+                  inheritedSpec
+                ]
+              }
+            }
+          }
+        ]
       );
     }
 
@@ -86,16 +106,16 @@ exports.updateCategory = async (req, res) => {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-}
+};
 
+
+// Xóa danh mục
 exports.deleteCategory = async (req, res) => {
   try {
     const { id } = req.params;
-    const deletedCategory = await Category.findByIdAndDelete(id);
-    if (!deletedCategory) {
-      return res.status(404).json({ message: "Category not found" });
-    }
-    res.json({ message: "Category deleted successfully" });
+    const deleted = await Category.findByIdAndDelete(id);
+    if (!deleted) return res.status(404).json({ message: 'Category not found' });
+    res.json({ message: 'Category deleted successfully' });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

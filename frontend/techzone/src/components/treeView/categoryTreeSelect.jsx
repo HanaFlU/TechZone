@@ -76,6 +76,19 @@ export default function CategoryTreeSelector({ categories, selectedId, onSelect 
           >
             {renderTree(topLevelCategories, categories)}
           </SimpleTreeView>
+          <Button
+            variant="outlined"
+            color="warning"
+            fullWidth
+            sx={{ mt: 2 }}
+            onClick={() => {
+              setLastSelectedItem(null);
+              onSelect(null);
+            }}
+          >
+            Bỏ chọn danh mục
+          </Button>
+
         </Box>
       )}
     </Box>

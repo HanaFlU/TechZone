@@ -22,18 +22,18 @@ const ProductController = {
           return {
             key,
             label: spec.label,
-            value: data.spec?.find((s) => s.key === key)?.value || "",
+            value: data.specs?.find((s) => s.key === key)?.value || "",
           };
         });
 
-        const userSpecs = (data.spec || []).map((s) => ({
+        const userSpecs = (data.specs || []).map((s) => ({
           ...s,
           key: s.key || generateKeyFromLabel(s.label),
         }));
 
         return {
           ...data,
-          spec: inheritedSpecs.concat( // nối các spec riêng
+          specs: inheritedSpecs.concat( // nối các spec riêng
             userSpecs.filter(
               (s) => !inheritedSpecs.find((inherited) => inherited.key === s.key)
             )
@@ -61,8 +61,8 @@ const ProductController = {
   getAllProducts: async (req, res) => {
     try {
       const products = await Product.find()
-        .populate('category', 'name')
-        .populate('saleEvent');
+        .populate('category')
+        .populate('saleEvent')
       res.json({ success: true, data: products });
     } catch (err) {
       res.status(500).json({ success: false, message: err.message });
@@ -72,7 +72,7 @@ const ProductController = {
   getProductById: async (req, res) => {
     try {
       const { id } = req.params;
-      
+
       const product = await Product.findById(id)
         .populate('category', 'name')
         .populate('saleEvent');

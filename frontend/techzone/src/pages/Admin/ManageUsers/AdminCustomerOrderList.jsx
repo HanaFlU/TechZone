@@ -192,12 +192,12 @@ const AdminCustomerOrderList = () => {
                         <Table size="small" sx={{ minWidth: 800 }} aria-label="order table">
                             <TableHead>
                                 <TableRow sx={{ backgroundColor: '#e0f2f1' }}>
-                                    <TableCell>Ngày đặt hàng</TableCell>
-                                    <TableCell>Khách hàng</TableCell>
-                                    <TableCell>Thanh toán</TableCell>
-                                    <TableCell align="center">Tổng tiền</TableCell>
-                                    <TableCell align="center">Trạng thái</TableCell>
-                                    <TableCell align="left" sx={{ pl: 4 }}>Hành động</TableCell>
+                                    <TableCell sx={{fontWeigth: "bold", fontSize: "1rem"}}>Ngày đặt hàng</TableCell>
+                                    <TableCell sx={{fontWeigth: "bold", fontSize: "1rem"}}>Khách hàng</TableCell>
+                                    <TableCell sx={{fontWeigth: "bold", fontSize: "1rem"}}>Thanh toán</TableCell>
+                                    <TableCell sx={{fontWeigth: "bold", fontSize: "1rem"}} align="center">Tổng tiền</TableCell>
+                                    <TableCell sx={{fontWeigth: "bold", fontSize: "1rem"}} align="center">Trạng thái</TableCell>
+                                    <TableCell sx={{fontWeigth: "bold", fontSize: "1rem"}} align="left" sx={{ pl: 4 }}>Hành động</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>

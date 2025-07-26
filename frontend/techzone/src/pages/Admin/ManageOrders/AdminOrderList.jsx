@@ -12,7 +12,7 @@ import {
     Grid
 } from '@mui/material';
 
-import { LuFilePlus2 } from "react-icons/lu";
+import { LuFilePlus2, LuRefreshCw } from "react-icons/lu";
 import { IoEyeOutline } from 'react-icons/io5';
 import { PiPrinterFill } from "react-icons/pi";
 import OrderService from '../../../services/OrderService';
@@ -194,83 +194,90 @@ useEffect(() => {
                 </div>
 
                 {/* Filters */}
-                <Box display="flex" flexWrap="wrap" gap={2} my={2}>
-                    <Grid container spacing={2}>
-                        <Grid size={{ xs: 6, md: 6 }}>
-                            <TextField
-                                label="Search by Customer / Email"
-                                name="customerNameOrEmail"
-                                value={filter.customerNameOrEmail}
-                                onChange={handleFilterChange}
-                                size="small"
-                                fullWidth
-                            />
-                        </Grid>
-                        <Grid size={{ xs: 6, md: 3 }}>
-                            <FormControl size="small" fullWidth>
-                                <InputLabel>Status</InputLabel>
-                                <Select
-                                    name="status"
-                                    value={filter.status}
-                                    label="Status"
+                <Card sx={{ p: 2, mb: 2 }}>
+                    <Box display="flex" flexWrap="wrap" gap={2} my={2}>
+                        <Grid container spacing={2}>
+                            <Grid size={{ xs: 12, sm: 6, md: 6 }}>
+                                <TextField
+                                    label="Search by Customer / Email"
+                                    name="customerNameOrEmail"
+                                    value={filter.customerNameOrEmail}
                                     onChange={handleFilterChange}
+                                    size="small"
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                <FormControl size="small" fullWidth>
+                                    <InputLabel>Status</InputLabel>
+                                    <Select
+                                        name="status"
+                                        value={filter.status}
+                                        label="Status"
+                                        onChange={handleFilterChange}
+                                    >
+                                        <MenuItem value="">All</MenuItem>
+                                        <MenuItem value="PENDING">Pending</MenuItem>
+                                        <MenuItem value="CONFIRMED">Confirmed</MenuItem>
+                                        <MenuItem value="SHIPPED">Shipped</MenuItem>
+                                        <MenuItem value="DELIVERED">Delivered</MenuItem>
+                                        <MenuItem value="CANCELLED">Cancelled</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                <FormControl size="small" fullWidth>
+                                    <InputLabel>Method</InputLabel>
+                                    <Select
+                                        name="method"
+                                        value={filter.method}
+                                        label="Method"
+                                        onChange={handleFilterChange}
+                                    >
+                                        <MenuItem value="">All</MenuItem>
+                                        <MenuItem value="COD">COD</MenuItem>
+                                        <MenuItem value="CREDIT_CARD">Credit Card</MenuItem>
+                                        <MenuItem value="E_WALLET">E-Wallet</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                <TextField
+                                    label="From Date"
+                                    type="date"
+                                    name="startDate"
+                                    value={filter.startDate}
+                                    onChange={handleDateFilterChange}
+                                    size="small"
+                                    InputLabelProps={{ shrink: true }}
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                <TextField
+                                    label="To Date"
+                                    type="date"
+                                    name="endDate"
+                                    value={filter.endDate}
+                                    onChange={handleDateFilterChange}
+                                    size="small"
+                                    InputLabelProps={{ shrink: true }}
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6, md: 6 }}>
+                                <Button
+                                    variant="outlined"
+                                    startIcon={<LuRefreshCw/>}
+                                    onClick={handleResetFilters}
+                                    style={{ color: primaryColor, borderColor: primaryColor }}
                                 >
-                                    <MenuItem value="">All</MenuItem>
-                                    <MenuItem value="PENDING">Pending</MenuItem>
-                                    <MenuItem value="CONFIRMED">Confirmed</MenuItem>
-                                    <MenuItem value="SHIPPED">Shipped</MenuItem>
-                                    <MenuItem value="DELIVERED">Delivered</MenuItem>
-                                    <MenuItem value="CANCELLED">Cancelled</MenuItem>
-                                </Select>
-                            </FormControl>
-                        </Grid>
-                        <Grid size={{ xs: 6, md: 3 }}>
-                            <FormControl size="small" fullWidth>
-                                <InputLabel>Method</InputLabel>
-                                <Select
-                                    name="method"
-                                    value={filter.method}
-                                    label="Method"
-                                    onChange={handleFilterChange}
-                                >
-                                    <MenuItem value="">All</MenuItem>
-                                    <MenuItem value="COD">COD</MenuItem>
-                                    <MenuItem value="CREDIT_CARD">Credit Card</MenuItem>
-                                    <MenuItem value="E_WALLET">E-Wallet</MenuItem>
-                                </Select>
-                            </FormControl>
-                        </Grid>
-                        <Grid size={{ xs: 6, md: 3 }}>
-                            <TextField
-                                label="From Date"
-                                type="date"
-                                name="startDate"
-                                value={filter.startDate}
-                                onChange={handleDateFilterChange}
-                                size="small"
-                                InputLabelProps={{ shrink: true }}
-                                fullWidth
-                            />
-                        </Grid>
-                        <Grid size={{ xs: 6, md: 3 }}>
-                            <TextField
-                                label="To Date"
-                                type="date"
-                                name="endDate"
-                                value={filter.endDate}
-                                onChange={handleDateFilterChange}
-                                size="small"
-                                InputLabelProps={{ shrink: true }}
-                                fullWidth
-                            />
-                        </Grid>
-                        <Grid size={{ xs: 6, md: 6 }}>
-                            <Button variant="outlined" onClick={handleResetFilters} style={{ color: primaryColor, borderColor: primaryColor }}>
-                                Reset
-                            </Button>
-                        </Grid>
-                    </Grid>  
-                </Box>
+                                    Reset
+                                </Button>
+                            </Grid>
+                        </Grid>  
+                    </Box>
+                </Card>
 
                 {loading ? (
                     <Box display="flex" justifyContent="center" py={4}>
@@ -284,12 +291,12 @@ useEffect(() => {
                             <Table size="small" sx={{ minWidth: 800 }} aria-label="order table">
                                 <TableHead>
                                     <TableRow sx={{ backgroundColor: '#e0f2f1' }}>
-                                        <TableCell>Ngày đặt hàng</TableCell>
-                                        <TableCell>Khách hàng</TableCell>
-                                        <TableCell>Thanh toán</TableCell>
-                                        <TableCell align="center">Tổng tiền</TableCell>
-                                        <TableCell align="center">Trạng thái</TableCell>
-                                        <TableCell align="left" sx={{ pl: 4 }}>Hành động</TableCell>
+                                        <TableCell sx={{fontWeigth: "bold", fontSize: "1rem"}}>Ngày đặt hàng</TableCell>
+                                        <TableCell sx={{fontWeigth: "bold", fontSize: "1rem"}}>Khách hàng</TableCell>
+                                        <TableCell sx={{fontWeigth: "bold", fontSize: "1rem"}}>Thanh toán</TableCell>
+                                        <TableCell sx={{fontWeigth: "bold", fontSize: "1rem"}} align="center">Tổng tiền</TableCell>
+                                        <TableCell sx={{fontWeigth: "bold", fontSize: "1rem"}} align="center">Trạng thái</TableCell>
+                                        <TableCell sx={{fontWeigth: "bold", fontSize: "1rem", pl: 4 }} align="left">Hành động</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
