@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Badge, IconButton } from '@mui/material';
 import useAuthUser from '../../../hooks/useAuthUser';
 import CartService from '../../../services/CartService';
+import CategoryService from '../../../services/CategoryService';
+import CategorySidebar from './CategorySidebar';
 import UserMenu from './UserMenu';
 import NotificationDropdown from '../../notification/NotificationDropdown';
 import { useNotifications } from '../../../context/NotificationContext';
@@ -17,6 +19,16 @@ const Navbar = ({onAccountClick, setAdminMode, searchValue, setSearchValue, prod
   
   const [showNotificationDropdown, setShowNotificationDropdown] = useState(false);
   const [notificationDropdownTimer, setNotificationDropdownTimer] = useState(null);
+
+  // Category dropdown state
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [categoryDropdownTimer, setCategoryDropdownTimer] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [hoveredCategory, setHoveredCategory] = useState(null);
+  const [sidebarHeight, setSidebarHeight] = useState(0);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const sidebarRef = useRef(null);
+  const floatingMenuRef = useRef(null);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -79,8 +91,121 @@ const Navbar = ({onAccountClick, setAdminMode, searchValue, setSearchValue, prod
       if (dropdownTimer) {
         clearTimeout(dropdownTimer);
       }
+      if (categoryDropdownTimer) {
+        clearTimeout(categoryDropdownTimer);
+      }
     };
   }, [currentUserId]);
+
+  // Load categories
+  useEffect(() => {
+    CategoryService.getCategories()
+      .then(data => setCategories(data))
+      .catch(err => console.error(err));
+  }, []);
+
+  useEffect(() => {
+    if (sidebarRef.current) {
+      setSidebarHeight(sidebarRef.current.clientHeight);
+    }
+  }, [sidebarRef, hoveredCategory]);
+
+  // Scroll detection - for homepage and product detail pages
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      // Show category dropdown when scrolled past 200px (adjust this value as needed)
+      setIsScrolled(scrollTop > 200);
+    };
+
+    // Add scroll listener only for homepage
+    if (location.pathname === '/') {
+      window.addEventListener('scroll', handleScroll);
+      return () => window.removeEventListener('scroll', handleScroll);
+    } else {
+      // Reset scroll state when not on homepage
+      setIsScrolled(false);
+    }
+  }, [location.pathname]);
+
+  // Category dropdown handlers
+  const handleOpenCategoryDropdown = () => {
+    // Clear any existing timers immediately
+    if (categoryDropdownTimer) {
+      clearTimeout(categoryDropdownTimer);
+    }
+    setShowCategoryDropdown(true);
+  };
+
+  const handleCloseCategoryDropdown = () => {
+    // Clear any existing timers immediately
+    if (categoryDropdownTimer) {
+      clearTimeout(categoryDropdownTimer);
+    }
+    // Clear hovered category and close dropdown immediately
+    setHoveredCategory(null);
+    setShowCategoryDropdown(false);
+  };
+
+  const handleStayOpenCategoryDropdown = () => {
+    clearTimeout(categoryDropdownTimer);
+    setShowCategoryDropdown(true);
+  };
+
+  const handleCategoryMouseEnter = (categoryId) => {
+    // Clear any existing timer when hovering a new category
+    if (categoryDropdownTimer) {
+      clearTimeout(categoryDropdownTimer);
+    }
+    // Keep the dropdown open when hovering categories
+    setShowCategoryDropdown(true);
+    setHoveredCategory(categoryId);
+  };
+  
+  const handleCategoryMouseLeave = () => {
+    // Add delay when leaving the main category
+    const timer = setTimeout(() => {
+      setHoveredCategory(null);
+    }, 2000); // Much longer delay to prevent accidental hiding
+    setCategoryDropdownTimer(timer);
+  };
+  
+  const handleFloatingMenuMouseEnter = () => {
+    // Clear any existing timer when entering the floating menu
+    if (categoryDropdownTimer) {
+      clearTimeout(categoryDropdownTimer);
+    }
+    // Keep the dropdown open when hovering subcategories
+    setShowCategoryDropdown(true);
+    // Ensure the hovered category stays active
+    if (hoveredCategory) {
+      setHoveredCategory(hoveredCategory);
+    }
+  };
+  
+  const handleFloatingMenuMouseLeave = () => {
+    // Add delay when leaving the floating menu
+    const timer = setTimeout(() => {
+      setHoveredCategory(null);
+    }, 3000); // Much longer delay to prevent accidental hiding
+    setCategoryDropdownTimer(timer);
+  };
+  const handleGroupHeaderClick = (groupName) => {};
+  const handleChildSubcategoryClick = (subcategoryId, subcategoryName) => {};
+
+  // Separate main categories and subcategories from merged data
+  const mainCategories = categories.filter(cat => !cat.parent);
+  const subcategories = categories.filter(cat => cat.parent);
+
+  // Group subcategories by parent _id
+  const subcategoriesByParent = {};
+  subcategories.forEach(subcat => {
+    const parentId = typeof subcat.parent === 'object' ? subcat.parent.$oid || subcat.parent : subcat.parent || subcat.parent;
+    if (!subcategoriesByParent[parentId]) {
+      subcategoriesByParent[parentId] = [];
+    }
+    subcategoriesByParent[parentId].push(subcat);
+  });
 
   // Calculate total price
   const calculateTotalPrice = () => {
@@ -145,6 +270,54 @@ const Navbar = ({onAccountClick, setAdminMode, searchValue, setSearchValue, prod
               onClick={() => navigate('/')}
             />
           </div>
+          
+                    {/* Category Dropdown - Show when scrolled on homepage OR always on product detail pages */}
+          {((isScrolled && location.pathname === '/') || location.pathname.startsWith('/product/')) && (
+            <div 
+              className='relative'
+              onMouseEnter={handleOpenCategoryDropdown}
+              onMouseLeave={handleCloseCategoryDropdown}
+            >
+              <button
+                className={`flex items-center space-x-3 px-4 py-2 text-white transition-all duration-300 rounded-lg transform ${
+                  showCategoryDropdown 
+                    ? 'bg-green-700 shadow-lg scale-105 text-gray-200' 
+                    : 'hover:text-gray-200 hover:bg-green-700 hover:shadow-lg hover:scale-105'
+                }`}
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-white">
+                  <path d="M3 6H21V8H3V6ZM3 11H21V13H3V11ZM3 16H21V18H3V16Z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span className="text-white font-semibold text-lg">DANH MỤC SẢN PHẨM</span>
+              </button>
+
+              {/* Category Dropdown Menu using CategorySidebar */}
+              {showCategoryDropdown && (
+                <div
+                  className="absolute top-full left-0 z-50"
+                >
+                  <div ref={sidebarRef}>
+                    <CategorySidebar
+                      mainCategories={mainCategories}
+                      subcategoriesByParent={subcategoriesByParent}
+                      hoveredCategory={hoveredCategory}
+                      setHoveredCategory={setHoveredCategory}
+                      sidebarRef={sidebarRef}
+                      sidebarHeight={sidebarHeight}
+                      handleCategoryMouseEnter={handleCategoryMouseEnter}
+                      handleCategoryMouseLeave={handleCategoryMouseLeave}
+                      floatingMenuRef={floatingMenuRef}
+                      handleFloatingMenuMouseEnter={handleFloatingMenuMouseEnter}
+                      handleFloatingMenuMouseLeave={handleFloatingMenuMouseLeave}
+                      handleGroupHeaderClick={handleGroupHeaderClick}
+                      handleChildSubcategoryClick={handleChildSubcategoryClick}
+                      showHeader={false}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
           
           {/* Search Bar */}
           <div className='flex-1 max-w-2xl mx-8'>

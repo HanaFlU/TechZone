@@ -48,6 +48,7 @@ const HomePage = () => {
   const [loading, setLoading] = useState(true);
   const [hoveredCategory, setHoveredCategory] = useState(null);
   const [sidebarHeight, setSidebarHeight] = useState(0);
+  const [isScrolled, setIsScrolled] = useState(false);
   const sidebarRef = useRef(null);
   const floatingMenuRef = useRef(null);
   const [newsIndex, setNewsIndex] = useState(0);
@@ -122,6 +123,18 @@ const HomePage = () => {
     }
   }, [sidebarRef, hoveredCategory]);
 
+  // Scroll detection to hide CategorySidebar
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      // Hide CategorySidebar when scrolled past 200px (same threshold as navbar)
+      setIsScrolled(scrollTop > 200);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   // Transfer guest cart when user logs in
   useEffect(() => {
     if (currentUserId) {
@@ -143,10 +156,28 @@ const HomePage = () => {
     subcategoriesByParent[parentId].push(subcat);
   });
 
-  const handleCategoryMouseEnter = (categoryId) => setHoveredCategory(categoryId);
-  const handleCategoryMouseLeave = () => setHoveredCategory(null);
-  const handleFloatingMenuMouseEnter = () => {};
-  const handleFloatingMenuMouseLeave = () => setHoveredCategory(null);
+  const handleCategoryMouseEnter = (categoryId) => {
+    setHoveredCategory(categoryId);
+  };
+  
+  const handleCategoryMouseLeave = () => {
+    const timer = setTimeout(() => {
+      setHoveredCategory(null);
+    }, 2000); // 2 second delay when leaving main category
+  };
+  
+  const handleFloatingMenuMouseEnter = () => {
+    // Keep the hovered category active
+    if (hoveredCategory) {
+      setHoveredCategory(hoveredCategory);
+    }
+  };
+  
+  const handleFloatingMenuMouseLeave = () => {
+    const timer = setTimeout(() => {
+      setHoveredCategory(null);
+    }, 3000); // 3 second delay when leaving floating menu
+  };
   const handleGroupHeaderClick = (groupName) => {};
   const handleChildSubcategoryClick = (subcategoryId, subcategoryName) => {};
 
@@ -270,23 +301,28 @@ const HomePage = () => {
       <div className="flex-1">
         <div className="container mx-auto px-4 pt-0 pb-4 -mt-2">
           <div className="flex gap-8 mb-8 relative">
-            <div ref={sidebarRef}>
-              <CategorySidebar
-                mainCategories={mainCategories}
-                subcategoriesByParent={subcategoriesByParent}
-                hoveredCategory={hoveredCategory}
-                setHoveredCategory={setHoveredCategory}
-                sidebarRef={sidebarRef}
-                sidebarHeight={sidebarHeight}
-                handleCategoryMouseEnter={handleCategoryMouseEnter}
-                handleCategoryMouseLeave={handleCategoryMouseLeave}
-                floatingMenuRef={floatingMenuRef}
-                handleFloatingMenuMouseEnter={handleFloatingMenuMouseEnter}
-                handleFloatingMenuMouseLeave={handleFloatingMenuMouseLeave}
-                handleGroupHeaderClick={handleGroupHeaderClick}
-                handleChildSubcategoryClick={handleChildSubcategoryClick}
-              />
-            </div>
+            {!isScrolled && (
+              <div 
+                ref={sidebarRef}
+                onMouseLeave={() => setHoveredCategory(null)}
+              >
+                <CategorySidebar
+                  mainCategories={mainCategories}
+                  subcategoriesByParent={subcategoriesByParent}
+                  hoveredCategory={hoveredCategory}
+                  setHoveredCategory={setHoveredCategory}
+                  sidebarRef={sidebarRef}
+                  sidebarHeight={sidebarHeight}
+                  handleCategoryMouseEnter={handleCategoryMouseEnter}
+                  handleCategoryMouseLeave={handleCategoryMouseLeave}
+                  floatingMenuRef={floatingMenuRef}
+                  handleFloatingMenuMouseEnter={handleFloatingMenuMouseEnter}
+                  handleFloatingMenuMouseLeave={handleFloatingMenuMouseLeave}
+                  handleGroupHeaderClick={handleGroupHeaderClick}
+                  handleChildSubcategoryClick={handleChildSubcategoryClick}
+                />
+              </div>
+            )}
             {/* Banner/Ads Placeholder */}
             <div className="flex-1 mt-6">
               <div

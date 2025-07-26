@@ -197,7 +197,7 @@ const AdminCustomerOrderList = () => {
                                     <TableCell sx={{fontWeigth: "bold", fontSize: "1rem"}}>Thanh toán</TableCell>
                                     <TableCell sx={{fontWeigth: "bold", fontSize: "1rem"}} align="center">Tổng tiền</TableCell>
                                     <TableCell sx={{fontWeigth: "bold", fontSize: "1rem"}} align="center">Trạng thái</TableCell>
-                                    <TableCell sx={{fontWeigth: "bold", fontSize: "1rem"}} align="left" sx={{ pl: 4 }}>Hành động</TableCell>
+                                    <TableCell sx={{fontWeigth: "bold", fontSize: "1rem", pl: 4}} align="left">Hành động</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
