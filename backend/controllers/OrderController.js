@@ -409,39 +409,72 @@ const OrderController = {
             res.status(500).json({ message: 'Lỗi server khi cập nhật trạng thái đơn hàng.', error: error.message });
         }
     },
-    getDailyRevenue: async (req, res) => {
+    getRevenueTrend: async (req, res) => {
         try {
+            const { period = 'monthly' } = req.query; // 'daily', 'weekly', 'monthly', 'quarterly'
+            let groupByFormat;
+            let startDate;
+            const now = new Date();
+
+            switch (period) {
+                case 'daily':
+                    // Lấy dữ liệu 30 ngày gần nhất
+                    startDate = new Date();
+                    startDate.setDate(now.getDate() - 29); // 30 ngày bao gồm hôm nay
+                    groupByFormat = "%Y-%m-%d";
+                    break;
+                case 'weekly':
+                    // Lấy dữ liệu 12 tuần gần nhất
+                    startDate = new Date();
+                    startDate.setDate(now.getDate() - (12 * 7)); // 12 tuần
+                    groupByFormat = "%Y-%U"; // %U cho tuần trong năm (00-53)
+                    break;
+                case 'monthly':
+                    // Lấy dữ liệu 12 tháng gần nhất
+                    startDate = new Date();
+                    startDate.setMonth(now.getMonth() - 11); // 12 tháng
+                    startDate.setDate(1); // Bắt đầu từ ngày 1 của tháng đó
+                    groupByFormat = "%Y-%m";
+                    break;
+                case 'quarterly':
+                    // Lấy dữ liệu 4 quý gần nhất (1 năm)
+                    startDate = new Date();
+                    startDate.setMonth(now.getMonth() - 11); // 12 tháng trước
+                    startDate.setDate(1);
+                    // Tính quý hiện tại và quý bắt đầu
+                    const currentMonth = now.getMonth();
+                    const startQuarterMonth = currentMonth - (currentMonth % 3);
+                    startDate = new Date(now.getFullYear(), startQuarterMonth - 9, 1); // 4 quý trước
+                    groupByFormat = "%Y-Q%q"; // %q cho quý
+                    break;
+                default:
+                    // Mặc định là monthly
+                    startDate = new Date();
+                    startDate.setMonth(now.getMonth() - 11);
+                    startDate.setDate(1);
+                    groupByFormat = "%Y-%m";
+            }
+
             const revenueData = await Order.aggregate([
                 {
                     $match: {
-                        status: { $ne: 'CANCELLED' },
-                        paymentStatus: 'SUCCESSED' // hoặc thêm COD nếu bạn tính COD là đã thanh toán
+                        createdAt: { $gte: startDate, $lte: now },
+                        paymentStatus: 'SUCCESSED',
+                        status: { $ne: 'CANCELLED' }
                     }
                 },
                 {
                     $group: {
-                        _id: {
-                            $dateToString: { format: "%Y-%m-%d", date: "$orderDate" }
-                        },
+                        _id: { $dateToString: { format: groupByFormat, date: "$createdAt", timezone: "Asia/Ho_Chi_Minh" } },
                         totalRevenue: { $sum: "$totalAmount" }
                     }
                 },
-                {
-                    $sort: { _id: 1 }
-                },
-                {
-                    $project: {
-                        _id: 0,
-                        date: "$_id",
-                        totalRevenue: 1
-                    }
-                }
+                { $sort: { _id: 1 } }
             ]);
 
-            res.status(200).json(revenueData);
-        } catch (error) {
-            console.error("Lỗi khi tính doanh thu theo ngày:", error);
-            res.status(500).json({ message: "Lỗi server khi tính doanh thu.", error: error.message });
+            res.json({ success: true, data: revenueData });
+        } catch (err) {
+            res.status(500).json({ success: false, message: err.message });
         }
     },
     getRevenueSummary: async (req, res) => {
@@ -509,6 +542,39 @@ const OrderController = {
         } catch (error) {
             console.error("Lỗi khi lấy tổng doanh thu:", error);
             res.status(500).json({ message: "Lỗi server", error: error.message });
+        }
+    },
+    getOrderStatistics: async (req, res) => {
+        try {
+            const orderStatistics = await Order.aggregate([
+                {
+                    $group: {
+                        _id: "$status",
+                        count: { $sum: 1 }
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        status: "$_id",
+                        count: 1
+                    }
+                }
+            ]);
+
+            // Tính tổng số đơn hàng
+            const totalOrders = orderStatistics.reduce((sum, item) => sum + item.count, 0);
+
+            res.status(200).json({
+                success: true,
+                data: {
+                    totalOrders: totalOrders,
+                    ordersByStatus: orderStatistics
+                }
+            });
+        } catch (error) {
+            console.error("Lỗi khi lấy thống kê đơn hàng:", error);
+            res.status(500).json({ success: false, message: "Lỗi server", error: error.message });
         }
     },
 };

@@ -51,28 +51,31 @@ class OrderService {
     }
     async getRevenueSummary() {
         try {
-            const response = await this.api.get('/revenue/sumary');
+            const response = await this.api.get('/revenue/summary');
             return response.data;
         } catch (error) {
             console.error('OrderService Error: Failed to get revenue summary:', error.response ? error.response.data : error.message);
             throw error;
         }
     }
-    async getDailyRevenue() {
+    async getRevenueTrend(period = 'month') {
         try {
-            const response = await this.api.get('/revenue/daily');
-            return response.data;
+            const response = await this.api.get(`/revenue/trend`, {
+                params: { period }
+            });
+            return response.data.data;
         } catch (error) {
-            console.error('OrderService Error: Failed to get daily revenue:', error.response ? error.response.data : error.message);
+            console.error(`OrderService Error: Failed to get ${period} revenue trend:`, error.response ? error.response.data : error.message);
             throw error;
         }
     }
-    async getRevenuePerDayThisMonth() {
+    async getOrderStatistics() {
         try {
-            const response = await this.api.get('/revenue/by-day');
-            return response.data;
+            console.log('OrderService: Attempting to GET order statistics.');
+            const response = await this.api.get('/statistics');
+            return response.data.data;
         } catch (error) {
-            console.error('OrderService Error: Failed to get revenue per day this month:', error.response ? error.response.data : error.message);
+            console.error('OrderService Error: Failed to get order statistics:', error.response ? error.response.data : error.message);
             throw error;
         }
     }

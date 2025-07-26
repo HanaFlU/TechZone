@@ -71,7 +71,7 @@ const App = () => {
             products={products}
           />
         )}
-        <main className='flex-1'>
+        <main className='abcs'>
           {adminMode ? (
             <Sidebar onVisitStore={() => {
               setAdminMode(false);
