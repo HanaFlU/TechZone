@@ -162,7 +162,6 @@ const OrderHistoryPage = () => {
                     </div>
                     <div>
                       <p className="font-medium text-gray-800">{item.product?.name || "Sản phẩm không xác định"}</p>
-                      <p className="text-xs text-gray-500">Phân loại: {item.product?.variants?.map(v => typeof v === 'object' ? v.value : v).join(', ') || 'N/A'}</p>
                       <p className="text-xs text-gray-600">Số lượng: {item.quantity} x {formatCurrency(item.priceAtOrder)}</p>
                     </div>
                     <div className="text-right font-medium text-gray-800">

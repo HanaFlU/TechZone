@@ -4,58 +4,38 @@ const Product = require('../models/ProductModel.js');
 const Order = require('../models/OrderModel.js');
 const PaymentController = {
     createStripePaymentIntent: async (req, res) => {
-        const { customerId, shippingAddressId, shippingFee, discountAmount } = req.body;
-        if (!customerId || !shippingAddressId || shippingFee == undefined) {
-            return res.status(400).json({ message: 'Thiếu thông tin khách hàng hoặc địa chỉ giao hàng.' });
+        const { customerId, shippingAddressId, amount, shippingFee, discountAmount } = req.body;
+        if (!customerId || !shippingAddressId || amount === undefined || amount <= 0) {
+            return res.status(400).json({ message: 'Thiếu hoặc sai thông tin thanh toán (customerId, shippingAddressId, totalAmount).' });
         }
 
         try {
-            const cart = await Cart.findOne({ customer: customerId }).populate('items.product');
-            if (!cart || cart.items.length === 0) {
-                return res.status(404).json({ message: 'Không tìm thấy giỏ hàng hoặc giỏ hàng trống!' });
+            const safeTotalAmount = parseFloat(amount);
+            if (isNaN(safeTotalAmount) || safeTotalAmount <= 0) {
+                return res.status(400).json({ message: 'Số tiền thanh toán không hợp lệ.' });
             }
+            const amountInMinorUnits = Math.round(safeTotalAmount);
 
-            let productTotalAmount = 0;
-            const orderItemsForPayment = [];
-            // Lấy sai chỗ
-            for (const cartItem of cart.items) {
-                const product = cartItem.product;
-                const quantity = cartItem.quantity;
-
-                if (!product) {
-                    console.warn(`Không tìm thấy sản phẩm với ID ${cartItem.product._id} trong cartItem.`);
-                    return res.status(400).json({ message: `Không tìm thấy sản phẩm trong giỏ hàng: ${cartItem.product._id}.` });
-                }
-
-                // Kiểm tra tồn kho trước khi tạo PaymentIntent
-                if (product.stock < quantity) {
-                    return res.status(400).json({ message: `Không đủ số lượng sản phẩm ${product.name} trong kho. Kho: ${product.stock}, Số lượng đặt: ${quantity}` });
-                }
-
-                productTotalAmount += product.price * quantity;
-                orderItemsForPayment.push({
-                    productId: product._id.toString(),
-                    quantity: quantity,
-                    priceAtOrder: product.price
-                });
-            }
-
-            const totalAmount = productTotalAmount - discountAmount + shippingFee;
-            const amountInMinorUnits = Math.round(totalAmount);
-
-            console.log('Final amount to send to Stripe:', amountInMinorUnits);
+            console.log('Final amount to send to Stripe (rounded):', amountInMinorUnits);
+            console.log('Currency for PaymentIntent:', 'vnd');
 
             const paymentIntent = await stripe.paymentIntents.create({
                 amount: amountInMinorUnits,
                 currency: 'vnd',
                 payment_method_types: ['card'],
+                description: `Payment for customer ${customerId}`,
+                metadata: {
+                    customerId: customerId,
+                    shippingAddressId: shippingAddressId,
+                    shippingFee: shippingFee,
+                    discountAmount: discountAmount
+                }
             });
 
             res.status(200).json({
                 clientSecret: paymentIntent.client_secret,
                 message: 'PaymentIntent đã được tạo thành công!',
-                totalAmount: totalAmount,
-                orderItems: orderItemsForPayment,
+                amount: amount,
             });
 
         } catch (error) {

@@ -272,6 +272,66 @@ const CustomerController = {
             res.status(500).json({ message: 'Server error while deleting customer.', error: error.message });
         }
     },
+    getCustomerNotifications: async (req, res) => {
+        try {
+            const userId = req.user.id;
+            console.log(`[Backend] Fetching notifications for user ID: ${userId}`);
+
+            const customer = await Customer.findOne({ user: userId })
+                .populate({
+                    path: 'notifications.orderId',
+                    select: 'orderNumber status'
+                });
+
+            if (!customer) {
+                return res.status(404).json({ message: 'Không tìm thấy hồ sơ khách hàng cho người dùng này.' });
+            }
+            res.status(200).json(customer.notifications);
+        } catch (error) {
+            console.error('Lỗi khi lấy thông báo khách hàng:', error);
+            res.status(500).json({ message: 'Lỗi server khi lấy thông báo khách hàng.', error: error.message });
+        }
+    },
+    markNotificationAsRead: async (req, res) => {
+        try {
+            const userId = req.user.id;
+            const { notificationId } = req.params;
+            const customer = await Customer.findOne({ user: userId });
+            if (!customer) {
+                return res.status(404).json({ message: 'Không tìm thấy hồ sơ khách hàng.' });
+            }
+            const notification = customer.notifications.id(notificationId);
+            if (!notification) {
+                return res.status(404).json({ message: 'Không tìm thấy thông báo.' });
+            }
+            notification.isRead = true;
+            await customer.save();
+            res.status(200).json({ message: 'Thông báo đã được đánh dấu là đã đọc.', notification });
+        } catch (error) {
+            console.error("Lỗi khi đánh dấu thông báo đã đọc:", error);
+            res.status(500).json({ message: 'Lỗi server khi đánh dấu thông báo đã đọc.', error: error.message });
+        }
+    },
+
+    markAllNotificationsAsRead: async (req, res) => {
+        try {
+            const userId = req.user.id;
+            const customer = await Customer.findOne({ user: userId });
+            if (!customer) {
+                return res.status(404).json({ message: 'Không tìm thấy hồ sơ khách hàng.' });
+            }
+            customer.notifications.forEach(notif => {
+                if (!notif.isRead) {
+                    notif.isRead = true;
+                }
+            });
+            await customer.save();
+            res.status(200).json({ message: 'Tất cả thông báo đã được đánh dấu là đã đọc.' });
+        } catch (error) {
+            console.error("Lỗi khi đánh dấu tất cả thông báo đã đọc:", error);
+            res.status(500).json({ message: 'Lỗi server khi đánh dấu tất cả thông báo đã đọc.', error: error.message });
+        }
+    },
 };
 
 module.exports = CustomerController;

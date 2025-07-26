@@ -11,6 +11,10 @@ const DetailOrder = ({
   getPaymentMethodName,
 }) => {
   if (!selectedOrder) return null;
+  const initialSubtotal = selectedOrder.items.reduce((sum, item) => {
+    return sum + (item.priceAtOrder * item.quantity);
+  }, 0);
+
 
   return (
     <div>
@@ -105,7 +109,6 @@ const DetailOrder = ({
             </div>
             <div className="flex-grow">
                 <p className="font-medium text-gray-800">{item.product?.name || "Sản phẩm không xác định"}</p>
-                <p className="text-sm text-gray-500">Phân loại: {item.product?.variants?.map(v => typeof v === 'object' ? v.value : v).join(', ') || 'N/A'}</p>
                 <p className="text-sm text-gray-600">Số lượng: {item.quantity}</p>
             </div>
             <div className="text-right font-semibold text-gray-800">
@@ -119,8 +122,15 @@ const DetailOrder = ({
       <div className="border-t border-gray-200 pt-4 text-secondary mb-2 pl-[34vw]">
           <div className="flex justify-between">
               <span>Tổng tiền hàng</span>
-              <span>{formatCurrency(selectedOrder.totalAmount - (selectedOrder.shippingFee?.amount || selectedOrder.shippingFee || 0))}</span>
+              <span>{formatCurrency(initialSubtotal)}</span>
           </div>
+          {/* Hiển thị Voucher chỉ khi discountAmount > 0 */}
+          {selectedOrder.discountAmount > 0 && (
+            <div className="flex justify-between">
+              <span>Voucher</span>
+              <span className="text-emerald-600/70">- {formatCurrency(selectedOrder.discountAmount)}</span>
+            </div>
+          )}
           <div className="flex justify-between ">
               <span>Phí vận chuyển</span>
               <span>{formatCurrency(selectedOrder.shippingFee?.amount || selectedOrder.shippingFee || 0)}</span>

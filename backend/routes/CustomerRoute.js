@@ -7,6 +7,9 @@ const router = express.Router();
 router.get('/', checkPermission(["AD", "MANAGER"], "MANAGE_USERS"), customerController.findAll);
 router.post('/', checkPermission(["AD", "MANAGER"], "MANAGE_USERS"), customerController.createCustomer);
 router.get('/by-user/:userId', customerController.getCustomerByUserId);
+router.get('/notifications', customerController.getCustomerNotifications);
+router.put('/notifications/:notificationId/read', customerController.markNotificationAsRead);
+router.put('/notifications/mark-all-read', customerController.markAllNotificationsAsRead);
 
 router.get('/:userId/account', customerController.getUserInfo);
 router.put('/:userId/account', customerController.updateUserInfo);

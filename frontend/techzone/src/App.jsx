@@ -31,6 +31,7 @@ import RegisterModal from './components/auth/RegisterModal';
 import ProductService from './services/ProductService';
 
 import { AuthContext, AuthProvider } from './context/AuthContext'
+import { NotificationProvider } from './context/NotificationContext';
 import AdminRoute from './routes/AdminRoute';
 import ProtectedRoute from './routes/ProtectedRoute';
 import { useContext } from 'react';
@@ -125,9 +126,11 @@ const App = () => {
 
 const AppWithRouter = () => (
   <AuthProvider>
-  <Router>
-    <App />
-  </Router>
+    <NotificationProvider>
+      <Router>
+        <App />
+      </Router>
+    </NotificationProvider>
   </AuthProvider>
 );
 

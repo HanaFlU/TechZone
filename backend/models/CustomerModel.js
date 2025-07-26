@@ -1,5 +1,31 @@
 const mongoose = require('mongoose');
-
+const customerNotificationSchema = new mongoose.Schema({
+    message: {
+        type: String,
+        required: true,
+    },
+    orderId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Order',
+        required: true,
+    },
+    oldStatus: {
+        type: String,
+        required: true,
+    },
+    newStatus: {
+        type: String,
+        required: true,
+    },
+    isRead: {
+        type: Boolean,
+        default: false,
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
+});
 const customerSchema = new mongoose.Schema(
     {
         user: {
@@ -14,6 +40,7 @@ const customerSchema = new mongoose.Schema(
                 ref: 'Address',
             },
         ],
+        notifications: [customerNotificationSchema],
     },
     {
         timestamps: true,
