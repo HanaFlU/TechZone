@@ -4,6 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 import ProductService from '../services/ProductService';
 import CartService from '../services/CartService';
 import useNotification from '../hooks/useNotification';
+import ProductReview from './ProductReview';
 
 const ProductDetailPage = () => {
   const { id } = useParams();
@@ -32,7 +33,6 @@ const ProductDetailPage = () => {
         setLoading(false);
       }
     };
-
     if (id) {
       fetchProduct();
     }
@@ -385,9 +385,12 @@ const ProductDetailPage = () => {
             )}
           </div>
         </div>
+       
+        {/* Product Review Component */}
+        <ProductReview productId={id} />
+
       </div>
     </div>
   );
 };
-
-export default ProductDetailPage; 
+export default ProductDetailPage;

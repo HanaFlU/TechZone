@@ -17,6 +17,7 @@ const ShippingRateRoute = require("./routes/ShippingRateRoute.js");
 const productRoutes = require('./routes/ProductRoute');
 const CategoryRoute = require('./routes/CategoryRoute.js');
 const VoucherRoute = require("./routes/VoucherRoute.js");
+const ReviewRoute = require("./routes/ReviewRoute.js");
 
 const SaleEventRoute = require("./routes/SaleEventRoute.js");
 
@@ -54,6 +55,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/categories', CategoryRoute);
 
 app.use('/api/sale-events', SaleEventRoute);
+app.use('/api/reviews', ReviewRoute);
 
 
 const PORT = process.env.PORT || 8000;
