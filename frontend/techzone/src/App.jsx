@@ -22,6 +22,7 @@ import AdminCustomerOrderList from './pages/Admin/ManageUsers/AdminCustomerOrder
 import AdminCategory from './pages/Admin/ManageCategories/AdminCategory';
 import AdminProduct from './pages/Admin/ManageProducts/AdminProduct';
 import AdminOrderList from './pages/Admin/ManageOrders/AdminOrderList';
+import AdminVoucher from './pages/Admin/ManageVoucher/AdminVoucher';
 
 import NotFoundPage from './pages/NotFoundPage';
 
@@ -82,6 +83,7 @@ const App = () => {
                   <Route path="/admin/dashboard" element={<AdminDashboard />} />
                   <Route path="/admin/products" element={<AdminProduct />} />
                   <Route path="/admin/category" element={<AdminCategory />} />
+                  <Route path="/admin/vouchers" element={<AdminVoucher />} />
                   <Route path="/admin/orders" element={<AdminOrderList />} /> 
                   <Route path="/admin/customers" element={<AdminCustomer />} />
                   <Route path="/admin/customer-order/:customerId" element={<AdminCustomerOrderList />} />

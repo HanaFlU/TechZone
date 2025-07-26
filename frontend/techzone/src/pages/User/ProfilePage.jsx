@@ -4,7 +4,7 @@ import CustomerService from '../../services/CustomerService';
 import Input from '../../components/Input/Input';
 import Select from '../../components/Input/Select';
 import Button from '../../components/button/Button';
-import Notification from '../../components/button/Notification';
+import NotificationContainer from '../../components/button/NotificationContainer';
 import useNotification from '../../hooks/useNotification';
 import UserService from '../../services/UserService';
 
@@ -13,9 +13,7 @@ const ProfilePage = () => {
 
   const [userProfile, setUserProfile] = useState(initialUserProfile);
   const {
-    notificationMessage, 
-    notificationType, 
-    showNotification, 
+    notifications,  
     displayNotification, 
     closeNotification
   } = useNotification();
@@ -47,8 +45,6 @@ const ProfilePage = () => {
   };
 
   const handleSaveProfile = async () => {
-    displayNotification('', '');
-
     try {
       if (!currentUserId) {
         throw new Error("Không tìm thấy User ID. Vui lòng đăng nhập.");
@@ -96,13 +92,10 @@ const ProfilePage = () => {
 
   return (
     <>
-      {showNotification && (
-        <Notification
-            message={notificationMessage}
-            type={notificationType}
-            onClose={closeNotification}
-        />
-      )}
+      <NotificationContainer
+        notifications={notifications}
+        onClose={closeNotification}
+      />
       <h2 className="text-2xl text-gray-800 font-bold mb-4">Hồ sơ của tôi</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-2 text-base">
