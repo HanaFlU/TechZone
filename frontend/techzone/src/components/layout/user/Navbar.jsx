@@ -1,17 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { Badge, IconButton } from '@mui/material';
 import useAuthUser from '../../../hooks/useAuthUser';
 import CartService from '../../../services/CartService';
 import UserMenu from './UserMenu';
+import NotificationDropdown from '../../notification/NotificationDropdown';
+import { useNotifications } from '../../../context/NotificationContext';
+import { BellAlertIcon } from '@heroicons/react/24/solid';
+
 
 const Navbar = ({onAccountClick, setAdminMode, searchValue, setSearchValue, products = []}) => {
   const [cartItemCount, setCartItemCount] = useState(0);
   const [cartData, setCartData] = useState(null);
   const [showCartDropdown, setShowCartDropdown] = useState(false);
   const [dropdownTimer, setDropdownTimer] = useState(null);
+  
+  const [showNotificationDropdown, setShowNotificationDropdown] = useState(false);
+  const [notificationDropdownTimer, setNotificationDropdownTimer] = useState(null);
+
   const navigate = useNavigate();
   const location = useLocation();
-  const { currentUserId } = useAuthUser();
+  const { currentUserId } = useAuthUser(); 
+  const { unreadCount, fetchNotifications } = useNotifications();
 
   // Load cart data
   useEffect(() => {
@@ -106,6 +116,25 @@ const Navbar = ({onAccountClick, setAdminMode, searchValue, setSearchValue, prod
     navigate('/cart');
   }
 
+  //Notification
+  const handleOpenNotificationsDropdown = () => {
+    clearTimeout(notificationDropdownTimer); 
+    setShowNotificationDropdown(true);
+    fetchNotifications(); 
+  };
+
+  const handleCloseNotificationsDropdown = () => {
+    const timer = setTimeout(() => {
+      setShowNotificationDropdown(false);
+    }, 500); 
+    setNotificationDropdownTimer(timer);
+  };
+
+  const handleStayOpenNotificationsDropdown = () => {
+    clearTimeout(notificationDropdownTimer); 
+    setShowNotificationDropdown(true);
+  };
+
   return (
       <nav className='bg-dark-green text-white px-4 py-3 flex justify-between items-center sticky top-0 z-50' >
           <div className='flex items-center'>
@@ -169,6 +198,28 @@ const Navbar = ({onAccountClick, setAdminMode, searchValue, setSearchValue, prod
           
           <div className='flex items-center space-x-4'>
             <UserMenu onClick={onAccountClick} setAdminMode={setAdminMode} />
+            {/* Notification Icon with Dropdown */}
+            {currentUserId && (
+            <div className='relative'>
+              <IconButton
+                onClick={handleOpenNotificationsDropdown}
+                onMouseEnter={handleOpenNotificationsDropdown}
+                onMouseLeave={handleCloseNotificationsDropdown}
+                color="inherit"
+              >
+                <Badge badgeContent={unreadCount} color="error">
+                  <BellAlertIcon className="h-6 w-6" />
+                </Badge>
+              </IconButton>
+              
+              <NotificationDropdown
+                show={showNotificationDropdown && location.pathname !== '/account/orders'} 
+                onMouseEnter={handleStayOpenNotificationsDropdown} 
+                onMouseLeave={handleCloseNotificationsDropdown} 
+                onClose={() => setShowNotificationDropdown(false)} 
+              />
+            </div>
+          )}
             
             {/* Cart Icon with Dropdown */}
             <div className='relative'>

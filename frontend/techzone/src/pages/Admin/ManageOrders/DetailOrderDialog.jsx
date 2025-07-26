@@ -13,6 +13,7 @@ import {
 const textColor = '#333';
 const lightGray = '#f5f5f5';
 
+
 const Info = ({ label, value, sx = {} }) => (
   <Typography variant="body2" sx={{ mb: 0.5, ...sx }}>
     <Typography variant="body2" component="span" color={textColor}>{label}:</Typography> {value}
@@ -28,7 +29,6 @@ const DetailOrderDialog = ({
   getStatusChipColor
 }) => {
   if (!selectedOrder) return null;
-
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xl" width="xl">
       <DialogContent sx={{ p: 4, pb: 0, backgroundColor: 'white', overflow: 'hidden' }}> 
@@ -128,7 +128,12 @@ const DetailOrderDialog = ({
             </Grid>
             {/* Thông tin thanh toán */}
             <Grid size={{ md: 3.2 }}>
-                
+                {selectedOrder.discountAmount > 0 && (
+                  <Box display="flex" alignItems="center" mt={1}>
+                      <Typography sx={{ fontWeight: 'bold', color: textColor, mr: 1}}>Voucher:</Typography>
+                      <Typography sx={{ color: "oklch(50.8% 0.118 165.612 / 0.7)"}}>-{selectedOrder.discountAmount.toLocaleString('vi-VN')} VND</Typography>
+                  </Box>
+                )}
                 <Box display="flex" alignItems="center" mt={1}>
                     <Typography sx={{ fontWeight: 'bold', color: textColor, mr: 1}}>Phí vận chuyển:</Typography>
                     <Typography >{selectedOrder.shippingFee ? `${selectedOrder.shippingFee.toLocaleString('vi-VN')} VND` : 'Free'}</Typography>

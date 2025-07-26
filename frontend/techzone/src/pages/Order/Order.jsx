@@ -10,7 +10,7 @@ import AddressForm from '../User/Address/AddressForm';
 import Breadcrumb from '../../components/Breadcrumb';
 import Button from '../../components/button/Button';
 import { PlusIcon } from '@heroicons/react/24/outline';
-import Notification from '../../components/button/Notification';
+import NotificationContainer from '../../components/button/NotificationContainer';
 import useNotification from '../../hooks/useNotification';
 import StripeWrapper from './Payment';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
@@ -18,9 +18,7 @@ import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 const OrderForm = () => {
   const navigate = useNavigate();
   const {
-    notificationMessage, 
-    notificationType, 
-    showNotification, 
+    notifications,
     displayNotification, 
     closeNotification
   } = useNotification();
@@ -40,14 +38,13 @@ const OrderForm = () => {
   const elements = useElements();
 
   const [voucherCodeInput, setVoucherCodeInput] = useState('');
-  const [appliedVoucher, setAppliedVoucher] = useState(null); // Lưu thông tin voucher đã áp dụng
+  const [appliedVoucher, setAppliedVoucher] = useState(null);
   const [discountAmount, setDiscountAmount] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       setError(null);
-      displayNotification('', '');
       try {
         // Lấy dữ liệu giỏ hàng từ localStorage
         const storedCart = localStorage.getItem('checkoutData');
@@ -137,11 +134,10 @@ const OrderForm = () => {
                 setDiscountAmount(0);
                 displayNotification(res.message || "Lỗi không xác định khi áp dụng voucher.", "error");
             }
-        } catch (err) {
+        } catch {
             setAppliedVoucher(null);
             setDiscountAmount(0);
-            const errorMessage = err.message || err.response?.data?.message || "Đã xảy ra lỗi khi áp dụng voucher.";
-            displayNotification(errorMessage, "error");
+            displayNotification("Không thể áp dụng voucher.", "error");
         }
   }, [voucherCodeInput, calculateSubTotal, currentCustomerId, displayNotification]);
   
@@ -211,7 +207,8 @@ const OrderForm = () => {
             amount: finalTotalAmount,
             shippingFee: shippingFee,
             discountAmount: discountAmount,
-            currency: 'VND'
+            currency: 'VND',
+            voucherCode: appliedVoucher ? appliedVoucher.code : null
           });
 
           if (!paymentIntentResponse.clientSecret) {
@@ -261,12 +258,14 @@ const OrderForm = () => {
           shippingFee: shippingFee,
           transactionId: stripeTransactionId,
           paymentStatus: finalPaymentStatus,
-          discountAmount: discountAmount
+          discountAmount: discountAmount,
+          voucherCode: appliedVoucher ? appliedVoucher.code : null
       };
       
       const orderResponse = await OrderService.createOrder(orderCreationPayload);
       if (orderResponse.order) {
         localStorage.removeItem('checkoutData');
+        window.dispatchEvent(new Event('cartUpdated'));
         
         const finalMessage = finalPaymentStatus === 'SUCCESSED' || paymentMethod === 'COD' ?
             'Đơn hàng đã được tạo thành công!' :
@@ -287,7 +286,7 @@ const OrderForm = () => {
     }
   }, [cartData, currentCustomerId, selectedAddressId, paymentMethod, 
       displayNotification, navigate, stripe, elements, 
-      calculateSubTotal, calculateFinalTotal, shippingFee, setCartData ]);
+      calculateSubTotal, calculateFinalTotal, shippingFee, setCartData, appliedVoucher ]);
     
   // Hàm reload địa chỉ sau khi thêm mới thành công
   const reloadAddresses = useCallback(async () => {
@@ -330,13 +329,10 @@ const OrderForm = () => {
         </div>
       ) : (
         <div>
-          {showNotification && (
-            <Notification
-                message={notificationMessage}
-                type={notificationType}
-                onClose={closeNotification}
-            />
-          )}
+          <NotificationContainer
+              notifications={notifications}
+              onClose={closeNotification}
+          />
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
             {/* Left side */}
             <div className="lg:col-span-3 space-y-5">

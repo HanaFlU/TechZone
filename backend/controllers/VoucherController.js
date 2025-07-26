@@ -1,10 +1,7 @@
-// server/controllers/VoucherController.js
-const Voucher = require('../models/VoucherModel'); // Đảm bảo đường dẫn đúng
-const Customer = require('../models/CustomerModel'); // Đảm bảo đường dẫn đúng và CustomerModel tồn tại
+const Voucher = require('../models/VoucherModel');
+const Customer = require('../models/CustomerModel');
 
 const VoucherController = {
-    // Hàm hỗ trợ nội bộ để validate và tính toán giảm giá
-    // Hàm này sẽ được gọi từ applyVoucher API và OrderController
     _validateAndCalculateDiscountInternal: async (code, currentTotalAmount, customerId) => {
         const voucher = await Voucher.findOne({ code: code.toUpperCase() });
 
@@ -66,16 +63,16 @@ const VoucherController = {
             isFreeShipping: voucher.discountType === 'FREE_SHIPPING'
         };
     },
-
-    // Hàm hỗ trợ nội bộ để đánh dấu voucher đã sử dụng
     _markVoucherAsUsedInternal: async (voucherId, customerId) => {
         const voucher = await Voucher.findById(voucherId);
         if (voucher) {
             voucher.usedCount += 1;
-            // Đảm bảo customerId chưa có trong danh sách trước khi push
-            if (customerId && !voucher.usersUsed.map(id => id.toString()).includes(customerId.toString())) {
+            if (voucher.usersUsed && !voucher.usersUsed.includes(customerId)) {
                 voucher.usersUsed.push(customerId);
+            } else if (!voucher.usersUsed) {
+                voucher.usersUsed = [customerId];
             }
+
             await voucher.save();
         }
     },

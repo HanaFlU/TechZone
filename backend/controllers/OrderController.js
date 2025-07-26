@@ -1,15 +1,14 @@
 const Order = require('../models/OrderModel.js');
 const Cart = require('../models/CartModel.js');
 const Product = require('../models/ProductModel.js');
-const Customer = require('../models/CustomerModel.js');
+const Customer = require('../models/CustomerModel.js')
 const User = require('../models/UserModel.js');
 const ShippingRate = require('../models/ShippingRateModel.js');
+const Voucher = require('../models/VoucherModel');
 const PaymentController = require('./PaymentController.js');
 const CartController = require('./CartController.js');
-
+const VoucherController = require('./VoucherController.js');
 const OrderConfirmationEmail = require('./OrderConfirmationEmail.js');
-
-
 function generateRandomOrderId(length) {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let result = '';
@@ -32,6 +31,16 @@ const generateUniqueOrderId = async () => {
     }
     return generatedId;
 };
+const getStatusDisplayName = (status) => {
+    switch (status) {
+        case 'PENDING': return 'Chờ xác nhận';
+        case 'CONFIRMED': return 'Đã xác nhận';
+        case 'SHIPPED': return 'Đang giao hàng';
+        case 'DELIVERED': return 'Đã giao hàng';
+        case 'CANCELLED': return 'Đã hủy';
+        default: return 'Không xác định';
+    }
+};
 
 const OrderController = {
     createOrder: async (req, res) => {
@@ -44,10 +53,11 @@ const OrderController = {
             orderItems,
             totalAmount,
             shippingFee,
-            discountAmount
+            discountAmount,
+            voucherCode
         } = req.body;
 
-        console.log('Nhận yêu cầu tạo đơn hàng:', { customerId, shippingAddressId, paymentMethod, transactionId, paymentStatus, totalAmount, shippingFee, orderItems, discountAmount });
+        console.log('Nhận yêu cầu tạo đơn hàng:', { customerId, shippingAddressId, paymentMethod, transactionId, paymentStatus, totalAmount, shippingFee, orderItems, discountAmount, voucherCode });
         if (!customerId || !shippingAddressId || !paymentMethod || !orderItems || orderItems.length === 0 || totalAmount === undefined) {
             return res.status(400).json({ message: 'Thiếu thông tin bắt buộc để tạo đơn hàng hoặc giỏ hàng trống!' });
         }
@@ -119,10 +129,12 @@ const OrderController = {
                 paymentStatus: paymentStatusForOrder,
                 transactionId: transactionId,
                 statusHistory: initialStatusHistory,
-                discountAmount: discountAmount
+                discountAmount: discountAmount,
+                voucherCode: voucherCode
             });
             const savedOrder = await newOrder.save();
             if (paymentStatusForOrder === 'SUCCESSED' || paymentMethod === 'COD') {
+                // Giảm stock sản phẩm
                 for (const orderItem of finalOrderItems) {
                     await Product.findByIdAndUpdate(
                         orderItem.product,
@@ -130,6 +142,7 @@ const OrderController = {
                     );
                 }
 
+                // Xóa sản phẩm đã đặt khỏi giỏ hàng
                 const customerCart = await Cart.findOne({ customer: customerId });
                 if (customerCart) {
                     customerCart.items = customerCart.items.filter(item =>
@@ -137,37 +150,59 @@ const OrderController = {
                     );
                     await customerCart.save();
                 }
+
+                // Cập nhật usedCount cho Voucher nếu có voucherCode
+                if (voucherCode) {
+                    try {
+                        // Tìm voucher bằng mã code
+                        const voucher = await Voucher.findOne({ code: voucherCode.toUpperCase() });
+                        if (voucher) {
+                            // Gọi hàm nội bộ từ VoucherController để đánh dấu voucher đã sử dụng
+                            await VoucherController._markVoucherAsUsedInternal(voucher._id, customerId);
+                        } else {
+                            console.warn(`Voucher with code ${voucherCode} not found when trying to mark as used for Order ${savedOrder.orderId}.`);
+                        }
+                    } catch (voucherError) {
+                        console.error(`Error updating voucher ${voucherCode} for Order ${savedOrder.orderId}:`, voucherError);
+                        // Không trả về lỗi 500 ở đây để không chặn việc tạo đơn hàng chính
+                        // Bạn có thể cân nhắc một hệ thống retry hoặc ghi log chi tiết hơn
+                    }
+                }
+
+                // Populate các trường cần thiết để gửi email
+                const populatedOrder = await Order.findById(savedOrder._id)
+                    .populate({
+                        path: 'items.product',
+                        select: 'name images'
+                    })
+                    .populate('shippingAddress')
+                    .populate({
+                        path: 'customer',
+                        populate: {
+                            path: 'user',
+                            select: 'email name'
+                        }
+                    });
+
+                if (populatedOrder && populatedOrder.customer && populatedOrder.customer.user && populatedOrder.customer.user.email) {
+                    await OrderConfirmationEmail(
+                        populatedOrder,
+                        populatedOrder.customer.user.email,
+                        populatedOrder.customer.user.name,
+                        populatedOrder.items.product
+                    );
+                } else {
+                    console.warn(`Không thể gửi email xác nhận đơn hàng #${populatedOrder.orderId}: Thiếu thông tin email khách hàng.`);
+                }
+
+                return res.status(201).json({ message: 'Tạo đơn hàng thành công!', order: populatedOrder });
+
             } else if (paymentStatusForOrder === 'FAILED' && paymentMethod === 'CREDIT_CARD') {
                 console.log("Thanh toán Stripe thất bại, giỏ hàng được giữ lại.");
-            }
-
-            // Populate các trường cần thiết để gửi email
-            const populatedOrder = await Order.findById(savedOrder._id)
-                .populate({
-                    path: 'items.product',
-                    select: 'name images'
-                })
-                .populate('shippingAddress')
-                .populate({
-                    path: 'customer',
-                    populate: {
-                        path: 'user',
-                        select: 'email name'
-                    }
-                });
-
-            // Send email confirm Order
-            if (populatedOrder && populatedOrder.customer && populatedOrder.customer.user && populatedOrder.customer.user.email) {
-                await OrderConfirmationEmail(
-                    populatedOrder,
-                    populatedOrder.customer.user.email,
-                    populatedOrder.customer.user.name,
-                    populatedOrder.items.product
-                );
+                return res.status(201).json({ message: 'Đơn hàng đã được ghi nhận nhưng thanh toán thất bại.', order: savedOrder });
             } else {
-                console.warn(`Không thể gửi email xác nhận đơn hàng #${populatedOrder.orderId}: Thiếu thông tin email khách hàng.`);
+                return res.status(201).json({ message: 'Đơn hàng đã được tạo với trạng thái chờ xử lý.', order: savedOrder });
             }
-            res.status(201).json({ message: 'Tạo đơn hàng thành công!', order: populatedOrder });
 
         } catch (error) {
             console.error('Lỗi khi tạo đơn hàng:', error);
@@ -177,7 +212,6 @@ const OrderController = {
             res.status(500).json({ message: 'Lỗi server khi tạo đơn hàng.', error: error.message });
         }
     },
-
     getOrdersByCustomer: async (req, res) => {
         try {
             const { customerId } = req.params;
@@ -211,7 +245,6 @@ const OrderController = {
     findAll: async (req, res) => {
         try {
             const { customerNameOrEmail, status, method, startDate, endDate, limit = 10, page = 1 } = req.query;
-
             let query = {};
 
             if (status) {
@@ -304,7 +337,32 @@ const OrderController = {
             res.status(500).json({ message: 'Lỗi server khi lấy đơn hàng.', error: error.message }); // Trả về lỗi chi tiết hơn
         }
     },
+    addOrderNotificationToCustomer: async (customerId, orderId, oldStatus, newStatus) => {
+        try {
+            const customer = await Customer.findById(customerId);
+            if (customer) {
+                const message = `Đơn hàng #${orderId} của bạn đã được cập nhật trạng thái`;
+                const link = `/account/orders/${orderId}`;
+                customer.notifications.unshift({
+                    message,
+                    orderId: orderId,
+                    oldStatus: oldStatus,
+                    newStatus: newStatus,
+                    isRead: false,
+                    createdAt: new Date(),
+                    link
+                });
 
+                customer.notifications = customer.notifications.slice(0, 50);
+                await customer.save();
+                console.log(`[Notification] Added order status update notification for customer ${customerId}, order ${orderId}`);
+            } else {
+                console.warn(`[Notification] Customer with ID ${customerId} not found.`);
+            }
+        } catch (error) {
+            console.error(`[Notification] Error adding order status notification for customer ${customerId}:`, error);
+        }
+    },
     updateOrderStatus: async (req, res) => {
         const { orderId } = req.params;
         const { newStatus } = req.body;
@@ -319,17 +377,17 @@ const OrderController = {
         }
 
         try {
-            const order = await Order.findById(orderId);
+            const order = await Order.findById(orderId).populate('customer');;
 
             if (!order) {
                 return res.status(404).json({ message: 'Không tìm thấy đơn hàng.' });
             }
+            const oldStatus = order.status;
 
             // Ngăn chặn cập nhật nếu trạng thái hiện tại đã là CANCELLED hoặc DELIVERED
             if (order.status === 'CANCELLED' || order.status === 'DELIVERED') {
                 return res.status(400).json({ message: `Không thể cập nhật trạng thái đơn hàng đã '${order.status}'.` });
             }
-
             // Chỉ cập nhật và thêm vào lịch sử nếu trạng thái mới khác trạng thái hiện tại
             if (order.status !== newStatus) {
                 order.status = newStatus;
@@ -338,8 +396,12 @@ const OrderController = {
                     timestamp: new Date()
                 });
                 await order.save();
+                if (order.customer && order.customer._id) {
+                    await OrderController.addOrderNotificationToCustomer(order.customer._id, order._id, oldStatus, newStatus);
+                } else {
+                    console.warn(`[Notification] Customer ID not found for order ${orderId}. Notification skipped.`);
+                }
             }
-
             res.status(200).json({ message: 'Cập nhật trạng thái đơn hàng thành công.', order });
 
         } catch (error) {

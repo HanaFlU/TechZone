@@ -287,9 +287,9 @@ useEffect(() => {
                                         <TableCell>Ngày đặt hàng</TableCell>
                                         <TableCell>Khách hàng</TableCell>
                                         <TableCell>Thanh toán</TableCell>
-                                        <TableCell align="center">Tổng tiền</TableCell>
+                                        <TableCell align="left">Tổng tiền</TableCell>
                                         <TableCell align="center">Trạng thái</TableCell>
-                                        <TableCell align="left" sx={{ pl: 4 }}>Hành động</TableCell>
+                                        <TableCell align="center">Hành động</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -308,35 +308,54 @@ useEffect(() => {
                                                     {order.paymentMethod === 'COD' ? 'COD' :
                                                      order.paymentMethod === 'CREDIT_CARD' ? 'Credit Card' : 'E-Wallet'}
                                                 </TableCell>
-                                                <TableCell align="right">{order.totalAmount.toLocaleString('vi-VN')} VND</TableCell>
-                                                <TableCell align="center">
-                                                    <Chip
-                                                        label={getStatusDisplayName(order.status)}
-                                                        color={getStatusChipColor(order.status)}
-                                                        sx={{ cursor: 'default', minWidth: '100px' }}
-                                                        
-                                                    />
-                                                </TableCell>
-                                                <TableCell>
+                                                <TableCell align="left">{order.totalAmount.toLocaleString('vi-VN')} VND</TableCell>
+                                                <TableCell align='center'>
                                                     <FormControl variant="outlined" size="small" sx={{  alignItems: "center" }}>
-                                                        <Select
-                                                            value={order.status}
-                                                            onChange={(e) => handleUpdateStatusInline(order._id, e.target.value)}
-                                                            displayEmpty
-                                                            sx={{
-                                                            width: '150px',
+                                                    <Select
+                                                        value={order.status}
+                                                        onChange={(e) => handleUpdateStatusInline(order._id, e.target.value)}
+                                                        displayEmpty
+                                                        renderValue={(selectedStatus) => (
+                                                            <Chip
+                                                                label={getStatusDisplayName(selectedStatus)}
+                                                                color={getStatusChipColor(selectedStatus)}
+                                                                sx={{
+                                                                cursor: 'pointer',
+                                                                width: '140px',
+                                                                justifyContent: 'center',
+                                                                }}
+                                                            />
+                                                        )}
+                                                        sx={{
+                                                        '.MuiSelect-select': {
+                                                            padding: '0 !important',
                                                             display: 'flex',
-                                                            textAlign: 'left'
-                                                            }}
-                                                        >
-                                                            {availableStatuses.map((statusOption) => (
-                                                                <MenuItem key={statusOption} value={statusOption}>
-                                                                    {getStatusDisplayName(statusOption)}
-                                                                </MenuItem>
-                                                            ))}
-                                                        </Select>
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                        },
+                                                        '.MuiOutlinedInput-notchedOutline': {
+                                                            border: 'none',
+                                                        },
+                                                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                            border: 'none',
+                                                        },
+                                                        '.MuiSelect-icon': {
+                                                            color: 'rgba(0, 0, 0, 0.54)',
+                                                            right: '2px',
+                                                        },
+                                                        width: '140px',
+                                                        }}
+                                                    >
+                                                    {availableStatuses.map((statusOption) => (
+                                                        <MenuItem key={statusOption} value={statusOption}>
+                                                            {getStatusDisplayName(statusOption)}
+                                                        </MenuItem>
+                                                    ))}
+                                                    </Select>
                                                     </FormControl>
-                                                    <IconButton sx={{ ml: 2 }} size="small" color="warning" onClick={() => handleViewDetails(order)} title="Xem chi tiết">
+                                                </TableCell>
+                                                <TableCell align="center">
+                                                    <IconButton size="small" color="warning" onClick={() => handleViewDetails(order)} title="Xem chi tiết">
                                                         <IoEyeOutline />
                                                     </IconButton>
                                                     <IconButton size="small" color="info" onClick={() => triggerPrint(order)} title="In hóa đơn">

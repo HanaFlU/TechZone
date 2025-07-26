@@ -121,6 +121,35 @@ class CustomerService {
             throw error;
         }
     }
+    async getNotifications() {
+        try {
+            const response = await this.api.get('/notifications');
+            return response.data;
+        } catch (error) {
+            console.error('CustomerService Error: Failed to fetch notifications:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    }
+
+    async markNotificationAsRead(notificationId) {
+        try {
+            const response = await this.api.put(`/notifications/${notificationId}/read`);
+            return response.data;
+        } catch (error) {
+            console.error(`CustomerService Error: Failed to mark notification ${notificationId} as read:`, error.response ? error.response.data : error.message);
+            throw error;
+        }
+    }
+
+    async markAllNotificationsAsRead() {
+        try {
+            const response = await this.api.put('/notifications/mark-all-read');
+            return response.data;
+        } catch (error) {
+            console.error('CustomerService Error: Failed to mark all notifications as read:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    }
 }
 
 export default new CustomerService();

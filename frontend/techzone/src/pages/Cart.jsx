@@ -21,7 +21,7 @@ const CartPage = () => {
 
     const {
         currentUserId, 
-        authError, 
+        authError,
         isAuthLoading
     } = useAuthUser();
     const [cartData, setCartData] = useState(null);

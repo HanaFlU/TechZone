@@ -84,7 +84,12 @@ const orderSchema = new mongoose.Schema(
             type: Number,
             required: false,
             min: 0,
-        }
+        },
+        voucherCode: {
+            type: String,
+            required: false,
+            trim: true,
+        },
     },
     { timestamps: true }
 );
