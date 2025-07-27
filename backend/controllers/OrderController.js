@@ -409,6 +409,11 @@ const OrderController = {
             res.status(500).json({ message: 'Lỗi server khi cập nhật trạng thái đơn hàng.', error: error.message });
         }
     },
+
+
+
+
+    // Hân
     getRevenueTrend: async (req, res) => {
         try {
             const { period = 'monthly' } = req.query; // 'daily', 'weekly', 'monthly', 'quarterly'

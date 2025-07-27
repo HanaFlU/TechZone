@@ -5,7 +5,8 @@ import RevenueSummaryCard from '../../components/dashboard/RevenueSumaryCard';
 import OrderStatisticsCard from '../../components/dashboard/OrderStatisticsCard';
 import RevenueTrendChart from '../../components/dashboard/RevenueTrendChart';
 // import TopSellingProductsTable from './TopSellingProductsTable';
-// import RecentOrdersTable from './RecentOrdersTable';
+import RecentOrdersTable from '../../components/dashboard/RecentOrdersTable';
+import TopProductsReport from '../../components/dashboard/TopProductsReport';
 
 const Dashboard = () => {
   return (
@@ -35,15 +36,12 @@ const Dashboard = () => {
             <Paper sx={{ p: 2, height: '100%' }}>
               <Typography variant="h6">Sản phẩm bán chạy nhất</Typography>
               {/* Bảng xếp hạng sản phẩm có doanh thu cao nhất */}
-              {/* <TopSellingProductsTable /> */}
+              <TopProductsReport />
             </Paper>
           </Grid>
           <Grid  size={{ xs: 12}}>
-            <Paper sx={{ p: 2, height: '100%' }}>
-              <Typography variant="h6">Đơn hàng gần đây</Typography>
               {/* Bảng các order gần đây nhất */}
-              {/* <RecentOrdersTable /> */}
-            </Paper>
+              <RecentOrdersTable />
           </Grid>
         </Grid>
       </Box>

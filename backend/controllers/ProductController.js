@@ -4,6 +4,7 @@ const SaleEvent = require('../models/SaleEventModel');
 const findRootCategory = require('../helpers/findRootCategory');
 const getAllDescendantCategoryIds = require('../helpers/getAllDescendantCategoryIds');
 const generateKeyFromLabel = require('../helpers/generateKeyFromeLabel');
+const Order = require('../models/OrderModel');
 
 const ProductController = {
   createProduct: async (req, res) => {
@@ -159,6 +160,78 @@ const ProductController = {
     } catch (err) {
       res.status(500).json({ success: false, message: err.message });
     }
-  }
+  },
+
+
+  getTopSellingProducts: async (req, res) => {
+    try {
+      const { limit = 5, sortBy = 'revenue' } = req.query; // sortBy có thể là 'revenue' hoặc 'quantity'
+
+      const aggregationPipeline = [
+        // Giai đoạn 1: Lấy tất cả các đơn hàng và bung các sản phẩm trong đó
+        { $unwind: '$items' },
+        // Giai đoạn 2: Nhóm theo ID sản phẩm để tính tổng doanh thu và số lượng bán
+        {
+          $group: {
+            _id: '$items.product',
+            totalRevenue: { $sum: { $multiply: ['$items.quantity', '$items.priceAtOrder'] } },
+            totalSoldQuantity: { $sum: '$items.quantity' },
+          },
+        },
+        // Giai đoạn 3: Lookup để lấy thông tin chi tiết về sản phẩm
+        {
+          $lookup: {
+            from: 'products', // Tên collection của ProductModel
+            localField: '_id',
+            foreignField: '_id',
+            as: 'productInfo',
+          },
+        },
+        // Giai đoạn 4: Bung mảng productInfo (vì lookup trả về mảng)
+        { $unwind: '$productInfo' },
+
+        // Giai đoạn 5: Lookup để lấy thông tin chi tiết về Category của sản phẩm
+        {
+          $lookup: {
+            from: 'testcategories', // Tên collection của CategoryModel
+            localField: 'productInfo.category',
+            foreignField: '_id',
+            as: 'categoryInfo',
+          },
+        },
+        // Giai đoạn 6: Bung mảng categoryInfo (vì lookup trả về mảng)
+        { $unwind: { path: '$categoryInfo', preserveNullAndEmptyArrays: true } }, // preserveNullAndEmptyArrays để tránh loại bỏ sản phẩm không có category
+
+        // Giai đoạn 7: Sắp xếp theo tiêu chí (doanh thu hoặc số lượng)
+        {
+          $sort: {
+            [sortBy === 'revenue' ? 'totalRevenue' : 'totalSoldQuantity']: -1, // Sắp xếp giảm dần
+          },
+        },
+        // Giai đoạn 8: Giới hạn số lượng kết quả
+        { $limit: parseInt(limit) },
+        // Giai đoạn 9: Chọn các trường muốn hiển thị
+        {
+          $project: {
+            _id: 0,
+            productId: '$productInfo.productId',
+            productName: '$productInfo.name',
+            productImage: { $arrayElemAt: ['$productInfo.images', 0] }, // Lấy ảnh đầu tiên
+            productPrice: '$productInfo.price', // Lấy giá sản phẩm
+            categoryName: '$categoryInfo.name', // Lấy tên danh mục
+            totalRevenue: 1,
+            totalSoldQuantity: 1,
+          },
+        },
+      ];
+
+      const topProducts = await Order.aggregate(aggregationPipeline);
+
+      res.json({ success: true, data: topProducts });
+    } catch (err) {
+      console.error('Error fetching top selling products:', err);
+      res.status(500).json({ success: false, message: 'Lỗi khi lấy báo cáo sản phẩm.', error: err.message });
+    }
+  },
 };
 module.exports = ProductController;

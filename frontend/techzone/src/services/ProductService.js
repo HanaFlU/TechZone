@@ -49,6 +49,18 @@ class ProductService {
       throw error;
     }
   }
+
+  async getTopSellingProducts(filters = {}) {
+    try {
+      const queryParams = new URLSearchParams(filters).toString();
+      console.log('ProductService: Attempting to GET top selling products with filters:', queryParams);
+      const response = await this.api.get(`/reports/top-selling?${queryParams}`);
+      return response.data; // Server trả về { success, data: topProducts }
+    } catch (error) {
+      console.error('ProductService Error: Failed to get top selling products:', error.response ? error.response.data : error.message);
+      throw error;
+    }
+  }
 }
 
 export default new ProductService();

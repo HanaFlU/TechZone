@@ -13,7 +13,6 @@ import {
   MdCancel
 } from "react-icons/md";
 
-// Đối tượng ánh xạ trạng thái từ enum sang tên hiển thị
 const statusDisplayNames = {
   PENDING: 'Chờ xử lý',
   CONFIRMED: 'Đã xác nhận',
@@ -22,7 +21,6 @@ const statusDisplayNames = {
   CANCELLED: 'Đã hủy',
 };
 
-// Đối tượng ánh xạ trạng thái sang màu sắc hiển thị
 const statusColors = {
   PENDING: '#FFC107',
   CONFIRMED: '#2196F3',
@@ -31,7 +29,6 @@ const statusColors = {
   CANCELLED: '#F44336',
 };
 
-// Đối tượng ánh xạ trạng thái sang icon Material Design
 const statusIcons = {
   PENDING: MdOutlinePendingActions,
   CONFIRMED: MdCheckCircleOutline,
