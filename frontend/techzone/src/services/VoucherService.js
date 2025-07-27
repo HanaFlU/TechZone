@@ -18,10 +18,11 @@ class VoucherService {
             throw error;
         }
     }
+
     async getAllVouchers(filters) {
         try {
             const queryParams = new URLSearchParams(filters).toString();
-            console.log('VoucherService: Attempting to GET all orders with filters:', queryParams);
+            console.log('VoucherService: Attempting to GET all vouchers with filters:', queryParams);
             const response = await this.api.get(`/?${queryParams}`);
             return response.data;
         } catch (error) {
@@ -32,7 +33,7 @@ class VoucherService {
 
     async createVoucher(voucherData) {
         try {
-            console.log('OrderService: Attempting to POST to URL:', `${this.api.defaults.baseURL}`, 'with data:', voucherData);
+            console.log('VoucherService: Attempting to POST to URL:', `${this.api.defaults.baseURL}`, 'with data:', voucherData);
             const response = await this.api.post('/', voucherData);
             return response.data;
         } catch (error) {
@@ -44,7 +45,7 @@ class VoucherService {
         }
     }
 
-    async getVouherById(voucherId) {
+    async getVoucherById(voucherId) {
         try {
             const response = await this.api.get(`/${voucherId}`);
             return response.data;
@@ -53,23 +54,25 @@ class VoucherService {
             throw error;
         }
     }
-    async updateVoucher(voucherId, newVoucherData) {
+
+    async updateVoucher(voucherId, voucherData) {
         try {
-            console.log(`VoucherService: Attempting to PUT order ${voucherId} status to ${newVoucherData}`);
-            const response = await this.api.put(`/${voucherId}`, { newVoucherData });
+            console.log(`VoucherService: Attempting to PUT voucher ${voucherId} with data:`, voucherData);
+            const response = await this.api.put(`/${voucherId}`, voucherData);
             return response.data;
         } catch (error) {
-            console.error(`VoucherService Error: Failed to update voucher for ${voucherId}:`, error.response ? error.response.data : error.message);
+            console.error(`VoucherService Error: Failed to update voucher ${voucherId}:`, error.response ? error.response.data : error.message);
             throw error;
         }
     }
+
     async deleteVoucher(voucherId) {
         try {
             console.log('VoucherService: Attempting to DELETE voucher with ID:', voucherId);
             const response = await this.api.delete(`/${voucherId}`);
             return response.data;
         } catch (error) {
-            console.error('VoucherService Error: Failed to delete voucher with ID:', voucherId);
+            console.error('VoucherService Error: Failed to delete voucher with ID:', voucherId, error.response ? error.response.data : error.message);
             throw error;
         }
     }

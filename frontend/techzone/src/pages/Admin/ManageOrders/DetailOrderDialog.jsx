@@ -31,7 +31,7 @@ const DetailOrderDialog = ({
   if (!selectedOrder) return null;
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xl" width="xl">
-      <DialogContent sx={{ p: 4, pb: 0, backgroundColor: 'white', overflow: 'hidden' }}> 
+      <DialogContent sx={{ p: 4, pb: 0, backgroundColor: 'white', overflowX: 'auto' }}> 
         <Box sx={{ pb: 2 }}>
           <Grid container spacing={4} alignItems="start" justifyContent="space-between">
             {/* Chi tiết đơn hàng */}
@@ -91,7 +91,7 @@ const DetailOrderDialog = ({
             <Grid size={{ md: 8.8 }} fullWidth>
                 {/* Bảng sản phẩm */}
                 <Box sx={{ mb: 3 }}>
-                <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #e0e0e0', maxHeight: '35vh', overflowY: 'auto' }}> {/* Adjusted maxHeight using vh */}
+                <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #e0e0e0', maxHeight: '35vh', overflowY: 'auto', overflowX: 'auto' }}> {/* Adjusted maxHeight using vh */}
                     <Table size="small" stickyHeader>
                     <TableHead>
                         <TableRow sx={{ backgroundColor: '#e0f2f1' }}>
@@ -113,7 +113,7 @@ const DetailOrderDialog = ({
                             display: '-webkit-box',
                             WebkitLineClamp: 2,
                             WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden',
+                            overflowX: 'auto',
                             textOverflow: 'ellipsis'}}>{item.product?.name || 'Tên sản phẩm'}</TableCell>
                             <TableCell align="center">{item.quantity}</TableCell>
                             <TableCell align="left">{item.priceAtOrder.toLocaleString('vi-VN')} VND</TableCell>

@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import VoucherService from '../../../services/VoucherService';
-import useNotification from '../../../hooks/useNotification';
 import {
     Card, CardContent, Typography, Button, TextField,
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
@@ -11,74 +9,66 @@ import {
     Box,
     Chip,
     Grid,
-    Switch // Import Switch component
+    Switch
 } from '@mui/material';
 
-import { LuFilePlus2, LuRefreshCw } from "react-icons/lu"; // Hoặc icon tương tự cho Export/Import/Reset
-import { IoEyeOutline } from 'react-icons/io5'; // Có thể dùng cho hành động chi tiết nếu cần
-import { MdEdit, MdDelete, MdAdd } from 'react-icons/md'; // Icons cho hành động
-import { TbFilter } from 'react-icons/tb'; // Icon cho Filter
+import { LuFilePlus2, LuRefreshCw } from "react-icons/lu";
+import { IoEyeOutline } from 'react-icons/io5';
+import { MdEdit, MdDelete, MdAdd } from 'react-icons/md';
+import VoucherService from '../../../services/VoucherService';
 
-const AdminVoucher = () => { // Đổi tên component cho phù hợp với AdminOrderList
-    const { displayNotification } = useNotification();
-
+const AdminVoucher = () => {
     const [vouchers, setVouchers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     const [filter, setFilter] = useState({
         searchTerm: '',
-        status: 'all',
-        page: 1,
+        status: '',
+        discountType: '',
+        startDate: '',
+        endDate: '',
         limit: 10,
+        page: 1,
     });
-    const [totalVouchers, setTotalVouchers] = useState(0); // Để dùng cho pagination
-
-    // State cho Modal/Form thêm/sửa
+    const [totalVouchers, setTotalVouchers] = useState(0);
+    
+    // Modal states
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingVoucher, setEditingVoucher] = useState(null); // null cho thêm mới, object cho chỉnh sửa
-
-    // State cho voucher mới/đang chỉnh sửa
+    const [editingVoucher, setEditingVoucher] = useState(null);
     const [voucherForm, setVoucherForm] = useState({
-        campaignName: '',
+        description: '',
         code: '',
-        discountType: 'PERCENT', // 'PERCENT', 'FIXED_AMOUNT', 'FREE_SHIPPING'
+        discountType: 'PERCENT',
         discountValue: 0,
-        maxDiscountAmount: null,
+        maxDiscountAmount: '',
         minOrderAmount: 0,
         usageLimit: 1,
         startDate: '',
         endDate: '',
-        isActive: true, // published
+        isActive: true,
     });
 
-    const primaryColor = '#328E6E'; // Màu chủ đạo từ AdminOrderList
+    const primaryColor = '#328E6E';
 
     const fetchVouchers = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
-            // Cập nhật để truyền filter từ state
-            const response = await VoucherService.getAllVouchers({
-                searchTerm: filter.searchTerm,
-                status: filter.status,
-                page: filter.page,
-                limit: filter.limit,
-            });
+            const response = await VoucherService.getAllVouchers(filter);
             if (response.success) {
                 setVouchers(response.vouchers);
-                setTotalVouchers(response.totalVouchers); // Cập nhật tổng số lượng
+                setTotalVouchers(response.totalVouchers || response.vouchers.length);
             } else {
-                setError(response.message || 'Lỗi khi tải danh sách voucher.');
+                setError(response.message || 'Không thể tải danh sách voucher.');
             }
         } catch (err) {
             console.error('Error fetching vouchers:', err);
-            setError('Không thể tải danh sách voucher.');
-            displayNotification('Không thể tải danh sách voucher.', 'error');
+            setError('Không thể tải danh sách voucher. Vui lòng thử lại.');
         } finally {
             setLoading(false);
         }
-    }, [filter, displayNotification]); // Thêm filter vào dependency array
+    }, [filter]);
 
     useEffect(() => {
         fetchVouchers();
@@ -89,20 +79,31 @@ const AdminVoucher = () => { // Đổi tên component cho phù hợp với Admin
         setFilter(prevFilter => ({
             ...prevFilter,
             [name]: value,
-            page: 1, // Reset page khi thay đổi filter
+            page: 1,
+        }));
+    };
+
+    const handleDateFilterChange = (e) => {
+        const { name, value } = e.target;
+        setFilter(prevFilter => ({
+            ...prevFilter,
+            [name]: value,
+            page: 1,
         }));
     };
 
     const handleResetFilters = () => {
         setFilter({
             searchTerm: '',
-            status: 'all',
-            page: 1,
+            status: '',
+            discountType: '',
+            startDate: '',
+            endDate: '',
             limit: 10,
+            page: 1,
         });
     };
 
-    // Phân trang
     const handleChangePage = (event, newPage) => {
         setFilter(prevFilter => ({ ...prevFilter, page: newPage + 1 }));
     };
@@ -115,15 +116,15 @@ const AdminVoucher = () => { // Đổi tên component cho phù hợp với Admin
         }));
     };
 
-    // Xử lý mở/đóng modal và điền dữ liệu
+    // Modal handlers
     const handleOpenCreateModal = () => {
         setEditingVoucher(null);
         setVoucherForm({
-            campaignName: '',
+            description: '',
             code: '',
             discountType: 'PERCENT',
             discountValue: 0,
-            maxDiscountAmount: null,
+            maxDiscountAmount: '',
             minOrderAmount: 0,
             usageLimit: 1,
             startDate: '',
@@ -136,15 +137,15 @@ const AdminVoucher = () => { // Đổi tên component cho phù hợp với Admin
     const handleOpenEditModal = (voucher) => {
         setEditingVoucher(voucher);
         setVoucherForm({
-            campaignName: voucher.campaignName,
+            description: voucher.description,
             code: voucher.code,
             discountType: voucher.discountType,
             discountValue: voucher.discountValue,
-            maxDiscountAmount: voucher.maxDiscountAmount,
+            maxDiscountAmount: voucher.maxDiscountAmount || '',
             minOrderAmount: voucher.minOrderAmount,
             usageLimit: voucher.usageLimit,
-            startDate: voucher.startDate ? new Date(voucher.startDate).toISOString().split('T')[0] : '', // Format YYYY-MM-DD
-            endDate: voucher.endDate ? new Date(voucher.endDate).toISOString().split('T')[0] : '',     // Format YYYY-MM-DD
+            startDate: voucher.startDate ? new Date(voucher.startDate).toISOString().split('T')[0] : '',
+            endDate: voucher.endDate ? new Date(voucher.endDate).toISOString().split('T')[0] : '',
             isActive: voucher.isActive,
         });
         setIsModalOpen(true);
@@ -153,10 +154,17 @@ const AdminVoucher = () => { // Đổi tên component cho phù hợp với Admin
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setEditingVoucher(null);
-        setVoucherForm({ // Reset form
-            campaignName: '', code: '', discountType: 'PERCENT', discountValue: 0,
-            maxDiscountAmount: null, minOrderAmount: 0, usageLimit: 1,
-            startDate: '', endDate: '', isActive: true,
+        setVoucherForm({
+            description: '',
+            code: '',
+            discountType: 'PERCENT',
+            discountValue: 0,
+            maxDiscountAmount: '',
+            minOrderAmount: 0,
+            usageLimit: 1,
+            startDate: '',
+            endDate: '',
+            isActive: true,
         });
     };
 
@@ -168,52 +176,60 @@ const AdminVoucher = () => { // Đổi tên component cho phù hợp với Admin
         }));
     };
 
-    // Hàm xử lý thay đổi trạng thái isActive
-    const handleToggleActive = async (voucherId, currentStatus) => {
-        try {
-            const response = await VoucherService.updateVoucher(voucherId, { isActive: !currentStatus });
-            if (response.success) {
-                displayNotification('Trạng thái voucher đã được cập nhật!', 'success');
-                fetchVouchers(); // Tải lại danh sách
-            } else {
-                displayNotification(response.message || 'Lỗi khi cập nhật trạng thái.', 'error');
-            }
-        } catch (err) {
-            console.error('Error toggling voucher status:', err);
-            displayNotification(err.response?.data?.message || 'Lỗi khi cập nhật trạng thái voucher.', 'error');
-        }
-    };
-
     const handleFormSubmit = async (e) => {
         e.preventDefault();
-        if (!voucherForm.campaignName || !voucherForm.code || voucherForm.discountValue === undefined) {
-            displayNotification('Vui lòng điền đầy đủ thông tin bắt buộc.', 'error');
+        if (!voucherForm.description || !voucherForm.code || voucherForm.discountValue === undefined) {
+            setError('Vui lòng điền đầy đủ thông tin bắt buộc.');
             return;
         }
 
         try {
+            const formData = {
+                ...voucherForm,
+                maxDiscountAmount: voucherForm.maxDiscountAmount ? Number(voucherForm.maxDiscountAmount) : null,
+            };
+
             if (editingVoucher) {
-                // Cập nhật voucher
-                const response = await VoucherService.updateVoucher(editingVoucher._id, voucherForm);
+                const response = await VoucherService.updateVoucher(editingVoucher._id, formData);
                 if (response.success) {
-                    displayNotification('Voucher đã được cập nhật thành công!', 'success');
+                    console.log('Voucher đã được cập nhật thành công!');
                 } else {
-                    displayNotification(response.message || 'Lỗi khi cập nhật voucher.', 'error');
+                    setError(response.message || 'Lỗi khi cập nhật voucher.');
+                    return;
                 }
             } else {
-                // Tạo voucher mới
-                const response = await VoucherService.createVoucher(voucherForm);
+                const response = await VoucherService.createVoucher(formData);
                 if (response.success) {
-                    displayNotification('Voucher đã được tạo thành công!', 'success');
+                    console.log('Voucher đã được tạo thành công!');
                 } else {
-                    displayNotification(response.message || 'Lỗi khi tạo voucher.', 'error');
+                    setError(response.message || 'Lỗi khi tạo voucher.');
+                    return;
                 }
             }
-            fetchVouchers(); // Tải lại danh sách voucher
-            handleCloseModal(); // Đóng modal
+            fetchVouchers();
+            handleCloseModal();
         } catch (err) {
             console.error('Error saving voucher:', err);
-            displayNotification(err.response?.data?.message || 'Lỗi khi lưu voucher.', 'error');
+            setError(err.response?.data?.message || 'Lỗi khi lưu voucher.');
+        }
+    };
+
+    const handleToggleActive = async (voucherId, currentStatus) => {
+        try {
+            const response = await VoucherService.updateVoucher(voucherId, { isActive: !currentStatus });
+            if (response.success) {
+                console.log('Trạng thái voucher đã được cập nhật!');
+                setVouchers(prevVouchers =>
+                    prevVouchers.map(voucher =>
+                        voucher._id === voucherId ? { ...voucher, isActive: !currentStatus } : voucher
+                    )
+                );
+            } else {
+                setError(response.message || 'Lỗi khi cập nhật trạng thái.');
+            }
+        } catch (err) {
+            console.error('Error toggling voucher status:', err);
+            setError(err.response?.data?.message || 'Lỗi khi cập nhật trạng thái voucher.');
         }
     };
 
@@ -222,26 +238,25 @@ const AdminVoucher = () => { // Đổi tên component cho phù hợp với Admin
             try {
                 const response = await VoucherService.deleteVoucher(voucherId);
                 if (response.success) {
-                    displayNotification('Voucher đã được xóa thành công!', 'success');
-                    fetchVouchers(); // Tải lại danh sách voucher
+                    console.log('Voucher đã được xóa thành công!');
+                    fetchVouchers();
                 } else {
-                    displayNotification(response.message || 'Lỗi khi xóa voucher.', 'error');
+                    setError(response.message || 'Lỗi khi xóa voucher.');
                 }
             } catch (err) {
                 console.error('Error deleting voucher:', err);
-                displayNotification(err.response?.data?.message || 'Lỗi khi xóa voucher.', 'error');
+                setError(err.response?.data?.message || 'Lỗi khi xóa voucher.');
             }
         }
     };
 
-    // Helper function to format date
+    // Helper functions
     const formatDate = (dateString) => {
         if (!dateString) return 'N/A';
         const date = new Date(dateString);
         return date.toLocaleDateString('vi-VN');
     };
 
-    // Helper function to format discount display
     const formatDiscount = (voucher) => {
         if (voucher.discountType === 'PERCENT') {
             return `${voucher.discountValue}%`;
@@ -261,7 +276,7 @@ const AdminVoucher = () => { // Đổi tên component cho phù hợp với Admin
         if (!voucher.isActive) return 'Không hoạt động';
         if (now < startDate) return 'Sắp diễn ra';
         if (now > endDate) return 'Đã hết hạn';
-        if ((voucher.usedCount ?? 0) >= (voucher.usageLimit ?? 1)) return 'Hết lượt sử dụng'; // Đảm bảo an toàn
+        if ((voucher.usedCount ?? 0) >= (voucher.usageLimit ?? 1)) return 'Hết lượt sử dụng';
         return 'Đang hoạt động';
     };
 
@@ -277,107 +292,105 @@ const AdminVoucher = () => { // Đổi tên component cho phù hợp với Admin
         }
     };
 
-
     return (
         <Card elevation={3}>
             <CardContent>
-                <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography variant="h5" fontWeight="bold" style={{ color: primaryColor }}>
                         Quản lý Mã Giảm Giá
                     </Typography>
-                    <Box display="flex" gap={1}>
-                        <Button
-                            variant="outlined"
-                            startIcon={<LuFilePlus2 />}
-                            style={{ color: primaryColor, borderColor: primaryColor }}
-                        >
-                            Xuất
-                        </Button>
-                        <Button
-                            variant="outlined"
-                            startIcon={<LuFilePlus2 />} // Có thể dùng icon khác cho Import
-                            style={{ color: primaryColor, borderColor: primaryColor }}
-                        >
-                            Nhập
-                        </Button>
-                        <Button
-                            variant="outlined"
-                            // startIcon={<MdDelete />} // Icon cho Bulk Action
-                            style={{ color: primaryColor, borderColor: primaryColor }}
-                        >
-                            Hành động hàng loạt
-                        </Button>
-                        <Button
-                            variant="contained"
-                            startIcon={<MdDelete />}
-                            color="error"
-                            // onClick={handleDeleteSelectedVouchers} // Thêm logic cho xóa hàng loạt
-                        >
-                            Xóa
-                        </Button>
-                        <Button
-                            variant="contained"
-                            startIcon={<MdAdd />}
-                            style={{ backgroundColor: primaryColor }}
-                            onClick={handleOpenCreateModal}
-                        >
-                            Thêm mã giảm giá
-                        </Button>
-                    </Box>
-                </Box>
+                    <Button
+                        variant="contained"
+                        startIcon={<MdAdd />}
+                        style={{ backgroundColor: primaryColor }}
+                        onClick={handleOpenCreateModal}
+                    >
+                        Thêm mã giảm giá
+                    </Button>
+                </div>
 
                 {/* Filters */}
                 <Card sx={{ p: 2, mb: 2 }}>
-                    <Grid container spacing={2} alignItems="center">
-                        <Grid item xs={12} sm={6} md={4}>
-                            <TextField
-                                label="Tìm kiếm theo tên chiến dịch/mã"
-                                name="searchTerm"
-                                value={filter.searchTerm}
-                                onChange={handleFilterChange}
-                                size="small"
-                                fullWidth
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={6} md={3}>
-                            <FormControl size="small" fullWidth>
-                                <InputLabel>Trạng thái</InputLabel>
-                                <Select
-                                    name="status"
-                                    value={filter.status}
-                                    label="Trạng thái"
+                    <Box display="flex" flexWrap="wrap" gap={2} my={2}>
+                        <Grid container spacing={2}>
+                            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                                <TextField
+                                    label="Tìm kiếm theo tên/mã"
+                                    name="searchTerm"
+                                    value={filter.searchTerm}
                                     onChange={handleFilterChange}
+                                    size="small"
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                <FormControl size="small" fullWidth>
+                                    <InputLabel>Trạng thái</InputLabel>
+                                    <Select
+                                        name="status"
+                                        value={filter.status}
+                                        label="Trạng thái"
+                                        onChange={handleFilterChange}
+                                    >
+                                        <MenuItem value="">Tất cả</MenuItem>
+                                        <MenuItem value="active">Đang hoạt động</MenuItem>
+                                        <MenuItem value="inactive">Không hoạt động</MenuItem>
+                                        <MenuItem value="expired">Đã hết hạn</MenuItem>
+                                        <MenuItem value="upcoming">Sắp diễn ra</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                <FormControl size="small" fullWidth>
+                                    <InputLabel>Loại giảm giá</InputLabel>
+                                    <Select
+                                        name="discountType"
+                                        value={filter.discountType}
+                                        label="Loại giảm giá"
+                                        onChange={handleFilterChange}
+                                    >
+                                        <MenuItem value="">Tất cả</MenuItem>
+                                        <MenuItem value="PERCENT">Phần trăm</MenuItem>
+                                        <MenuItem value="FIXED_AMOUNT">Số tiền cố định</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                <TextField
+                                    label="Từ ngày"
+                                    type="date"
+                                    name="startDate"
+                                    value={filter.startDate}
+                                    onChange={handleDateFilterChange}
+                                    size="small"
+                                    InputLabelProps={{ shrink: true }}
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                <TextField
+                                    label="Đến ngày"
+                                    type="date"
+                                    name="endDate"
+                                    value={filter.endDate}
+                                    onChange={handleDateFilterChange}
+                                    size="small"
+                                    InputLabelProps={{ shrink: true }}
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6, md: 6 }}>
+                                <Button
+                                    variant="outlined"
+                                    startIcon={<LuRefreshCw />}
+                                    onClick={handleResetFilters}
+                                    style={{ color: primaryColor, borderColor: primaryColor }}
                                 >
-                                    <MenuItem value="all">Tất cả trạng thái</MenuItem>
-                                    <MenuItem value="active">Đang hoạt động</MenuItem>
-                                    <MenuItem value="expired">Đã hết hạn</MenuItem>
-                                    {/* Có thể thêm các trạng thái khác nếu cần */}
-                                </Select>
-                            </FormControl>
+                                    Reset
+                                </Button>
+                            </Grid>
                         </Grid>
-                        <Grid item xs={12} sm={6} md={2}>
-                             <Button
-                                variant="contained"
-                                startIcon={<TbFilter />}
-                                onClick={fetchVouchers} // Gọi lại fetchVouchers với filter mới
-                                style={{ backgroundColor: primaryColor }}
-                                fullWidth
-                            >
-                                Lọc
-                            </Button>
-                        </Grid>
-                        <Grid item xs={12} sm={6} md={3}>
-                            <Button
-                                variant="outlined"
-                                startIcon={<LuRefreshCw />}
-                                onClick={handleResetFilters}
-                                style={{ color: primaryColor, borderColor: primaryColor }}
-                                fullWidth
-                            >
-                                Đặt lại bộ lọc
-                            </Button>
-                        </Grid>
-                    </Grid>
+                    </Box>
                 </Card>
 
                 {loading ? (
@@ -387,22 +400,18 @@ const AdminVoucher = () => { // Đổi tên component cho phù hợp với Admin
                 ) : error ? (
                     <Alert severity="error">{error}</Alert>
                 ) : (
-                    <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-                        <TableContainer>
-                            <Table size="small" sx={{ minWidth: 1000 }} aria-label="voucher table">
+                    <Paper sx={{ width: '100%', overflowX: 'auto' }}>
+                        <TableContainer component={Paper}>
+                            <Table size="small" sx={{ minWidth: 800 }} aria-label="voucher table">
                                 <TableHead>
                                     <TableRow sx={{ backgroundColor: '#e0f2f1' }}>
-                                        <TableCell padding="checkbox">
-                                            <input type="checkbox" className="form-checkbox h-4 w-4 text-emerald-600" />
-                                        </TableCell>
-                                        <TableCell sx={{ fontWeight: "bold", fontSize: "0.9rem" }}>Tên chiến dịch</TableCell>
-                                        <TableCell sx={{ fontWeight: "bold", fontSize: "0.9rem" }}>Mã</TableCell>
-                                        <TableCell sx={{ fontWeight: "bold", fontSize: "0.9rem" }}>Giảm giá</TableCell>
-                                        <TableCell sx={{ fontWeight: "bold", fontSize: "0.9rem" }} align="center">Hiển thị</TableCell>
-                                        <TableCell sx={{ fontWeight: "bold", fontSize: "0.9rem" }}>Ngày bắt đầu</TableCell>
-                                        <TableCell sx={{ fontWeight: "bold", fontSize: "0.9rem" }}>Ngày kết thúc</TableCell>
-                                        <TableCell sx={{ fontWeight: "bold", fontSize: "0.9rem" }} align="center">Trạng thái</TableCell>
-                                        <TableCell sx={{ fontWeight: "bold", fontSize: "0.9rem" }} align="center">Hành động</TableCell>
+                                        <TableCell sx={{ fontSize: "1rem" }}>Mã voucher</TableCell>
+                                        <TableCell sx={{ fontSize: "1rem" }}>Giảm giá</TableCell>
+                                        <TableCell sx={{ fontSize: "1rem" }}>Ngày bắt đầu</TableCell>
+                                        <TableCell sx={{ fontSize: "1rem" }}>Ngày kết thúc</TableCell>
+                                        <TableCell sx={{ fontSize: "1rem" }} align="center">Trạng thái</TableCell>
+                                        <TableCell sx={{ fontSize: "1rem" }} align="center">Hoạt động</TableCell>
+                                        <TableCell sx={{ fontSize: "1rem"}} align="center">Hành động</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -415,20 +424,8 @@ const AdminVoucher = () => { // Đổi tên component cho phù hợp với Admin
                                     ) : (
                                         vouchers.map((voucher) => (
                                             <TableRow key={voucher._id}>
-                                                <TableCell padding="checkbox">
-                                                    <input type="checkbox" className="form-checkbox h-4 w-4 text-emerald-600" />
-                                                </TableCell>
-                                                <TableCell>{voucher.campaignName}</TableCell>
                                                 <TableCell>{voucher.code}</TableCell>
                                                 <TableCell>{formatDiscount(voucher)}</TableCell>
-                                                <TableCell align="center">
-                                                    <Switch
-                                                        checked={voucher.isActive}
-                                                        onChange={() => handleToggleActive(voucher._id, voucher.isActive)}
-                                                        color="success"
-                                                        inputProps={{ 'aria-label': 'toggle voucher status' }}
-                                                    />
-                                                </TableCell>
                                                 <TableCell>{formatDate(voucher.startDate)}</TableCell>
                                                 <TableCell>{formatDate(voucher.endDate)}</TableCell>
                                                 <TableCell align="center">
@@ -439,7 +436,15 @@ const AdminVoucher = () => { // Đổi tên component cho phù hợp với Admin
                                                     />
                                                 </TableCell>
                                                 <TableCell align="center">
-                                                    <IconButton size="small" color="primary" onClick={() => handleOpenEditModal(voucher)} title="Chỉnh sửa">
+                                                    <Switch
+                                                        checked={voucher.isActive}
+                                                        onChange={() => handleToggleActive(voucher._id, voucher.isActive)}
+                                                        color="success"
+                                                        size="small"
+                                                    />
+                                                </TableCell>
+                                                <TableCell align="center">
+                                                    <IconButton size="small" color="warning" onClick={() => handleOpenEditModal(voucher)} title="Chỉnh sửa">
                                                         <MdEdit />
                                                     </IconButton>
                                                     <IconButton size="small" color="error" onClick={() => handleDeleteVoucher(voucher._id)} title="Xóa">
@@ -455,7 +460,7 @@ const AdminVoucher = () => { // Đổi tên component cho phù hợp với Admin
                         <TablePagination
                             component="div"
                             count={totalVouchers}
-                            page={filter.page - 1} // MUI pagination is 0-indexed
+                            page={filter.page - 1}
                             onPageChange={handleChangePage}
                             rowsPerPage={filter.limit}
                             onRowsPerPageChange={handleChangeRowsPerPage}
@@ -465,140 +470,143 @@ const AdminVoucher = () => { // Đổi tên component cho phù hợp với Admin
                 )}
 
                 {/* Modal for Add/Edit Voucher */}
-                <Dialog open={isModalOpen} onClose={handleCloseModal} maxWidth="sm" fullWidth>
+                <Dialog open={isModalOpen} onClose={handleCloseModal} maxWidth="md" fullWidth>
                     <DialogTitle style={{ color: primaryColor }}>
                         {editingVoucher ? 'Chỉnh sửa Mã Giảm Giá' : 'Thêm Mã Giảm Giá Mới'}
                     </DialogTitle>
-                    <DialogContent dividers>
-                        <form onSubmit={handleFormSubmit}>
-                            <Grid container spacing={2}>
-                                <Grid item xs={12}>
-                                    <TextField
-                                        margin="dense"
-                                        label="Tên chiến dịch"
-                                        name="campaignName"
-                                        value={voucherForm.campaignName}
-                                        onChange={handleFormChange}
-                                        fullWidth
-                                        required
-                                    />
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <TextField
-                                        margin="dense"
-                                        label="Mã Voucher"
-                                        name="code"
-                                        value={voucherForm.code}
-                                        onChange={handleFormChange}
-                                        fullWidth
-                                        required
-                                    />
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <FormControl fullWidth margin="dense">
-                                        <InputLabel>Loại giảm giá</InputLabel>
-                                        <Select
-                                            name="discountType"
-                                            value={voucherForm.discountType}
-                                            label="Loại giảm giá"
-                                            onChange={handleFormChange}
-                                        >
-                                            <MenuItem value="PERCENT">Phần trăm (%)</MenuItem>
-                                            <MenuItem value="FIXED_AMOUNT">Số tiền cố định</MenuItem>
-                                            <MenuItem value="FREE_SHIPPING">Miễn phí vận chuyển</MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <TextField
-                                        margin="dense"
-                                        label="Giá trị giảm giá"
-                                        name="discountValue"
-                                        type="number"
-                                        value={voucherForm.discountValue}
-                                        onChange={handleFormChange}
-                                        fullWidth
-                                        required
-                                    />
-                                </Grid>
-                                {voucherForm.discountType === 'PERCENT' && (
-                                    <Grid item xs={12}>
-                                        <TextField
-                                            margin="dense"
-                                            label="Giảm tối đa (VND)"
-                                            name="maxDiscountAmount"
-                                            type="number"
-                                            value={voucherForm.maxDiscountAmount || ''}
-                                            onChange={handleFormChange}
-                                            fullWidth
-                                        />
-                                    </Grid>
-                                )}
-                                <Grid item xs={12}>
-                                    <TextField
-                                        margin="dense"
-                                        label="Đơn hàng tối thiểu (VND)"
-                                        name="minOrderAmount"
-                                        type="number"
-                                        value={voucherForm.minOrderAmount}
-                                        onChange={handleFormChange}
-                                        fullWidth
-                                        required
-                                    />
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <TextField
-                                        margin="dense"
-                                        label="Giới hạn lượt sử dụng"
-                                        name="usageLimit"
-                                        type="number"
-                                        value={voucherForm.usageLimit}
-                                        onChange={handleFormChange}
-                                        fullWidth
-                                        required
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={6}>
-                                    <TextField
-                                        margin="dense"
-                                        label="Ngày bắt đầu"
-                                        name="startDate"
-                                        type="date"
-                                        value={voucherForm.startDate}
-                                        onChange={handleFormChange}
-                                        fullWidth
-                                        required
-                                        InputLabelProps={{ shrink: true }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={6}>
-                                    <TextField
-                                        margin="dense"
-                                        label="Ngày kết thúc"
-                                        name="endDate"
-                                        type="date"
-                                        value={voucherForm.endDate}
-                                        onChange={handleFormChange}
-                                        fullWidth
-                                        required
-                                        InputLabelProps={{ shrink: true }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <FormControl margin="dense" display="flex" alignItems="center">
-                                        <Typography variant="body1" component="span" sx={{ mr: 1 }}>Hoạt động</Typography>
-                                        <Switch
-                                            name="isActive"
-                                            checked={voucherForm.isActive}
-                                            onChange={handleFormChange}
-                                            color="success"
-                                        />
-                                    </FormControl>
-                                </Grid>
-                            </Grid>
-                        </form>
+                    <DialogContent dividers sx={{ padding: '24px !important' }}>
+                        <Box sx={{ 
+                            display: 'flex', 
+                            flexDirection: 'column', 
+                            gap: 3, 
+                            width: '100%',
+                            '& .MuiTextField-root': { 
+                                width: '100%' 
+                            },
+                            '& .MuiFormControl-root': { 
+                                width: '100%' 
+                            }
+                        }}>
+                            <Box sx={{ 
+                                display: 'flex', 
+                                gap: 2, 
+                                flexDirection: { xs: 'column', sm: 'row' },
+                                '& .MuiTextField-root': { 
+                                    flex: 1,
+                                    width: '100%'
+                                }
+                            }}>
+                                <TextField
+                                    label="Mã Voucher"
+                                    name="code"
+                                    value={voucherForm.code}
+                                    onChange={handleFormChange}
+                                    fullWidth
+                                    required
+                                />
+                                <TextField
+                                    label="Giới hạn lượt sử dụng"
+                                    name="usageLimit"
+                                    type="number"
+                                    value={voucherForm.usageLimit}
+                                    onChange={handleFormChange}
+                                    fullWidth
+                                />
+                            </Box>
+                            
+                            <TextField
+                                label="Mô tả chi tiết voucher"
+                                name="description"
+                                value={voucherForm.description}
+                                onChange={handleFormChange}
+                                fullWidth
+                                required
+                            />
+                            
+                            <FormControl fullWidth>
+                                <InputLabel>Loại giảm giá</InputLabel>
+                                <Select
+                                    name="discountType"
+                                    value={voucherForm.discountType}
+                                    label="Loại giảm giá"
+                                    onChange={handleFormChange}
+                                >
+                                    <MenuItem value="PERCENT">Phần trăm (%)</MenuItem>
+                                    <MenuItem value="FIXED_AMOUNT">Số tiền cố định</MenuItem>
+                                </Select>
+                            </FormControl>
+                            
+                            <TextField
+                                label="Giá trị giảm giá"
+                                name="discountValue"
+                                type="number"
+                                value={voucherForm.discountValue}
+                                onChange={handleFormChange}
+                                fullWidth
+                                required
+                            />
+                            
+                            {voucherForm.discountType === 'PERCENT' && (
+                                <TextField
+                                    label="Giảm tối đa (VND)"
+                                    name="maxDiscountAmount"
+                                    type="number"
+                                    value={voucherForm.maxDiscountAmount}
+                                    onChange={handleFormChange}
+                                    fullWidth
+                                />
+                            )}
+                            
+                            <TextField
+                                label="Đơn hàng tối thiểu (VND)"
+                                name="minOrderAmount"
+                                type="number"
+                                value={voucherForm.minOrderAmount}
+                                onChange={handleFormChange}
+                                fullWidth
+                            />
+                            
+                            <Box sx={{ 
+                                display: 'flex', 
+                                gap: 2, 
+                                flexDirection: { xs: 'column', sm: 'row' },
+                                '& .MuiTextField-root': { 
+                                    flex: 1,
+                                    width: '100%'
+                                }
+                            }}>
+                                <TextField
+                                    label="Ngày bắt đầu"
+                                    name="startDate"
+                                    type="date"
+                                    value={voucherForm.startDate}
+                                    onChange={handleFormChange}
+                                    fullWidth
+                                    InputLabelProps={{ shrink: true }}
+                                />
+                                <TextField
+                                    label="Ngày kết thúc"
+                                    name="endDate"
+                                    type="date"
+                                    value={voucherForm.endDate}
+                                    onChange={handleFormChange}
+                                    fullWidth
+                                    InputLabelProps={{ shrink: true }}
+                                />
+                            </Box>
+                            
+                            <Box display="flex" alignItems="center" sx={{ width: '100%' }}>
+                                <Typography variant="body1" sx={{ mr: 2 }}>Hoạt động:</Typography>
+                                <Switch
+                                    name="isActive"
+                                    checked={voucherForm.isActive}
+                                    onChange={handleFormChange}
+                                    color="success"
+                                />
+                            </Box>
+                        </Box>
                     </DialogContent>
-                    <DialogActions>
+                    <DialogActions sx={{ padding: 2 }}>
                         <Button onClick={handleCloseModal}>Hủy</Button>
                         <Button onClick={handleFormSubmit} variant="contained" style={{ backgroundColor: primaryColor }}>
                             {editingVoucher ? 'Cập nhật' : 'Thêm'}

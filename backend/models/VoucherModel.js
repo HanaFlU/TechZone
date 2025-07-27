@@ -15,7 +15,7 @@ const VoucherSchema = new mongoose.Schema({
     discountType: {
         type: String,
         enum: ['PERCENT', 'FIXED_AMOUNT'],
-        required: [true, 'Loại giảm giá là bắt buộc']
+        required: true
     },
     discountValue: {
         type: Number,

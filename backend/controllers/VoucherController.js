@@ -100,8 +100,54 @@ const VoucherController = {
 
     findAll: async (req, res) => {
         try {
-            const vouchers = await Voucher.find({});
-            res.status(200).json({ success: true, vouchers });
+            const { searchTerm, status, discountType, startDate, endDate, limit, page } = req.query;
+            const query = {};
+            const parsedLimit = parseInt(limit, 10) || 10;
+            const parsedPage = parseInt(page, 10) || 1;
+            const skip = (parsedPage - 1) * parsedLimit;
+
+            if (searchTerm) {
+                query.$or = [
+                    { code: { $regex: searchTerm, $options: 'i' } },
+                    { description: { $regex: searchTerm, $options: 'i' } }
+                ];
+            }
+
+            if (status) {
+                const now = new Date();
+                if (status === 'active') {
+                    query.isActive = true;
+                    query.startDate = { $lte: now };
+                    query.endDate = { $gte: now };
+                    query.$expr = { $lt: ["$usedCount", "$usageLimit"] };
+                } else if (status === 'inactive') {
+                    query.isActive = false;
+                } else if (status === 'expired') {
+                    query.endDate = { $lt: now };
+                } else if (status === 'upcoming') {
+                    query.startDate = { $gt: now };
+                }
+            }
+
+            if (discountType) {
+                query.discountType = discountType;
+            }
+            if (startDate) {
+                query.startDate = { ...query.startDate, $gte: new Date(startDate) };
+            }
+            if (endDate) {
+                const endOfDay = new Date(endDate);
+                endOfDay.setHours(23, 59, 59, 999);
+                query.endDate = { ...query.endDate, $lte: endOfDay };
+            }
+
+            const totalVouchers = await Voucher.countDocuments(query);
+            const vouchers = await Voucher.find(query)
+                .skip(skip)
+                .limit(parsedLimit);
+
+            res.status(200).json({ success: true, vouchers, totalVouchers, page: parsedPage, limit: parsedLimit });
+
         } catch (error) {
             console.error('Error in findAll vouchers:', error);
             res.status(500).json({ success: false, message: 'Lỗi máy chủ khi lấy danh sách voucher.', error: error.message });
