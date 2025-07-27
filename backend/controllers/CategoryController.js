@@ -1,7 +1,7 @@
 const Category = require('../models/CategoryModel');
 const Product = require('../models/ProductModel');
 
-const getAllDescendantCategoryIds = require('../helpers/getAllDescendantCategoryIds');
+const { getAllDescendantCategoryIds, getLeafCategoryIds } = require('../helpers/getAllDescendantCategoryIds');
 const { generateSlug, ensureSlug, isDuplicateSlug } = require('../helpers/slugHelper');
 const generateKeyFromLabel = require('../helpers/generateKeyFromeLabel');
 
@@ -118,5 +118,146 @@ exports.deleteCategory = async (req, res) => {
     res.json({ message: 'Category deleted successfully' });
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+};
+
+// Get products by category (including all subcategories)
+exports.getProductsByCategory = async (req, res) => {
+  try {
+    const { identifier } = req.params; // Can be slug or _id
+    const {
+      page = 1,
+      limit = 20,
+      sort = 'name',
+      order = 'asc',
+      minPrice,
+      maxPrice,
+      brands,
+      minRating,
+      availability
+    } = req.query;
+
+    // Find the category by slug or _id
+    let category = await Category.findOne({ slug: identifier });
+    if (!category) {
+      category = await Category.findById(identifier);
+    }
+
+    if (!category) {
+      return res.status(404).json({ message: 'Category not found' });
+    }
+    
+        // Get all leaf category IDs (categories with no children)
+    const leafCategoryIds = await getLeafCategoryIds(category._id);
+
+    if (leafCategoryIds.length === 0) {
+      // If no leaf categories, use the category itself
+      leafCategoryIds.push(category._id.toString());
+    }
+    
+    // Build the query for products
+    const query = { category: { $in: leafCategoryIds } };
+
+    // Add price filter
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = parseFloat(minPrice);
+      if (maxPrice) query.price.$lte = parseFloat(maxPrice);
+    }
+
+    // Add brand filter
+    if (brands) {
+      const brandArray = Array.isArray(brands) ? brands : [brands];
+      query.brand = { $in: brandArray };
+    }
+
+    // Add rating filter
+    if (minRating) {
+      query.rating = { $gte: parseFloat(minRating) };
+    }
+
+    // Add availability filter
+    if (availability) {
+      if (availability === 'inStock') {
+        query.stock = { $gt: 0 };
+      } else if (availability === 'outOfStock') {
+        query.stock = { $lte: 0 };
+      }
+    }
+    
+    // Build sort object
+    const sortObj = {};
+    sortObj[sort] = order === 'desc' ? -1 : 1;
+    
+    // Calculate pagination
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    
+    // Execute the query with pagination and sorting
+    const products = await Product.find(query)
+      .populate('category', 'name slug')
+      .sort(sortObj)
+      .skip(skip)
+      .limit(parseInt(limit))
+      .lean()
+      .exec();
+    
+    // Get total count for pagination (optimized)
+    const totalProducts = await Product.countDocuments(query).exec();
+    const totalPages = Math.ceil(totalProducts / parseInt(limit));
+    
+    // Get category hierarchy for breadcrumb
+    const categoryHierarchy = await getCategoryHierarchy(category._id);
+    
+    res.json({
+      success: true,
+      data: {
+        category: {
+          _id: category._id,
+          name: category.name,
+          slug: category.slug,
+          description: category.description,
+          hierarchy: categoryHierarchy
+        },
+        products,
+        pagination: {
+          currentPage: parseInt(page),
+          totalPages,
+          totalProducts,
+          hasNextPage: parseInt(page) < totalPages,
+          hasPrevPage: parseInt(page) > 1
+        }
+      }
+    });
+    
+  } catch (err) {
+    console.error('Error getting products by category:', err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Helper function to get category hierarchy (breadcrumb)
+const getCategoryHierarchy = async (categoryId) => {
+  try {
+    const hierarchy = [];
+    let currentCategory = await Category.findById(categoryId);
+    
+    while (currentCategory) {
+      hierarchy.unshift({
+        _id: currentCategory._id,
+        name: currentCategory.name,
+        slug: currentCategory.slug
+      });
+      
+      if (currentCategory.parent) {
+        currentCategory = await Category.findById(currentCategory.parent);
+      } else {
+        break;
+      }
+    }
+    
+    return hierarchy;
+  } catch (error) {
+    console.error('Error getting category hierarchy:', error);
+    return [];
   }
 };

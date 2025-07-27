@@ -222,7 +222,7 @@ const ProductDetailPage = () => {
           <p className="text-gray-600 mb-4">{error || 'Sản phẩm không tồn tại'}</p>
           <button
             onClick={() => navigate('/')}
-            className="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
+            className="bg-light-green text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
           >
             Quay về trang chủ
           </button>
@@ -254,9 +254,25 @@ const ProductDetailPage = () => {
                 <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"></path>
                 </svg>
-                <span className="ml-1 text-sm font-medium text-gray-500 md:ml-2">
-                  {product.category?.name || 'Danh mục'}
-                </span>
+                {product.category?.slug || product.category?._id ? (
+                  <button
+                    onClick={() => {
+                      if (product.category.slug) {
+                        navigate(`/category/${product.category.slug}`);
+                      } else if (product.category._id) {
+                        // Fallback to using category ID if slug is missing
+                        navigate(`/category/${product.category._id}`);
+                      }
+                    }}
+                    className="ml-1 text-sm font-medium text-gray-500 md:ml-2 hover:text-emerald-600 hover:underline cursor-pointer transition-colors"
+                  >
+                    {product.category.name}
+                  </button>
+                ) : (
+                  <span className="ml-1 text-sm font-medium text-gray-500 md:ml-2">
+                    {product.category?.name || 'Danh mục'}
+                  </span>
+                )}
               </div>
             </li>
             <li aria-current="page">
@@ -318,12 +334,22 @@ const ProductDetailPage = () => {
               <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.name}</h1>
 
               {/* Category */}
-              {product.category && (
+              {product.category && (product.category.slug || product.category._id) && (
                 <div className="mb-4">
                   <span className="text-sm text-gray-500">Danh mục: </span>
-                  <span className="text-sm font-medium text-emerald-600">
+                  <button
+                    onClick={() => {
+                      if (product.category.slug) {
+                        navigate(`/category/${product.category.slug}`);
+                      } else if (product.category._id) {
+                        // Fallback to using category ID if slug is missing
+                        navigate(`/category/${product.category._id}`);
+                      }
+                    }}
+                    className="text-sm font-medium text-emerald-600 hover:text-emerald-800 hover:underline cursor-pointer transition-colors"
+                  >
                     {product.category.name}
-                  </span>
+                  </button>
                 </div>
               )}
 
@@ -405,21 +431,21 @@ const ProductDetailPage = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="space-y-3">
-                <button
-                  onClick={handleAddToCart}
-                  disabled={product.stock === 0}
-                  className="w-full bg-emerald-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-                >
-                  Thêm vào giỏ hàng
-                </button>
+              <div className="flex space-x-3">
                 <button
                   onClick={handleBuyNow}
                   disabled={product.stock === 0}
-                  className="w-full bg-orange-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-orange-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                  className="flex-1 bg-light-green text-white py-3 px-6 rounded-lg font-semibold hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                 >
                   Mua ngay
                 </button>
+                                 <button
+                   onClick={handleAddToCart}
+                   disabled={product.stock === 0}
+                   className="flex-1 bg-white text-light-green border-2 border-light-green py-3 px-6 rounded-lg font-semibold hover:bg-emerald-700  hover:text-white disabled:bg-gray-400 disabled:text-gray-500 disabled:border-gray-400 disabled:cursor-not-allowed transition-colors"
+                 >
+                   Thêm vào giỏ hàng
+                 </button>
               </div>
 
               {/* Voucher Display */}

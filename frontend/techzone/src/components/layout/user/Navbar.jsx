@@ -190,8 +190,27 @@ const Navbar = ({onAccountClick, setAdminMode, searchValue, setSearchValue, prod
     }, 3000); // Much longer delay to prevent accidental hiding
     setCategoryDropdownTimer(timer);
   };
-  const handleGroupHeaderClick = (groupName) => {};
-  const handleChildSubcategoryClick = (subcategoryId, subcategoryName) => {};
+  const handleMainCategoryClick = (category) => {
+    if (category.slug) {
+      navigate(`/category/${category.slug}`);
+    }
+  };
+  
+  const handleGroupHeaderClick = (groupName) => {
+    // Find the category by name and navigate to it
+    const category = categories.find(cat => cat.name === groupName);
+    if (category && category.slug) {
+      navigate(`/category/${category.slug}`);
+    }
+  };
+  
+  const handleChildSubcategoryClick = (subcategoryId, subcategoryName) => {
+    // Find the category by ID and navigate to it
+    const category = categories.find(cat => cat._id === subcategoryId);
+    if (category && category.slug) {
+      navigate(`/category/${category.slug}`);
+    }
+  };
 
   // Separate main categories and subcategories from merged data
   const mainCategories = categories.filter(cat => !cat.parent);
@@ -271,18 +290,18 @@ const Navbar = ({onAccountClick, setAdminMode, searchValue, setSearchValue, prod
             />
           </div>
           
-                    {/* Category Dropdown - Show when scrolled on homepage OR always on product detail pages */}
-          {((isScrolled && location.pathname === '/') || location.pathname.startsWith('/product/')) && (
+                    {/* Category Dropdown - Show when scrolled on homepage OR always on product detail pages OR on category pages */}
+          {((isScrolled && location.pathname === '/') || location.pathname.startsWith('/product/') || location.pathname.startsWith('/category/')) && (
             <div 
               className='relative'
               onMouseEnter={handleOpenCategoryDropdown}
               onMouseLeave={handleCloseCategoryDropdown}
             >
               <button
-                className={`flex items-center space-x-3 px-4 py-2 text-white transition-all duration-300 rounded-lg transform ${
+                className={`flex items-center space-x-3 px-4 py-2 text-white transition-all duration-300 rounded-lg transform bg-light-green ${
                   showCategoryDropdown 
-                    ? 'bg-green-700 shadow-lg scale-105 text-gray-200' 
-                    : 'hover:text-gray-200 hover:bg-green-700 hover:shadow-lg hover:scale-105'
+                    ? 'bg-emerald-700 shadow-lg scale-105 text-gray-200' 
+                    : 'hover:text-gray-200 hover:bg-emerald-700 hover:shadow-lg hover:scale-105'
                 }`}
               >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-white">
@@ -309,6 +328,7 @@ const Navbar = ({onAccountClick, setAdminMode, searchValue, setSearchValue, prod
                       floatingMenuRef={floatingMenuRef}
                       handleFloatingMenuMouseEnter={handleFloatingMenuMouseEnter}
                       handleFloatingMenuMouseLeave={handleFloatingMenuMouseLeave}
+                      handleMainCategoryClick={handleMainCategoryClick}
                       handleGroupHeaderClick={handleGroupHeaderClick}
                       handleChildSubcategoryClick={handleChildSubcategoryClick}
                       showHeader={false}
@@ -483,7 +503,7 @@ const Navbar = ({onAccountClick, setAdminMode, searchValue, setSearchValue, prod
                               navigate('/cart');
                               setShowCartDropdown(false);
                             }}
-                            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+                            className="w-full bg-light-green hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
                           >
                             Xem giỏ hàng
                           </button>

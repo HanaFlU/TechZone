@@ -42,6 +42,61 @@ class CategoryService {
             throw error;
         }
     }
+
+    async getProductsByCategory(identifier, options = {}) {
+        try {
+            const { 
+                page = 1, 
+                limit = 20, 
+                sort = 'name', 
+                order = 'asc',
+                priceRange,
+                brands,
+                minRating,
+                availability
+            } = options;
+            
+            const queryParams = new URLSearchParams({
+                page: page.toString(),
+                limit: limit.toString(),
+                sort,
+                order
+            });
+
+            // Add price range filter
+            if (priceRange) {
+                if (priceRange.min !== undefined) {
+                    queryParams.append('minPrice', priceRange.min.toString());
+                }
+                if (priceRange.max !== undefined && priceRange.max !== null) {
+                    queryParams.append('maxPrice', priceRange.max.toString());
+                }
+            }
+
+            // Add brand filter
+            if (brands && brands.length > 0) {
+                brands.forEach(brand => {
+                    queryParams.append('brands', brand);
+                });
+            }
+
+            // Add rating filter
+            if (minRating) {
+                queryParams.append('minRating', minRating.toString());
+            }
+
+            // Add availability filter
+            if (availability) {
+                queryParams.append('availability', availability);
+            }
+            
+            const response = await this.api.get(`/${identifier}/products?${queryParams.toString()}`);
+            return response.data;
+        } catch (error) {
+            console.error('CategoryService Error: Failed to get products by category:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    }
 };
 
 export default new CategoryService();

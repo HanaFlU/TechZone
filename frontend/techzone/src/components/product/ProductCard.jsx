@@ -1,7 +1,8 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const ProductCard = ({ product, onAddToCart }) => {
+  const navigate = useNavigate();
   const getProductImage = (product) => {
     const isGoogleImageLink = url => typeof url === 'string' && url.includes('google.com/imgres');
     let images = [];
@@ -19,7 +20,21 @@ const ProductCard = ({ product, onAddToCart }) => {
         </div>
       </Link>
       <div className="p-4 flex-1 flex flex-col">
-        {product.category && <span className="text-xs text-gray-500 mb-1">{product.category.name || product.category}</span>}
+        {product.category && (product.category.slug || product.category._id) && (
+          <button
+            onClick={() => {
+              if (product.category.slug) {
+                navigate(`/category/${product.category.slug}`);
+              } else if (product.category._id) {
+                // Fallback to using category ID if slug is missing
+                navigate(`/category/${product.category._id}`);
+              }
+            }}
+            className="text-xs text-gray-500 mb-1 hover:text-emerald-600 hover:underline cursor-pointer transition-colors"
+          >
+            {product.category.name || product.category}
+          </button>
+        )}
         <Link to={`/product/${product._id}`} className="block">
           <h3 className="text-base font-semibold text-gray-900 mb-2 overflow-hidden hover:text-emerald-600 transition-colors" style={{
             display: '-webkit-box',
@@ -38,7 +53,7 @@ const ProductCard = ({ product, onAddToCart }) => {
           <span className="text-lg font-bold text-emerald-600">{product.price?.toLocaleString('vi-VN')}₫</span>
         </div>
         <button
-          className="mt-auto bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold py-2 px-4 rounded-lg transition-colors border border-emerald-200"
+          className="mt-auto bg-light-green hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
           onClick={() => onAddToCart(product)}
         >
           Thêm vào giỏ hàng

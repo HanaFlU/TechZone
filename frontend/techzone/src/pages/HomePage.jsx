@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ProductService from '../services/ProductService';
 import CategoryService from '../services/CategoryService';
 import CategorySidebar from '../components/layout/user/CategorySidebar';
@@ -43,6 +44,7 @@ const mockNews = [
 ];
 
 const HomePage = () => {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -178,8 +180,33 @@ const HomePage = () => {
       setHoveredCategory(null);
     }, 3000); // 3 second delay when leaving floating menu
   };
-  const handleGroupHeaderClick = (groupName) => {};
-  const handleChildSubcategoryClick = (subcategoryId, subcategoryName) => {};
+  const handleMainCategoryClick = (category) => {
+    if (category.slug) {
+      navigate(`/category/${category.slug}`);
+    } else if (category._id) {
+      navigate(`/category/${category._id}`);
+    }
+  };
+  
+  const handleGroupHeaderClick = (groupName) => {
+    // Find the category by name and navigate to it
+    const category = categories.find(cat => cat.name === groupName);
+    if (category && category.slug) {
+      navigate(`/category/${category.slug}`);
+    } else if (category && category._id) {
+      navigate(`/category/${category._id}`);
+    }
+  };
+  
+  const handleChildSubcategoryClick = (subcategoryId, subcategoryName) => {
+    // Find the category by ID and navigate to it
+    const category = categories.find(cat => cat._id === subcategoryId);
+    if (category && category.slug) {
+      navigate(`/category/${category.slug}`);
+    } else if (category && category._id) {
+      navigate(`/category/${category._id}`);
+    }
+  };
 
 
 
@@ -318,6 +345,7 @@ const HomePage = () => {
                   floatingMenuRef={floatingMenuRef}
                   handleFloatingMenuMouseEnter={handleFloatingMenuMouseEnter}
                   handleFloatingMenuMouseLeave={handleFloatingMenuMouseLeave}
+                  handleMainCategoryClick={handleMainCategoryClick}
                   handleGroupHeaderClick={handleGroupHeaderClick}
                   handleChildSubcategoryClick={handleChildSubcategoryClick}
                 />

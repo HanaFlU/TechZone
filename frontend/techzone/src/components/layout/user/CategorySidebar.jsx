@@ -14,13 +14,14 @@ const CategorySidebar = ({
   handleFloatingMenuMouseLeave,
   handleGroupHeaderClick,
   handleChildSubcategoryClick,
+  handleMainCategoryClick,
   showHeader = true,
 }) => {
   return (
     <div className="mt-6 relative">
       <div className="w-80 bg-white rounded-2xl shadow-lg z-10">
         {showHeader && (
-          <div className="bg-green-600 rounded-t-2xl px-6 py-4">
+          <div className="bg-light-green rounded-t-2xl px-6 py-4">
             <div className="flex items-center space-x-3">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-white">
                 <path d="M3 6H21V8H3V6ZM3 11H21V13H3V11ZM3 16H21V18H3V16Z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -36,7 +37,16 @@ const CategorySidebar = ({
               onMouseEnter={() => handleCategoryMouseEnter(category._id)}
               className="relative"
             >
-              <div className="px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors">
+              <div 
+                className="px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (handleMainCategoryClick) {
+                    handleMainCategoryClick(category);
+                  }
+                }}
+              >
                 <div className="flex items-center space-x-3">
                   {category.icon && (
                     <img src={`${category.icon}`} alt="NaN" className="w-6 h-6 object-contain" />
@@ -79,7 +89,13 @@ const CategorySidebar = ({
                 <div key={subcat._id} className="space-y-1">
                   <div 
                     className="px-3 py-2 text-sm font-medium text-gray-900 bg-gray-50 rounded-lg border-l-4 border-green-500 cursor-pointer hover:bg-gray-100 transition-colors"
-                    onClick={() => handleGroupHeaderClick(subcat.name)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (handleGroupHeaderClick) {
+                        handleGroupHeaderClick(subcat.name);
+                      }
+                    }}
                   >
                     {subcat.name}
                   </div>
@@ -90,7 +106,13 @@ const CategorySidebar = ({
                         <div
                           key={childSubcat._id}
                           className="px-3 py-1.5 text-sm text-gray-700 hover:text-green-600 cursor-pointer hover:bg-gray-50 rounded transition-colors"
-                          onClick={() => handleChildSubcategoryClick(childSubcat._id, childSubcat.name)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (handleChildSubcategoryClick) {
+                              handleChildSubcategoryClick(childSubcat._id, childSubcat.name);
+                            }
+                          }}
                         >
                           {childSubcat.name}
                         </div>

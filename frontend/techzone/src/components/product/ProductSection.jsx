@@ -16,7 +16,7 @@ const ProductSection = ({
           <span className="h-0.5 w-16 bg-gray-300 ml-4 hidden sm:inline-block"></span>
         </div>
         <button
-          className="absolute right-0 top-0 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition-colors"
+          className="absolute right-0 top-0 bg-green-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition-colors"
           style={{ minWidth: '110px' }}
           onClick={onViewAll}
         >
