@@ -38,7 +38,6 @@ const ProductSchema = new mongoose.Schema(
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'TestCategory',
-      required: true,
     },
     specs: [specSchema],
     saleEvent: {
@@ -50,6 +49,11 @@ const ProductSchema = new mongoose.Schema(
       type: Number,
       required: true,
       min: 0,
+    },
+    status: {
+      type: String,
+      enum: ['active', 'inactive'],
+      default: 'active',
     },
   },
   {
