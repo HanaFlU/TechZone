@@ -80,12 +80,21 @@ const RevenueTrendChart = () => {
   }
 
   return (
-    <Box sx={{ p: 2 }}>
+    <Box 
+      sx={{ 
+        my: 2, 
+        p: 2, 
+        bgcolor: '#fcfcfc', 
+        borderRadius: '8px', 
+        fontFamily: 'Roboto, sans-serif', 
+        boxShadow: 1, 
+      }}
+    >
       <Box mb={2}> {/* Thêm margin-bottom cho toàn bộ phần header */}
         {/* Tên tiêu đề của biểu đồ */}
         <Typography
             variant="h6"
-            color="textPrimary"
+            color="main.primary"
             sx={{
                 fontWeight: 'bold',
                 mb: 2, // Thêm margin-bottom để tạo khoảng cách với RadioGroup

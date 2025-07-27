@@ -33,11 +33,8 @@ const Dashboard = () => {
 
           {/* Hàng 4: Bảng xếp hạng và đơn hàng gần đây */}
           <Grid  size={{ xs: 12}}>
-            <Paper sx={{ p: 2, height: '100%' }}>
-              <Typography variant="h6">Sản phẩm bán chạy nhất</Typography>
               {/* Bảng xếp hạng sản phẩm có doanh thu cao nhất */}
               <TopProductsReport />
-            </Paper>
           </Grid>
           <Grid  size={{ xs: 12}}>
               {/* Bảng các order gần đây nhất */}

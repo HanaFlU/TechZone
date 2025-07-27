@@ -1,29 +1,30 @@
-// src/components/reports/TopProductsReport.jsx
 import React, { useState, useEffect } from 'react';
 import {
   Box, Typography, CircularProgress, Alert,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-  FormControl, InputLabel, Select, MenuItem, TextField
+  Select, MenuItem,
+  ToggleButton, ToggleButtonGroup
 } from '@mui/material';
+import { FaMedal } from 'react-icons/fa';
 
-import ProductService from '../../services/ProductService'; 
+import ProductService from '../../services/ProductService';
 
 const TopProductsReport = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [sortBy, setSortBy] = useState('revenue'); 
-  const [limit, setLimit] = useState(10); 
+  const [sortBy, setSortBy] = useState('revenue');
+  const [limit, setLimit] = useState(10);
 
   useEffect(() => {
     const fetchTopProducts = async () => {
       try {
         setLoading(true);
         setError(null);
-        
+
         const response = await ProductService.getTopSellingProducts({ sortBy, limit });
-        
-        setProducts(response.data || []); 
+
+        setProducts(response.data || []);
 
       } catch (err) {
         setError('Không thể tải báo cáo sản phẩm hàng đầu.');
@@ -34,71 +35,219 @@ const TopProductsReport = () => {
     };
 
     fetchTopProducts();
-  }, [sortBy, limit]); 
+  }, [sortBy, limit]);
+
+  const renderRank = (index) => {
+    switch (index) {
+      case 0:
+        return <FaMedal size={20} color="#FFD700" style={{ verticalAlign: 'middle', marginRight: '2px' }} />; // Giảm size medal
+      case 1:
+        return <FaMedal size={20} color="#C0C0C0" style={{ verticalAlign: 'middle', marginRight: '2px' }} />; // Giảm size medal
+      case 2:
+        return <FaMedal size={20} color="#CD7F32" style={{ verticalAlign: 'middle', marginRight: '2px' }} />; // Giảm size medal
+      default:
+        return (
+          <Typography component="span" sx={{ fontWeight: 'bold', fontSize: '0.9rem', color: 'text.secondary' }}> {/* Giảm font size */}
+            {index + 1}
+          </Typography>
+        );
+    }
+  };
+
+  const handleSortByChange = (event, newSortBy) => {
+    if (newSortBy !== null) {
+      setSortBy(newSortBy);
+    }
+  };
+
+  const handleLimitChange = (event) => {
+    setLimit(parseInt(event.target.value));
+  };
+
+  const commonPaperSx = {
+    p: 3,
+    minHeight: 450,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    bgcolor: '#fcfcfc',
+    borderRadius: '8px',
+    boxShadow: 3,
+    fontFamily: 'Roboto, sans-serif',
+  };
 
   if (loading) {
     return (
-      <Box sx={{ p: 3, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 300 }}>
-        <CircularProgress />
-      </Box>
+      <Paper sx={commonPaperSx}>
+        <CircularProgress color="success" />
+        <Typography variant="body1" sx={{ mt: 2, color: 'text.secondary' }}>
+          Đang tải dữ liệu...
+        </Typography>
+      </Paper>
     );
   }
 
   if (error) {
     return (
-      <Box sx={{ p: 3, minHeight: 300 }}>
+      <Paper sx={commonPaperSx}>
         <Alert severity="error">{error}</Alert>
-      </Box>
+      </Paper>
     );
   }
 
   return (
-    <Box sx={{ mt: 3, p: 2, bgcolor: 'background.paper', borderRadius: '8px', boxShadow: 1 }}>
-      <Typography variant="h5" sx={{ color: '#328E6E', fontWeight: 'bold', mb: 2 }}>
-        Báo Cáo Sản Phẩm Hàng Đầu
+    <Paper sx={{ ...commonPaperSx, justifyContent: 'flex-start', alignItems: 'stretch' }}>
+      <Typography
+        variant="h5"
+        sx={{
+          color: '#328E6E',
+          fontWeight: 'bold',
+          mb: 3,
+          textAlign: 'center',
+          textTransform: 'uppercase',
+          letterSpacing: '0.5px'
+        }}
+      >
+        Sản Phẩm Hàng Đầu
       </Typography>
 
-      <Box sx={{ display: 'flex', gap: 2, mb: 3, alignItems: 'center' }}>
-        <FormControl sx={{ minWidth: 150 }}>
-          <InputLabel id="sort-by-label">Sắp xếp theo</InputLabel>
-          <Select
-            labelId="sort-by-label"
-            value={sortBy}
-            label="Sắp xếp theo"
-            onChange={(e) => setSortBy(e.target.value)}
-          >
-            <MenuItem value="revenue">Doanh thu cao nhất</MenuItem>
-            <MenuItem value="quantity">Bán chạy nhất</MenuItem>
-          </Select>
-        </FormControl>
-        <TextField
-          label="Số lượng hiển thị"
-          type="number"
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mb: 3, gap: 1.5 }}>
+        <ToggleButtonGroup
+          value={sortBy}
+          exclusive
+          onChange={handleSortByChange}
+          sx={{
+            height: 36,
+            '& .MuiToggleButton-root': {
+              borderColor: '#74B39D',
+              color: '#328E6E',
+              textTransform: 'none',
+              fontWeight: 'medium',
+              fontSize: '0.8rem', 
+              px: 1.5,
+              py: 0.5,
+              '&.Mui-selected': {
+                bgcolor: '#328E6E',
+                color: '#FFFFFF',
+                '&:hover': {
+                  bgcolor: '#287a5a',
+                },
+              },
+              '&:not(.Mui-selected):hover': {
+                bgcolor: '#e8f5e9',
+              },
+            },
+          }}
+        >
+          <ToggleButton value="revenue">Doanh thu cao nhất</ToggleButton>
+          <ToggleButton value="quantity">Bán chạy nhất</ToggleButton>
+        </ToggleButtonGroup>
+
+        <Select
           value={limit}
-          onChange={(e) => setLimit(Math.max(1, parseInt(e.target.value) || 1))}
-          inputProps={{ min: 1 }}
-          sx={{ width: 150 }}
-        />
+          onChange={handleLimitChange}
+          disableUnderline
+          variant="standard"
+          sx={{
+            minWidth: 50,
+            height: 36,
+            textAlign: 'center',
+            bgcolor: '#e8f5e9',
+            borderRadius: '4px',
+            px: 0.5,
+            '& .MuiSelect-select': {
+              py: 0.5, 
+              px: 0.5,
+              lineHeight: 'normal',
+              fontWeight: 'medium',
+              color: '#328E6E',
+              fontSize: '0.8rem', 
+            },
+            '& .MuiSvgIcon-root': {
+              color: '#328E6E',
+              fontSize: '1.1rem',
+            },
+            '&:before': { borderBottom: 'none !important' },
+            '&:after': { borderBottom: 'none !important' },
+            '& .MuiOutlinedInput-notchedOutline': { borderColor: 'transparent !important' },
+            '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'transparent !important' },
+          }}
+          MenuProps={{
+            PaperProps: {
+              sx: {
+                bgcolor: '#f5f5f5',
+                '& .MuiMenuItem-root': {
+                  color: '#333',
+                  fontSize: '0.8rem', 
+                  '&:hover': {
+                    bgcolor: '#e0f7fa',
+                  },
+                  '&.Mui-selected': {
+                    bgcolor: '#d0f0f4',
+                    color: '#328E6E',
+                  }
+                }
+              }
+            }
+          }}
+        >
+          <MenuItem value={5}>5</MenuItem>
+          <MenuItem value={10}>10</MenuItem>
+          <MenuItem value={20}>20</MenuItem>
+          <MenuItem value={50}>50</MenuItem>
+        </Select>
       </Box>
 
       {products.length === 0 ? (
-        <Box sx={{ p: 3, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 200 }}>
+        <Box sx={{ p: 3, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 150 }}>
           <Typography variant="body1" color="text.secondary">
             Không có dữ liệu sản phẩm để hiển thị.
           </Typography>
         </Box>
       ) : (
-        <TableContainer component={Paper} sx={{ boxShadow: 0, border: '1px solid', borderColor: 'grey.200' }}>
-          <Table sx={{ minWidth: 650 }} aria-label="top products table">
+        <TableContainer component={Paper} sx={{ boxShadow: 4, borderRadius: '8px', overflowX: 'auto' }}> 
+          <Table aria-label="top products table">
             <TableHead>
-              <TableRow sx={{ bgcolor: '#e0f2f1' }}>
-                <TableCell sx={{ fontWeight: 'bold', textTransform: 'uppercase', py: 1.5 }}>#</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', textTransform: 'uppercase', py: 1.5 }}>Hình ảnh</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', textTransform: 'uppercase', py: 1.5 }}>Tên Sản phẩm</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', textTransform: 'uppercase', py: 1.5 }}>Danh mục</TableCell> {/* Cột mới */}
-                <TableCell align="right" sx={{ fontWeight: 'bold', textTransform: 'uppercase', py: 1.5 }}>Giá</TableCell> {/* Cột mới */}
-                <TableCell align="right" sx={{ fontWeight: 'bold', textTransform: 'uppercase', py: 1.5 }}>
-                  {sortBy === 'revenue' ? 'Tổng Doanh thu' : 'Số lượng đã bán'} {/* Thay đổi tiêu đề cột */}
+              <TableRow sx={{ bgcolor: '#e0f7fa' }}>
+                <TableCell sx={{
+                  fontWeight: 'bold',
+                  fontSize: '0.8rem', 
+                  color: '#263238',
+                  py: 1.2, 
+                  textAlign: 'center'
+                }}>Hạng</TableCell>
+                <TableCell sx={{
+                  fontWeight: 'bold',
+                  fontSize: '0.8rem',
+                  color: '#263238',
+                  py: 1.2
+                }}>Hình ảnh</TableCell>
+                <TableCell sx={{
+                  fontWeight: 'bold',
+                  fontSize: '0.8rem',
+                  color: '#263238',
+                  py: 1.2
+                }}>Tên Sản phẩm</TableCell>
+                <TableCell sx={{
+                  fontWeight: 'bold',
+                  fontSize: '0.8rem',
+                  color: '#263238',
+                  py: 1.2
+                }}>Danh mục</TableCell>
+                <TableCell align="right" sx={{
+                  fontWeight: 'bold',
+                  fontSize: '0.8rem',
+                  color: '#263238',
+                  py: 1.2
+                }}>Giá</TableCell>
+                <TableCell align="right" sx={{
+                  fontWeight: 'bold',
+                  fontSize: '0.8rem',
+                  color: '#263238',
+                  py: 1.2
+                }}>
+                  {sortBy === 'revenue' ? 'Tổng Doanh thu' : 'Số lượng đã bán'}
                 </TableCell>
               </TableRow>
             </TableHead>
@@ -106,25 +255,40 @@ const TopProductsReport = () => {
               {products.map((product, index) => (
                 <TableRow
                   key={product.productId}
-                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                  sx={{
+                    bgcolor: '#ffffff',
+                    '&:nth-of-type(odd)': {
+                      bgcolor: '#fdfdfd',
+                    },
+                    '&:hover': {
+                      bgcolor: '#f5f5f5',
+                      cursor: 'default'
+                    },
+                  }}
                 >
-                  <TableCell>{index + 1}</TableCell>
-                  <TableCell>
-                    <Box sx={{ width: 70, height: 70, overflow: 'hidden', borderRadius: '4px', border: '1px solid #eee' }}> {/* Tăng kích thước ảnh */}
-                      <img 
-                        src={product.productImage || '/default-product-image.png'} 
-                        alt={product.productName} 
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                  <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', py: 0.8 }}> 
+                    {renderRank(index)}
+                  </TableCell>
+                  <TableCell sx={{ py: 0.8 }}>
+                    <Box sx={{ width: 50, height: 50, overflow: 'hidden', borderRadius: '4px', border: '1px solid #eee' }}>
+                      <img
+                        src={product.productImage || '/default-product-image.png'}
+                        alt={product.productName}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       />
                     </Box>
                   </TableCell>
-                  <TableCell>{product.productName}</TableCell>
-                  <TableCell>{product.categoryName || 'N/A'}</TableCell> {/* Hiển thị tên danh mục */}
-                  <TableCell align="right">
+                  <TableCell sx={{ fontSize: '0.8rem', color: '#333333', py: 0.8 }}> 
+                    {product.productName}
+                  </TableCell>
+                  <TableCell sx={{ fontSize: '0.8rem', color: '#555555', py: 0.8 }}> 
+                    {product.categoryName || 'Chưa phân loại'}
+                  </TableCell>
+                  <TableCell align="right" sx={{ fontSize: '0.8rem', color: '#333333', py: 0.8 }}>
                     {product.productPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
                   </TableCell>
-                  <TableCell align="right">
-                    {sortBy === 'revenue' 
+                  <TableCell align="right" sx={{ fontSize: '0.8rem', fontWeight: 'medium', color: '#333333', py: 0.8 }}>
+                    {sortBy === 'revenue'
                       ? product.totalRevenue?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
                       : product.totalSoldQuantity}
                   </TableCell>
@@ -134,7 +298,7 @@ const TopProductsReport = () => {
           </Table>
         </TableContainer>
       )}
-    </Box>
+    </Paper>
   );
 };
 

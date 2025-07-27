@@ -57,7 +57,7 @@ const RevenueSummary = () => {
   }
 
   return (
-    <Grid container spacing={2} sx={{ p: 0, m: 1, width: '100%' }}>
+    <Grid container spacing={2} sx={{ p: 0, my: 1, width: '100%' }}>
       <Grid size={{ xs: 12,sm: 6, md: 2.4 }}>
         <Card class="min-w-40 w-full p-4 border border-gray-200 rounded-lg shadow-sm justify-between text-center items-center text-white bg-teal-600 xl:mb-0 mb-3">
           <CiCalendarDate class="text-center inline-block text-3xl text-white dark:text-emerald-100 bg-teal-600" />

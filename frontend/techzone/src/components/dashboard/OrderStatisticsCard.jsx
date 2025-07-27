@@ -91,7 +91,7 @@ const OrderStatisticsCard = () => {
   ];
 
   return (
-    <Grid container spacing={2} sx={{ p: 0, m: 1, width: '100%' }}>
+    <Grid container spacing={1} sx={{ p: 0, my: 2, width: '100%', justifyContent: 'space-between' }}>
 
       {/* Card cho Tổng số đơn hàng */}
       <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2 }}>

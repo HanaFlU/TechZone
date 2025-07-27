@@ -97,16 +97,25 @@ const RecentOrdersTable = () => {
   }
 
   return (
-    <Box sx={{ mt: 3, p: 2}}>
+    <Box 
+      sx={{ 
+        mt: 3, 
+        p: 2, 
+        bgcolor: '#fcfcfc', 
+        borderRadius: '8px', 
+        fontFamily: 'Roboto, sans-serif', 
+        boxShadow: 1, 
+      }}
+    >
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography 
-          variant="h5"
+          variant="h6"
           sx={{ 
             fontWeight: 'bold',
             mb: 0
           }}
         > 
-          Đơn Hàng Gần Đây Nhất
+          Đơn hàng gần đây nhất
         </Typography>
         <Button 
           variant="contained" 
