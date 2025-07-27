@@ -341,8 +341,8 @@ const CartPage = () => {
                 {/* Left side */}
                 <div className="lg:col-span-3 bg-white rounded-lg h-fit space-y-5">
                     {/* Navbar */}
-                    <div className="grid grid-cols-5 gap-4 items-center text-center text-sm font-medium px-4 py-2 border-b-2 border-[#F6F6F6]">
-                        <div className="flex items-center col-span-2">
+                    <div className="grid grid-cols-12 gap-4 items-center text-center text-sm font-medium px-4 py-2 border-b-2 border-[#F6F6F6]">
+                        <div className="flex items-center col-span-6">
                             <input
                                 type="checkbox"
                                 className="h-5 w-5 text-emerald-600 focus:ring-emerald-500 rounded mr-3"
@@ -353,30 +353,30 @@ const CartPage = () => {
                                 Chọn tất cả ({cartData.items.length} sản phẩm)
                             </label>
                         </div>
-                        <div>Đơn giá</div>
-                        <div>Số lượng</div>
-                        <div>Thành tiền</div>
+                        <div className="col-span-2">Đơn giá</div>
+                        <div className="col-span-2">Số lượng</div>
+                        <div className="col-span-2">Thành tiền</div>
                     </div>
 
                     {/* Danh sách sản phẩm */}
                     <div>
                         {cartData.items.map((item) => (
-                            <div key={item.product._id} className="grid grid-cols-5 gap-4 items-start text-center font-medium pb-4 px-4">
+                            <div key={item.product._id} className="grid grid-cols-12 gap-4 items-start text-center font-medium pb-4 px-4">
                                 {/* Col-1 */}
-                                <div className="flex items-center col-span-2">
+                                <div className="flex items-center col-span-6">
                                     <input
                                         type="checkbox"
-                                        className="h-5 w-5 text-emerald-600 focus:ring-emerald-500 rounded"
+                                        className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 rounded mr-4 flex-shrink-0"
                                         checked={selectedItems[item.product._id] || false}
                                         onChange={() => handleToggleSelectItem(item.product._id)}
                                     />
                                     <img
                                         src={item.product.images[0]}
                                         alt={item.product.name}
-                                        className="w-16 h-16 object-cover"
+                                        className="w-16 h-16 object-cover flex-shrink-0"
                                     />
-                                    <div className="text-start pl-2">
-                                        <Link to={`/products/${item.product._id}`} className="text-sm line-clamp-2 hover:text-emerald-600">
+                                    <div className="text-start pl-2 flex-1 min-w-0">
+                                        <Link to={`/product/${item.product._id}`} className="text-sm line-clamp-2 hover:text-emerald-600">
                                             {item.product.name}
                                         </Link>
                                         <span className="text-xs text-secondary font-normal">
@@ -385,9 +385,9 @@ const CartPage = () => {
                                     </div>
                                 </div>
                                 {/* Col-2 */}
-                                <div><p>{item.product.price.toLocaleString('vi-VN')}₫</p></div>
+                                <div className="col-span-2"><p>{item.product.price.toLocaleString('vi-VN')}₫</p></div>
                                 {/* Col-3 */}
-                                <div>
+                                <div className="col-span-2">
                                     <div className="flex items-center border border-gray-300 rounded-md overflow-hidden">
                                         <button
                                             onClick={() => handleQuantityChange(item.product._id, item.quantity - 1)}
@@ -413,7 +413,7 @@ const CartPage = () => {
                                     </Button>
                                 </div>
                                 {/* Col-4 */}
-                                <div>
+                                <div className="col-span-2">
                                     <p className="font-bold text-light-green">
                                         {(item.product.price * item.quantity).toLocaleString('vi-VN')}₫
                                     </p>

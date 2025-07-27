@@ -6,6 +6,7 @@ import PaymentService from '../../services/PaymentService';
 import ShippingService from '../../services/ShippingRate';
 import VoucherService from '../../services/VoucherService';
 import AddressForm from '../User/Address/AddressForm';
+import VoucherApply from './VoucherApply';
 
 import Breadcrumb from '../../components/Breadcrumb';
 import Button from '../../components/button/Button';
@@ -37,7 +38,7 @@ const OrderForm = () => {
   const stripe = useStripe();
   const elements = useElements();
 
-  const [voucherCodeInput, setVoucherCodeInput] = useState('');
+  // Voucher states - simplified since VoucherApply handles input internally
   const [appliedVoucher, setAppliedVoucher] = useState(null);
   const [discountAmount, setDiscountAmount] = useState(0);
 
@@ -91,6 +92,7 @@ const OrderForm = () => {
       return sum + (item.product?.price || 0) * item.quantity;
     }, 0);
   }, [cartData]);
+
   // Hàm tính phí ship
   useEffect(() => {
     const fetchShippingFee = async () => {
@@ -106,48 +108,19 @@ const OrderForm = () => {
     if (cartData && cartData.items) fetchShippingFee();
   }, [cartData, calculateSubTotal]);
 
-    const handleApplyVoucher = useCallback(async () => {
-        if (!voucherCodeInput) {
-            displayNotification("Vui lòng nhập mã voucher.", "warning");
-            return;
-        }
-        if (!currentCustomerId) {
-            displayNotification("Không tìm thấy thông tin khách hàng để áp dụng voucher.", "error");
-            return;
-        }
-
-        const subtotal = calculateSubTotal();
-        if (subtotal <= 0) {
-            displayNotification("Giỏ hàng của bạn trống hoặc tổng tiền không hợp lệ.", "warning");
-            return;
-        }
-
-        try {
-            const res = await VoucherService.applyVoucher(voucherCodeInput, subtotal, currentCustomerId);
-            if (res.success) {
-                const { voucher, discountAmount } = res.data;
-                setAppliedVoucher(voucher);
-                setDiscountAmount(discountAmount);
-                displayNotification(`Áp dụng voucher thành công: ${res.data.discountAppliedDescription}`, "success");
-            } else {
-                setAppliedVoucher(null);
-                setDiscountAmount(0);
-                displayNotification(res.message || "Lỗi không xác định khi áp dụng voucher.", "error");
-            }
-        } catch {
-            setAppliedVoucher(null);
-            setDiscountAmount(0);
-            displayNotification("Không thể áp dụng voucher.", "error");
-        }
-  }, [voucherCodeInput, calculateSubTotal, currentCustomerId, displayNotification]);
+  // Handler for voucher application - simplified since VoucherApply handles the logic
+  const handleVoucherApplied = useCallback((voucher, discount) => {
+    setAppliedVoucher(voucher);
+    setDiscountAmount(discount);
+  }, []);
   
   const calculateFinalTotal = useCallback(() => {
-        let currentSubtotal = calculateSubTotal();
-        let finalShipping = shippingFee;
-        currentSubtotal = currentSubtotal + finalShipping - discountAmount;
-        if (currentSubtotal < 0) currentSubtotal = 0;
-        return currentSubtotal;
-    }, [calculateSubTotal, shippingFee, discountAmount]);
+    let currentSubtotal = calculateSubTotal();
+    let finalShipping = shippingFee;
+    currentSubtotal = currentSubtotal + finalShipping - discountAmount;
+    if (currentSubtotal < 0) currentSubtotal = 0;
+    return currentSubtotal;
+  }, [calculateSubTotal, shippingFee, discountAmount]);
 
   const handlePlaceOrder = useCallback(async () => {
     if (!currentCustomerId) {
@@ -286,7 +259,7 @@ const OrderForm = () => {
     }
   }, [cartData, currentCustomerId, selectedAddressId, paymentMethod, 
       displayNotification, navigate, stripe, elements, 
-      calculateSubTotal, calculateFinalTotal, shippingFee, setCartData, appliedVoucher ]);
+      calculateSubTotal, calculateFinalTotal, shippingFee, setCartData, appliedVoucher, discountAmount]);
     
   // Hàm reload địa chỉ sau khi thêm mới thành công
   const reloadAddresses = useCallback(async () => {
@@ -297,7 +270,6 @@ const OrderForm = () => {
       }
     }
   }, [currentCustomerId]);
-
   if (loading) {
     return <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>;
   }
@@ -330,8 +302,8 @@ const OrderForm = () => {
       ) : (
         <div>
           <NotificationContainer
-              notifications={notifications}
-              onClose={closeNotification}
+            notifications={notifications}
+            onClose={closeNotification}
           />
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
             {/* Left side */}
@@ -431,42 +403,15 @@ const OrderForm = () => {
                 />
               )}
 
-              {/* Voucher */}
-              <div className="bg-white p-8 pt-4 rounded-lg">
-                <h2 className="mb-4 text-lg text-gray-800 font-bold">Mã Voucher</h2>
-                <div className="flex gap-4">
-                  <input
-                    type="text"
-                    placeholder="Nhập mã voucher"
-                    value={voucherCodeInput}
-                    onChange={(e) => setVoucherCodeInput(e.target.value)}
-                    className="flex-grow p-3 bg-gray-300/30 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-700"
-                  />
-                  <button 
-                    onClick={handleApplyVoucher}
-                    className="bg-white text-light-green font-medium border-2 border-light-green px-6 py-2 rounded-lg  hover:bg-emerald-700 hover:text-white transition-colors"
-                  >
-                    ÁP DỤNG
-                  </button>
-                </div>
-                {appliedVoucher && (
-                  <div className="mt-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-md text-sm">
-                      <p className="font-semibold">Voucher đã áp dụng: {appliedVoucher.code}</p>
-                      <p>{appliedVoucher.description}</p>
-                      <button
-                          onClick={() => {
-                              setAppliedVoucher(null);
-                              setDiscountAmount(0);
-                              setVoucherCodeInput('');
-                              displayNotification("Voucher đã được hủy.", "info");
-                          }}
-                          className="text-red-500 hover:text-red-700 mt-2 text-xs"
-                      >
-                          Hủy voucher
-                      </button>
-                  </div>
-              )}
-              </div>
+              {/* Voucher - Sử dụng component VoucherApply */}
+              <VoucherApply
+                subtotal={calculateSubTotal()}
+                customerId={currentCustomerId}
+                onVoucherApplied={handleVoucherApplied}
+                appliedVoucher={appliedVoucher}
+                discountAmount={discountAmount}
+                displayNotification={displayNotification}
+              />
 
               {/* Phương thức thanh toán */}
               <div className="bg-white p-8 pt-4 rounded-lg">
@@ -541,7 +486,7 @@ const OrderForm = () => {
             <div className="lg:col-span-1 bg-white p-8 pt-4 rounded-lg h-fit top-4">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg text-gray-800 font-bold">Thông tin đơn hàng</h2>
-                <button className="text-light-green text-sm hover:text-shadow-sm">Sửa</button>
+                <button className="text-light-green text-sm hover:text-shadow-sm" onClick={() => navigate('/cart')}>Sửa</button>
               </div>
         
               {/* Danh sách sản phẩm trong giỏ hàng */}

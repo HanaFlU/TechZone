@@ -18,7 +18,7 @@ class VoucherService {
             throw error;
         }
     }
-    async getAllOrders(filters) {
+    async getAllVouchers(filters) {
         try {
             const queryParams = new URLSearchParams(filters).toString();
             console.log('VoucherService: Attempting to GET all orders with filters:', queryParams);

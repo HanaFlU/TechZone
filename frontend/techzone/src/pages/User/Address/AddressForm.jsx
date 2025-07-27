@@ -3,7 +3,7 @@ import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import CustomerService from '../../../services/CustomerService';
 import Input from '../../../components/Input/Input';
 import Button from '../../../components/button/Button';
-import Notification from '../../../components/button/Notification';
+import NotificationContainer from '../../../components/button/NotificationContainer';
 import AddressSelect from '../../../components/Input/AddressSelect';
 import zipCodesData from '../../../data/hanhchinhvn/zip_code.json';
 import useNotification from '../../../hooks/useNotification';
@@ -35,9 +35,7 @@ const AddressForm = ({
   });
   const [loading, setLoading] = useState(false);
   const {
-    notificationMessage, 
-    notificationType, 
-    showNotification, 
+    notifications,
     displayNotification, 
     closeNotification
   } = useNotification();
@@ -129,7 +127,6 @@ const AddressForm = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    displayNotification('', '');
 
     const phoneRegex = /^(0|\+84|84)(3[2-9]|5[6|8|9]|7[0|6-9]|8[1-6|8|9]|9[0-4|6-9])\d{7}$/;
     if (!phoneRegex.test(formData.phone)) {
@@ -205,13 +202,10 @@ const AddressForm = ({
         <h2 className="text-2xl font-bold mb-6 text-gray-800">
           {isEditMode ? "Cập nhật địa chỉ" : "Thêm địa chỉ mới"}
         </h2>
-        {showNotification && (
-          <Notification
-              message={notificationMessage}
-              type={notificationType}
-              onClose={closeNotification}
-          />
-        )}
+        <NotificationContainer
+          notifications={notifications}
+          onClose={closeNotification}
+        />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-2">
           <Input
             label="Họ và tên"

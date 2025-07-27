@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowLeftIcon, CheckBadgeIcon } from '@heroicons/react/24/solid';
+import { Link } from 'react-router-dom';
 
 const DetailOrder = ({
   selectedOrder,
@@ -102,13 +103,16 @@ const DetailOrder = ({
           <div key={idx} className="flex items-center py-2 border-t border-gray-100 first:border-t-0">
             <div className="w-16 h-16 bg-gray-100 rounded-md flex-shrink-0 overflow-hidden flex items-center justify-center mr-4">
                 <img
-                src={item.product?.image || "/default-product-image.png"}
+                src={item.product?.images[0] || "/default-product-image.png"}
                 alt={item.product?.name || "Tên sản phẩm"}
                 className="object-cover w-full h-full"
                 />
             </div>
             <div className="flex-grow">
-                <p className="font-medium text-gray-800">{item.product?.name || "Sản phẩm không xác định"}</p>
+                <Link to={`/product/${item.product._id}`} className="font-medium text-gray-800">
+                    {item.product?.name}
+                </Link>
+                {/* <p className="font-medium text-gray-800">{item.product?.name || "Sản phẩm không xác định"}</p> */}
                 <p className="text-sm text-gray-600">Số lượng: {item.quantity}</p>
             </div>
             <div className="text-right font-semibold text-gray-800">
