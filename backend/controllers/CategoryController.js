@@ -113,13 +113,38 @@ exports.updateCategory = async (req, res) => {
 exports.deleteCategory = async (req, res) => {
   try {
     const { id } = req.params;
-    const deleted = await Category.findByIdAndDelete(id);
-    if (!deleted) return res.status(404).json({ message: 'Category not found' });
-    res.json({ message: 'Category deleted successfully' });
+
+    // 1. Kiểm tra xem có danh mục con nào không
+    const childCategories = await Category.countDocuments({ parent: id });
+    if (childCategories > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Không thể xóa danh mục này vì nó có các danh mục con. Vui lòng chuyển các danh mục con sang danh mục khác trước khi xóa.'
+      });
+    }
+
+    // 2. Kiểm tra xem có sản phẩm nào liên kết với danh mục này không
+    const productsCount = await Product.countDocuments({ category: id });
+    if (productsCount > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Không thể xóa danh mục này vì có sản phẩm liên kết với nó. Vui lòng chuyển các sản phẩm sang danh mục khác hoặc xóa chúng trước khi xóa danh mục.'
+      });
+    }
+
+    // Nếu không có danh mục con và không có sản phẩm liên kết, tiến hành xóa
+    const deletedCategory = await Category.findByIdAndDelete(id);
+
+    if (!deletedCategory) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy danh mục' });
+    }
+
+    res.json({ success: true, message: 'Đã xóa danh mục thành công' });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ success: false, message: err.message });
   }
 };
+
 
 // Get products by category (including all subcategories)
 exports.getProductsByCategory = async (req, res) => {
@@ -146,15 +171,15 @@ exports.getProductsByCategory = async (req, res) => {
     if (!category) {
       return res.status(404).json({ message: 'Category not found' });
     }
-    
-        // Get all leaf category IDs (categories with no children)
+
+    // Get all leaf category IDs (categories with no children)
     const leafCategoryIds = await getLeafCategoryIds(category._id);
 
     if (leafCategoryIds.length === 0) {
       // If no leaf categories, use the category itself
       leafCategoryIds.push(category._id.toString());
     }
-    
+
     // Build the query for products
     const query = { category: { $in: leafCategoryIds } };
 
@@ -184,14 +209,14 @@ exports.getProductsByCategory = async (req, res) => {
         query.stock = { $lte: 0 };
       }
     }
-    
+
     // Build sort object
     const sortObj = {};
     sortObj[sort] = order === 'desc' ? -1 : 1;
-    
+
     // Calculate pagination
     const skip = (parseInt(page) - 1) * parseInt(limit);
-    
+
     // Execute the query with pagination and sorting
     const products = await Product.find(query)
       .populate('category', 'name slug')
@@ -200,14 +225,14 @@ exports.getProductsByCategory = async (req, res) => {
       .limit(parseInt(limit))
       .lean()
       .exec();
-    
+
     // Get total count for pagination (optimized)
     const totalProducts = await Product.countDocuments(query).exec();
     const totalPages = Math.ceil(totalProducts / parseInt(limit));
-    
+
     // Get category hierarchy for breadcrumb
     const categoryHierarchy = await getCategoryHierarchy(category._id);
-    
+
     res.json({
       success: true,
       data: {
@@ -228,7 +253,7 @@ exports.getProductsByCategory = async (req, res) => {
         }
       }
     });
-    
+
   } catch (err) {
     console.error('Error getting products by category:', err);
     res.status(500).json({ message: err.message });
@@ -240,21 +265,21 @@ const getCategoryHierarchy = async (categoryId) => {
   try {
     const hierarchy = [];
     let currentCategory = await Category.findById(categoryId);
-    
+
     while (currentCategory) {
       hierarchy.unshift({
         _id: currentCategory._id,
         name: currentCategory.name,
         slug: currentCategory.slug
       });
-      
+
       if (currentCategory.parent) {
         currentCategory = await Category.findById(currentCategory.parent);
       } else {
         break;
       }
     }
-    
+
     return hierarchy;
   } catch (error) {
     console.error('Error getting category hierarchy:', error);

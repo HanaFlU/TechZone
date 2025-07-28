@@ -34,6 +34,7 @@ import { FaRegTrashCan } from "react-icons/fa6";
 import { LuRefreshCw } from 'react-icons/lu'; // Import icon Refresh
 import { useNavigate } from 'react-router-dom';
 import CustomerService from '../../../services/CustomerService';
+import CustomTablePagination from '../../../components/CustomPagination';
 
 const CustomerAdmin = () => {
     const [customers, setCustomers] = useState([]);
@@ -259,7 +260,14 @@ const CustomerAdmin = () => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {filteredCustomers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((customer) => (
+                                    {filteredCustomers.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={9} align="center">
+                                            Không tìm thấy danh mục con nào theo bộ lọc.
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : (
+                                        filteredCustomers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((customer) => (
                                         <TableRow key={customer._id}>
                                             <TableCell>{new Date(customer.user?.createdAt).toLocaleDateString()}</TableCell>
                                             <TableCell>{customer.user?.name}</TableCell>
@@ -276,17 +284,12 @@ const CustomerAdmin = () => {
                                                 <IconButton size="small" color="error" onClick={() => handleDelete(customer)} title="Xóa"><FaRegTrashCan /></IconButton>
                                             </TableCell>
                                         </TableRow>
-                                    ))}
-                                    {filteredCustomers.length === 0 && (
-                                        <TableRow>
-                                            <TableCell colSpan={6} align="center">Không có khách hàng nào phù hợp.</TableCell>
-                                        </TableRow>
-                                    )}
+                                    )))
+                                    }
                                 </TableBody>
                             </Table>
                         </TableContainer>
-                        <TablePagination
-                            component="div"
+                        <CustomTablePagination
                             count={filteredCustomers.length}
                             page={page}
                             onPageChange={handleChangePage}

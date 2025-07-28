@@ -23,6 +23,7 @@ import {
     getStatusDisplayName,
     getStatusChipColor
 } from '../../../hooks/useOrderFormat';
+import CustomTablePagination from '../../../components/CustomPagination';
 const AdminOrderList = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -375,8 +376,7 @@ useEffect(() => {
                                 </TableBody>
                             </Table>
                         </TableContainer>
-                        <TablePagination
-                            component="div"
+                        <CustomTablePagination
                             count={totalOrders}
                             page={filter.page - 1}
                             onPageChange={handleChangePage}
@@ -384,7 +384,7 @@ useEffect(() => {
                             onRowsPerPageChange={handleChangeRowsPerPage}
                             rowsPerPageOptions={[5, 10, 20]}
                         />
-                    </Paper>
+                    </Paper>    
                 )}
 
                 {/* Order Details Dialog */}

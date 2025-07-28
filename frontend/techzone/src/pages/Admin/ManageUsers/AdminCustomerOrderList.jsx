@@ -25,6 +25,7 @@ import {
 } from '../../../hooks/useOrderFormat';
 
 import DetailOrderDialog from '../ManageOrders/DetailOrderDialog';
+import CustomTablePagination from '../../../components/CustomPagination';
 
 const AdminCustomerOrderList = () => {
     const { customerId } = useParams();
@@ -276,8 +277,7 @@ const AdminCustomerOrderList = () => {
                             </TableBody>
                         </Table>
                     </TableContainer>
-                    <TablePagination
-                        component="div"
+                    <CustomTablePagination
                         count={totalOrders}
                         page={filter.page - 1}
                         onPageChange={handleChangePage}

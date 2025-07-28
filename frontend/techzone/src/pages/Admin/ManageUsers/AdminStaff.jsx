@@ -13,6 +13,7 @@ import { FaRegTrashCan } from 'react-icons/fa6';
 import { LuRefreshCw } from 'react-icons/lu'; // Import icon Refresh
 import StaffService from '../../../services/StaffService';
 import RoleService from '../../../services/RoleService';
+import CustomTablePagination from '../../../components/CustomPagination';
 
 const StaffAdmin = () => {
     const [staffs, setStaffs] = useState([]);
@@ -270,14 +271,13 @@ const StaffAdmin = () => {
                                     ))}
                                     {filteredStaffs.length === 0 && (
                                         <TableRow>
-                                            <TableCell colSpan={6} align="center">Không có nhân viên nào phù hợp.</TableCell>
+                                            <TableCell colSpan={9} align="center">Không có nhân viên nào phù hợp.</TableCell>
                                         </TableRow>
                                     )}
                                 </TableBody>
                             </Table>
                         </TableContainer>
-                        <TablePagination
-                            component="div"
+                        <CustomTablePagination
                             count={filteredStaffs.length}
                             page={page}
                             onPageChange={handleChangePage}

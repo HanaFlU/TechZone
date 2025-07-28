@@ -13,7 +13,7 @@ const RevenueTrendChart = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [period, setPeriod] = useState('monthly'); // 'daily', 'weekly', 'monthly', 'quarterly'
+  const [period, setPeriod] = useState('daily'); // 'daily', 'weekly', 'monthly', 'quarterly'
 
   useEffect(() => {
     const fetchRevenueTrend = async () => {

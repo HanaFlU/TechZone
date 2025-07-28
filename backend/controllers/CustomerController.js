@@ -275,8 +275,11 @@ const CustomerController = {
     getCustomerNotifications: async (req, res) => {
         try {
             const userId = req.user.id;
-            console.log(`[Backend] Fetching notifications for user ID: ${userId}`);
-
+            const user = await User.findById(userId).populate('role', 'name');
+            if (!user.role.name || user.role.name !== 'CUS') {
+                console.warn(`User with ID ${userId} does not have 'CUS' role. Cannot fetch notifications.`);
+                return null;
+            }
             const customer = await Customer.findOne({ user: userId })
                 .populate({
                     path: 'notifications.orderId',

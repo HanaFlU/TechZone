@@ -22,6 +22,25 @@ class ProductService {
       throw error;
     }
   }
+  async adminGetAllProducts() {
+    try {
+      const response = await this.api.get(`/admin`);
+      return response.data.data; // Server trả về { success, data: products }
+    } catch (error) {
+      console.error('ProductService Error: Failed to fetch admin products:', error.response ? error.response
+        .data : error.message);
+      throw error;
+    }
+  }
+  async adminGetProductById(productId) {
+    try {
+      const response = await this.api.get(`/admin/${productId}`);
+      return response.data.data;
+    } catch (error) {
+      console.error('ProductService Error: Failed to fetch admin product by ID:', error.response ? error.response.data : error.message);
+      throw error;
+    }
+  }
   async createProduct(productData) {
     try {
       const response = await this.api.post("/", productData);
@@ -46,6 +65,24 @@ class ProductService {
       return response.data;
     } catch (error) {
       console.error('ProductService Error: Failed to delete product:', error.response ? error.response.data : error.message);
+      throw error;
+    }
+  }
+  async bulkUpdateProducts(productUpdates) {
+    try {
+      const response = await this.api.post("/bulk-update", productUpdates);
+      return response.data.data;
+    } catch (error) {
+      console.error('ProductService Error: Failed to bulk update products:', error.response ? error.response.data : error.message);
+      throw error;
+    }
+  }
+  async bulkDeleteProducts(productIds) {
+    try {
+      const response = await this.api.delete("/bulk-delete", { data: { productIds } });
+      return response.data;
+    } catch (error) {
+      console.error('ProductService Error: Failed to bulk delete products:', error.response ? error.response.data : error.message);
       throw error;
     }
   }
