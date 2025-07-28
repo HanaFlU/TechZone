@@ -1,6 +1,6 @@
 const express = require('express');
 const customerController = require('../controllers/CustomerController.js');
-const { checkPermission, protect } = require('../midleware/AuthMiddleware.js');
+const { checkPermission } = require('../midleware/AuthMiddleware.js');
 
 const router = express.Router();
 
@@ -10,8 +10,6 @@ router.get('/by-user/:userId', customerController.getCustomerByUserId);
 router.get('/notifications', customerController.getCustomerNotifications);
 router.put('/notifications/:notificationId/read', customerController.markNotificationAsRead);
 router.put('/notifications/mark-all-read', customerController.markAllNotificationsAsRead);
-router.post('/chat-history', protect, customerController.saveChatHistory);
-router.get('/chat-history', protect, customerController.getChatHistory);
 
 router.get('/:userId/account', customerController.getUserInfo);
 router.put('/:userId/account', customerController.updateUserInfo);

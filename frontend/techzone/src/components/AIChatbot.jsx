@@ -12,7 +12,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import CloseIcon from '@mui/icons-material/Close';
 import Zoom from '@mui/material/Zoom';
 
-import CustomerService from '../services/CustomerService';
+import UserService from '../services/UserService';
 import { AuthContext } from '../context/AuthContext';
 const VITE_API_URL = import.meta.env.VITE_API_URL;
 const CHAT_API_URL = `${VITE_API_URL}/chat`;
@@ -33,7 +33,7 @@ const AIChatbot = ({ onClose }) => {
         const fetchChatHistory = async () => {
             if (currentUserId) {
                 try {
-                    const history = await CustomerService.getChatHistory();
+                    const history = await UserService.getChatHistory();
                     if (history && history.length > 0) {
                         setMessages(history);
                     } else {
@@ -109,7 +109,7 @@ const AIChatbot = ({ onClose }) => {
             });
             if (currentUserId) {
                 try {
-                    await CustomerService.saveChatHistory({
+                    await UserService.saveChatHistory({
                         question: userQuestion,
                         answer: assistantAnswer,
                         timestamp: new Date()
