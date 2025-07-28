@@ -3,6 +3,7 @@ dotenv.config();
 
 const express = require("express");
 const cors = require("cors");
+const OpenAI = require('openai');
 const { connect } = require("./config/db.config.js");
 
 const RoleRoute = require("./routes/RoleRoute.js");
@@ -25,7 +26,9 @@ const UploadRoute = require("./routes/UploadRoute.js");
 connect();
 const { protect, checkPermission } = require("./midleware/AuthMiddleware.js");
 const app = express();
-
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+});
 app.use(
     cors({
         origin: process.env.CLIENT_URL || "*",
@@ -56,7 +59,34 @@ app.use('/api/categories', CategoryRoute);
 
 app.use('/api/sale-events', SaleEventRoute);
 app.use('/api/reviews', ReviewRoute);
+app.post('/api/chat', async (req, res) => {
+    const { messages } = req.body;
 
+    if (!messages || !Array.isArray(messages)) {
+        return res.status(400).json({ error: 'Dữ liệu tin nhắn không hợp lệ.' });
+    }
+
+    try {
+        const completion = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: messages,
+            temperature: 0.7,
+            max_tokens: 500,
+        });
+
+        res.json({ reply: completion.choices[0].message.content });
+
+    } catch (error) {
+        console.error('Lỗi khi gọi OpenAI API:', error);
+        // Kiểm tra lỗi cụ thể từ OpenAI
+        if (error.response) {
+            console.error(error.response.status, error.response.data);
+            res.status(error.response.status).json(error.response.data);
+        } else {
+            res.status(500).json({ error: 'Lỗi máy chủ nội bộ hoặc lỗi từ OpenAI API.', details: error.message });
+        }
+    }
+});
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

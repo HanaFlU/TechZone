@@ -26,6 +26,21 @@ const customerNotificationSchema = new mongoose.Schema({
         default: Date.now,
     },
 });
+const chatMessageSchema = new mongoose.Schema({
+    question: {
+        type: String,
+        required: true
+    },
+    answer: {
+        type: String,
+        required: true
+    },
+    timestamp: {
+        type: Date,
+        default: Date.now
+    }
+});
+
 const customerSchema = new mongoose.Schema(
     {
         user: {
@@ -41,6 +56,9 @@ const customerSchema = new mongoose.Schema(
             },
         ],
         notifications: [customerNotificationSchema],
+        chatHistory: {
+            type: [chatMessageSchema],
+        }
     },
     {
         timestamps: true,

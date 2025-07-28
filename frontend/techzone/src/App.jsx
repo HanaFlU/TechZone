@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from
 import Navbar from './components/layout/user/Navbar';
 import Footer from './components/layout/user/Footer';
 import Sidebar from './components/layout/admin/Sidebar';
+import AIChatbot from './components/AIChatbot';
 
 import HomePage from './pages/HomePage';
 import ProductDetailPage from './pages/ProductDetailPage';
@@ -37,6 +38,9 @@ import { NotificationProvider } from './context/NotificationContext';
 import AdminRoute from './routes/AdminRoute';
 import ProtectedRoute from './routes/ProtectedRoute';
 import { useContext } from 'react';
+import { Fab, Tooltip, Zoom } from '@mui/material';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import ChatIcon from '@mui/icons-material/Chat';
 
 const App = () => {
   const { showLoginModal, setShowLoginModal } = useContext(AuthContext);
@@ -47,6 +51,20 @@ const App = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
+  const [isChatbotOpen, setIsChatbotOpen] = useState(false);
+  const toggleChatbot = () => {
+    setIsChatbotOpen(!isChatbotOpen);
+  };
+  // Scroll to top
+  const [showScroll, setShowScroll] = useState(false);
+  const checkScrollTop = () => {
+    const shouldShow = window.pageYOffset > 400;
+    setShowScroll(shouldShow);
+  };
+  const scrollTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   useEffect(() => {
     if (location.pathname.startsWith('/admin')) {
       setAdminMode(true);
@@ -60,6 +78,11 @@ const App = () => {
     ProductService.getAllProducts()
       .then(data => setProducts(data))
       .catch(err => console.error(err));
+
+    window.addEventListener('scroll', checkScrollTop);
+    return () => {
+      window.removeEventListener('scroll', checkScrollTop);
+    };
   }, []);
 
   return (
@@ -118,7 +141,50 @@ const App = () => {
               </Routes>
             </>
           )}
+          {!isChatbotOpen && !adminMode && (
+            <Tooltip title="Trò chuyện với AI" placement="left">
+              <Fab
+                  size="small"
+                  color="primary"
+                  aria-label="chat"
+                  onClick={toggleChatbot}
+                  sx={{
+                      position: 'fixed',
+                      bottom: { xs: 80, md: 30 },
+                      right: { xs: 20, md: 30 },
+                      bgcolor: '#328E6E',
+                      '&:hover': { bgcolor: '#047857' },
+                      zIndex: 1001
+                  }}
+              >
+                  <ChatIcon fontSize='small'/>
+              </Fab>
+            </Tooltip>
+          )}
+          {!adminMode && (
+            <Zoom in={showScroll} timeout={500}>
+              <Tooltip title="Cuộn lên đầu trang" placement="left">
+                <Fab
+                    size="small"
+                    color="primary"
+                    aria-label="scroll back to top"
+                    onClick={scrollTop}
+                    sx={{
+                        position: 'fixed',
+                        bottom: { xs: 80, md: 30 },
+                        right: { xs: 70, md: 80 },
+                        bgcolor: '#328E6E',
+                        '&:hover': { bgcolor: '#047857' },
+                        zIndex: 1000
+                    }}
+                >
+                    <KeyboardArrowUpIcon fontSize='small'/>
+                </Fab>
+              </Tooltip>
+            </Zoom>
+          )}
         </main>
+        {isChatbotOpen && <AIChatbot onClose={toggleChatbot} />}
         {!adminMode && <Footer />}
         
         {/* Modal */}
