@@ -28,6 +28,26 @@ class UserService {
             throw error;
         }
     }
+
+    async saveChatHistory(chatEntry) {
+        try {
+            const response = await this.api.post('/chat-history', chatEntry);
+            return response.data;
+        } catch (error) {
+            console.error('UserService Error: Failed to save chat history:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    }
+
+    async getChatHistory() {
+        try {
+            const response = await this.api.get('/chat-history');
+            return response.data;
+        } catch (error) {
+            console.error('UserService Error: Failed to fetch chat history:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    }
 };
 
 export default new UserService();

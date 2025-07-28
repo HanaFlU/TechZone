@@ -108,6 +108,45 @@ const UserController = {
             res.status(500).json({ success: false, message: 'Lỗi server.' });
         }
     },
+    saveChatHistory: async (req, res) => {
+        try {
+            const userId = req.user.id;
+            const { question, answer } = req.body;
+
+            if (!question || !answer) {
+                return res.status(400).json({ message: 'Vui lòng cung cấp đầy đủ question và answer cho lịch sử chat.' });
+            }
+
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ message: 'Không tìm thấy người dùng.' });
+            }
+
+            if (!user.chatHistory) {
+                user.chatHistory = [];
+            }
+            user.chatHistory.push({ question, answer, timestamp: new Date() });
+            await user.save();
+            res.status(200).json({ message: 'Cặp chat đã được lưu vào lịch sử.', chatEntry: { question, answer } });
+        } catch (error) {
+            console.error("Lỗi khi lưu lịch sử chat:", error);
+            res.status(500).json({ message: 'Lỗi server khi lưu lịch sử chat.', error: error.message });
+        }
+    },
+
+    getChatHistory: async (req, res) => {
+        try {
+            const userId = req.user.id;
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ message: 'Không tìm thấy người dùng.' });
+            }
+            res.status(200).json(user.chatHistory || []);
+        } catch (error) {
+            console.error("Lỗi khi lấy lịch sử chat:", error);
+            res.status(500).json({ message: 'Lỗi server khi lấy lịch sử chat.', error: error.message });
+        }
+    },
 };
 
 module.exports = UserController;

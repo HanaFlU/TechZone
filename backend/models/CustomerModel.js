@@ -26,6 +26,7 @@ const customerNotificationSchema = new mongoose.Schema({
         default: Date.now,
     },
 });
+
 const customerSchema = new mongoose.Schema(
     {
         user: {
