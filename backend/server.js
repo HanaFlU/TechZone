@@ -20,7 +20,6 @@ const CategoryRoute = require('./routes/CategoryRoute.js');
 const VoucherRoute = require("./routes/VoucherRoute.js");
 const ReviewRoute = require("./routes/ReviewRoute.js");
 
-const SaleEventRoute = require("./routes/SaleEventRoute.js");
 
 const UploadRoute = require("./routes/UploadRoute.js");
 connect();
@@ -57,7 +56,6 @@ app.use('/api/vouchers', protect, VoucherRoute);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', CategoryRoute);
 
-app.use('/api/sale-events', SaleEventRoute);
 app.use('/api/reviews', ReviewRoute);
 app.post('/api/chat', async (req, res) => {
     const { messages } = req.body;

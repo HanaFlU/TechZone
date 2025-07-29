@@ -1,6 +1,5 @@
 const Product = require('../models/ProductModel');
 const Category = require('../models/CategoryModel');
-const SaleEvent = require('../models/SaleEventModel');
 const findRootCategory = require('../helpers/findRootCategory');
 const getAllDescendantCategoryIds = require('../helpers/getAllDescendantCategoryIds');
 const generateKeyFromLabel = require('../helpers/generateKeyFromeLabel');
@@ -11,8 +10,7 @@ const ProductController = {
   getAllProducts: async (req, res) => {
     try {
       const products = await Product.find({ status: 'active' })
-        .populate('category')
-        .populate('saleEvent');
+        .populate('category');
       res.json({ success: true, data: products });
     } catch (err) {
       res.status(500).json({ success: false, message: err.message });
@@ -24,8 +22,7 @@ const ProductController = {
       const { id } = req.params;
 
       const product = await Product.findOne({ _id: id, status: 'active' })
-        .populate('category', 'name')
-        .populate('saleEvent');
+        .populate('category', 'name');
 
       if (!product) {
         return res.status(404).json({ success: false, message: 'Không tìm thấy sản phẩm' });
@@ -40,8 +37,7 @@ const ProductController = {
   adminGetAllProducts: async (req, res) => {
     try {
       const products = await Product.find()
-        .populate('category')
-        .populate('saleEvent');
+        .populate('category');
       res.json({ success: true, data: products });
     } catch (err) {
       res.status(500).json({ success: false, message: err.message });
@@ -52,8 +48,7 @@ const ProductController = {
     try {
       const { id } = req.params;
       const product = await Product.findById(id)
-        .populate('category', 'name')
-        .populate('saleEvent');
+        .populate('category', 'name');
       if (!product) {
         return res.status(404).json({ success: false, message: 'Không tìm thấy sản phẩm' });
       }
