@@ -416,7 +416,7 @@ const OrderController = {
     // Hân
     getRevenueTrend: async (req, res) => {
         try {
-            const { period = 'monthly' } = req.query; // 'daily', 'weekly', 'monthly', 'quarterly'
+            const { period = 'daily' } = req.query; // 'daily', 'weekly', 'monthly', 'yearly'
             let groupByFormat;
             let startDate;
             const now = new Date();
@@ -441,19 +441,16 @@ const OrderController = {
                     startDate.setDate(1); // Bắt đầu từ ngày 1 của tháng đó
                     groupByFormat = "%Y-%m";
                     break;
-                case 'quarterly':
-                    // Lấy dữ liệu 4 quý gần nhất (1 năm)
+                case 'yearly':
+                    // Lấy dữ liệu 5 năm gần nhất
                     startDate = new Date();
-                    startDate.setMonth(now.getMonth() - 11); // 12 tháng trước
-                    startDate.setDate(1);
-                    // Tính quý hiện tại và quý bắt đầu
-                    const currentMonth = now.getMonth();
-                    const startQuarterMonth = currentMonth - (currentMonth % 3);
-                    startDate = new Date(now.getFullYear(), startQuarterMonth - 9, 1); // 4 quý trước
-                    groupByFormat = "%Y-Q%q"; // %q cho quý
+                    startDate.setFullYear(now.getFullYear() - 4); // 5 năm
+                    startDate.setMonth(0); // Bắt đầu từ tháng 1
+                    startDate.setDate(1); // Bắt đầu từ ngày 1 của tháng 1
+                    groupByFormat = "%Y"; // Chỉ nhóm theo năm
                     break;
                 default:
-                    // Mặc định là monthly
+                    // Mặc định là daily
                     startDate = new Date();
                     startDate.setMonth(now.getMonth() - 11);
                     startDate.setDate(1);
@@ -492,7 +489,7 @@ const OrderController = {
 
             const startOfThisMonth = new Date(today.getFullYear(), today.getMonth(), 1);
             const startOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-            const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0); // ngày cuối tháng trước
+            const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
 
             const matchCondition = {
                 status: { $ne: "CANCELLED" },

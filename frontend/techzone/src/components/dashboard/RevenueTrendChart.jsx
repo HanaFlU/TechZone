@@ -13,7 +13,7 @@ const RevenueTrendChart = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [period, setPeriod] = useState('daily'); // 'daily', 'weekly', 'monthly', 'quarterly'
+  const [period, setPeriod] = useState('daily'); // 'daily', 'weekly', 'monthly', 'yearly';
 
   useEffect(() => {
     const fetchRevenueTrend = async () => {
@@ -32,8 +32,8 @@ const RevenueTrendChart = () => {
           } else if (period === 'weekly') {
             const weekYearParts = item._id.split('-');
             label = `Tuần ${weekYearParts[1]} ${weekYearParts[0]}`;
-          } else if (period === 'quarterly') {
-            label = item._id.replace('Q', 'Quý ');
+          } else if (period === 'yearly') {
+            label = item._id;
           }
           return {
             name: label,
@@ -112,7 +112,7 @@ const RevenueTrendChart = () => {
             <FormControlLabel value="daily" control={<Radio size="small" />} label="Ngày" />
             <FormControlLabel value="weekly" control={<Radio size="small" />} label="Tuần" />
             <FormControlLabel value="monthly" control={<Radio size="small" />} label="Tháng" />
-            <FormControlLabel value="quarterly" control={<Radio size="small" />} label="Quý" />
+            <FormControlLabel value="yearly" control={<Radio size="small" />} label="Năm" />
           </RadioGroup>
         </FormControl>
       </Box>
