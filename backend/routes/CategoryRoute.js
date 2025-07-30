@@ -8,6 +8,6 @@ router.get('/', CategoryController.getCategories);
 router.get('/:identifier/products', CategoryController.getProductsByCategory);
 router.get('/:identifier/specifications', CategoryController.getCategorySpecifications);
 router.put('/:id', protect, checkPermission(["AD", "MANAGER"], "MANAGE_CATEGORY"), CategoryController.updateCategory);
-router.delete('/:id', protect, checkPermission(["AD", "MANAGER"], "MANAGE_CATEGORY"), CategoryController.deleteCategory);
+router.delete('/:id', protect, checkPermission(["AD"], "DELETE_CATEGORY"), CategoryController.deleteCategory);
 
 module.exports = router;
