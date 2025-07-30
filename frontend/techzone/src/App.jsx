@@ -75,6 +75,11 @@ const App = () => {
     }
   }, [location.pathname]);
 
+  // Scroll to top on route change
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   useEffect(() => {
     // Fetch all products for Navbar search suggestions
     ProductService.getAllProducts()

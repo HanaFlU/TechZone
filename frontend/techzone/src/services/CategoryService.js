@@ -128,6 +128,16 @@ class CategoryService {
             throw error;
         }
     }
+
+    async getDescendantCategoryIds(parentId) {
+        try {
+            const response = await this.api.get(`/${parentId}/descendants`);
+            return response.data.data; // Return the actual array of IDs
+        } catch (error) {
+            console.error('CategoryService Error: Failed to get descendant category IDs:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    }
 };
 
 export default new CategoryService();
