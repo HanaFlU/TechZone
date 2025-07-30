@@ -11,6 +11,7 @@ import VoucherApply from './VoucherApply';
 import Breadcrumb from '../../components/Breadcrumb';
 import Button from '../../components/button/Button';
 import { PlusIcon } from '@heroicons/react/24/outline';
+import QRImage from '../../assets/QRMomo.jpg';
 import NotificationContainer from '../../components/button/NotificationContainer';
 import useNotification from '../../hooks/useNotification';
 import StripeWrapper from './Payment';
@@ -240,10 +241,10 @@ const OrderForm = () => {
         localStorage.removeItem('checkoutData');
         window.dispatchEvent(new Event('cartUpdated'));
         
-        const finalMessage = finalPaymentStatus === 'SUCCESSED' || paymentMethod === 'COD' ?
+        const finalMessage = (finalPaymentStatus === 'SUCCESSED' || paymentMethod === 'COD' || paymentMethod === 'E_WALLET') ?
             'Đơn hàng đã được tạo thành công!' :
             'Đơn hàng đã được ghi nhận nhưng thanh toán thất bại.';
-        displayNotification(finalMessage, (finalPaymentStatus === 'SUCCESSED' || paymentMethod === 'COD') ? 'success' : 'error');
+        displayNotification(finalMessage, (finalPaymentStatus === 'SUCCESSED' || paymentMethod === 'COD' || paymentMethod === 'E_WALLET') ? 'success' : 'error');
         setTimeout(() => {
             navigate('/');
         }, 4000);
@@ -257,9 +258,9 @@ const OrderForm = () => {
     } finally {
       setPlacingOrder(false);
     }
-  }, [cartData, currentCustomerId, selectedAddressId, paymentMethod, 
+  }, [currentCustomerId, selectedAddressId, paymentMethod, 
       displayNotification, navigate, stripe, elements, 
-      calculateSubTotal, calculateFinalTotal, shippingFee, setCartData, appliedVoucher, discountAmount]);
+      calculateFinalTotal, shippingFee, appliedVoucher, discountAmount]);
     
   // Hàm reload địa chỉ sau khi thêm mới thành công
   const reloadAddresses = useCallback(async () => {
@@ -475,9 +476,16 @@ const OrderForm = () => {
                   </div>
                 )}
                 {paymentMethod === 'E_WALLET' && (
-                  <p className="text-sm text-gray-600 mt-4">
-                    Bạn sẽ được chuyển hướng đến cổng thanh toán của Ví điện tử để hoàn tất giao dịch.
-                  </p>
+                  <div className="flex items-center space-x-4">
+                    <img
+                      src= {QRImage}
+                      alt= 'Ảnh QR Momo'
+                      className="w-60 h-60"
+                    /> 
+                    <p p className="text-sm text-gray-600">
+                      Vui lòng quét mã QR bằng ứng dụng MoMo để thanh toán đơn hàng {(calculateFinalTotal() + shippingFee).toLocaleString()}₫.
+                    </p>
+                  </div>
                 )}
               </div>
             </div>
