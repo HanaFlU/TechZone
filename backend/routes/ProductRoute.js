@@ -7,7 +7,7 @@ const { checkPermission, protect } = require('../midleware/AuthMiddleware');
 router.get('/admin', protect, checkPermission(["AD", "MANAGER", "STAFF"], "READ_PRODUCT"), ProductController.adminGetAllProducts);
 router.post('/', protect, checkPermission(["AD", "MANAGER", "STAFF"], "CREATE_PRODUCT"), ProductController.createProduct);
 
-router.get('/reports/top-selling', protect, checkPermission(["AD", "MANAGER", "STAFF"], ["READ_ORDER", "READ_PRODUCT"]), ProductController.getTopSellingProducts);
+router.get('/reports/top-selling', protect, checkPermission(["AD", "MANAGER", "STAFF"], "READ_PRODUCT"), ProductController.getTopSellingProducts);
 
 router.post('/bulk-update', protect, checkPermission(["AD", "MANAGER", "STAFF"], "UPDATE_PRODUCT"), ProductController.bulkUpdateProducts);
 router.delete('/bulk-delete', protect, checkPermission(["AD"], "DELETE_PRODUCT"), ProductController.bulkDeleteProducts);
