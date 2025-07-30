@@ -37,21 +37,34 @@ const TopProductsReport = () => {
     fetchTopProducts();
   }, [sortBy, limit]);
 
-  const renderRank = (index) => {
-    switch (index) {
-      case 0:
-        return <FaMedal size={20} color="#FFD700" style={{ verticalAlign: 'middle', marginRight: '2px' }} />; // Giảm size medal
-      case 1:
-        return <FaMedal size={20} color="#C0C0C0" style={{ verticalAlign: 'middle', marginRight: '2px' }} />; // Giảm size medal
-      case 2:
-        return <FaMedal size={20} color="#CD7F32" style={{ verticalAlign: 'middle', marginRight: '2px' }} />; // Giảm size medal
-      default:
-        return (
-          <Typography component="span" sx={{ fontWeight: 'bold', fontSize: '0.9rem', color: 'text.secondary' }}> {/* Giảm font size */}
-            {index + 1}
-          </Typography>
-        );
-    }
+   const renderRank = (index) => {
+    const content = (() => {
+      switch (index) {
+        case 0:
+          return <FaMedal size={20} color="#FFD700" />;
+        case 1:
+          return <FaMedal size={20} color="#C0C0C0" />;
+        case 2:
+          return <FaMedal size={20} color="#CD7F32" />;
+        default:
+          return (
+            <Typography component="span" sx={{ fontWeight: 'bold', fontSize: '0.9rem', color: 'text.secondary' }}>
+              {index + 1}
+            </Typography>
+          );
+      }
+    })();
+    return (
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',    
+        height: '100%',         
+        width: '100%',           
+      }}>
+        {content}
+      </Box>
+    );
   };
 
   const handleSortByChange = (event, newSortBy) => {
@@ -266,7 +279,7 @@ const TopProductsReport = () => {
                     },
                   }}
                 >
-                  <TableCell sx={{ textAlign: 'center', fontWeight: 'bold', py: 0.8 }}> 
+                  <TableCell sx={{   fontWeight: 'bold', py: 0.8 }}> 
                     {renderRank(index)}
                   </TableCell>
                   <TableCell sx={{ py: 0.8 }}>
