@@ -112,7 +112,7 @@ const OrderController = {
                     initialOrderStatus = 'CANCELLED';
                     paymentStatusForOrder = 'FAILED';
                 }
-            } else if (paymentMethod === 'COD') {
+            } else if (paymentMethod === 'COD' || paymentMethod === 'E_WALLET') {
                 paymentStatusForOrder = 'PENDING';
             }
 
@@ -133,20 +133,23 @@ const OrderController = {
                 voucherCode: voucherCode
             });
             const savedOrder = await newOrder.save();
-            if (paymentStatusForOrder === 'SUCCESSED' || paymentMethod === 'COD') {
+            if (
+                paymentStatusForOrder === "SUCCESSED" ||
+                paymentMethod === "COD" ||
+                paymentMethod === "E_WALLET"
+            ) {
                 // Giảm stock sản phẩm
                 for (const orderItem of finalOrderItems) {
-                    await Product.findByIdAndUpdate(
-                        orderItem.product,
-                        { $inc: { stock: -orderItem.quantity } }
-                    );
+                    await Product.findByIdAndUpdate(orderItem.product, {
+                        $inc: { stock: -orderItem.quantity },
+                    });
                 }
 
                 // Xóa sản phẩm đã đặt khỏi giỏ hàng
                 const customerCart = await Cart.findOne({ customer: customerId });
                 if (customerCart) {
-                    customerCart.items = customerCart.items.filter(item =>
-                        !productIdsInOrder.includes(item.product.toString())
+                    customerCart.items = customerCart.items.filter(
+                        (item) => !productIdsInOrder.includes(item.product.toString())
                     );
                     await customerCart.save();
                 }
@@ -155,15 +158,25 @@ const OrderController = {
                 if (voucherCode) {
                     try {
                         // Tìm voucher bằng mã code
-                        const voucher = await Voucher.findOne({ code: voucherCode.toUpperCase() });
+                        const voucher = await Voucher.findOne({
+                            code: voucherCode.toUpperCase(),
+                        });
                         if (voucher) {
                             // Gọi hàm nội bộ từ VoucherController để đánh dấu voucher đã sử dụng
-                            await VoucherController._markVoucherAsUsedInternal(voucher._id, customerId);
+                            await VoucherController._markVoucherAsUsedInternal(
+                                voucher._id,
+                                customerId
+                            );
                         } else {
-                            console.warn(`Voucher with code ${voucherCode} not found when trying to mark as used for Order ${savedOrder.orderId}.`);
+                            console.warn(
+                                `Voucher with code ${voucherCode} not found when trying to mark as used for Order ${savedOrder.orderId}.`
+                            );
                         }
                     } catch (voucherError) {
-                        console.error(`Error updating voucher ${voucherCode} for Order ${savedOrder.orderId}:`, voucherError);
+                        console.error(
+                            `Error updating voucher ${voucherCode} for Order ${savedOrder.orderId}:`,
+                            voucherError
+                        );
                         // Không trả về lỗi 500 ở đây để không chặn việc tạo đơn hàng chính
                         // Bạn có thể cân nhắc một hệ thống retry hoặc ghi log chi tiết hơn
                     }
@@ -172,19 +185,24 @@ const OrderController = {
                 // Populate các trường cần thiết để gửi email
                 const populatedOrder = await Order.findById(savedOrder._id)
                     .populate({
-                        path: 'items.product',
-                        select: 'name images'
+                        path: "items.product",
+                        select: "name images",
                     })
-                    .populate('shippingAddress')
+                    .populate("shippingAddress")
                     .populate({
-                        path: 'customer',
+                        path: "customer",
                         populate: {
-                            path: 'user',
-                            select: 'email name'
-                        }
+                            path: "user",
+                            select: "email name",
+                        },
                     });
 
-                if (populatedOrder && populatedOrder.customer && populatedOrder.customer.user && populatedOrder.customer.user.email) {
+                if (
+                    populatedOrder &&
+                    populatedOrder.customer &&
+                    populatedOrder.customer.user &&
+                    populatedOrder.customer.user.email
+                ) {
                     await OrderConfirmationEmail(
                         populatedOrder,
                         populatedOrder.customer.user.email,
@@ -192,16 +210,36 @@ const OrderController = {
                         populatedOrder.items.product
                     );
                 } else {
-                    console.warn(`Không thể gửi email xác nhận đơn hàng #${populatedOrder.orderId}: Thiếu thông tin email khách hàng.`);
+                    console.warn(
+                        `Không thể gửi email xác nhận đơn hàng #${populatedOrder.orderId}: Thiếu thông tin email khách hàng.`
+                    );
                 }
 
-                return res.status(201).json({ message: 'Tạo đơn hàng thành công!', order: populatedOrder });
-
-            } else if (paymentStatusForOrder === 'FAILED' && paymentMethod === 'CREDIT_CARD') {
+                return res
+                    .status(201)
+                    .json({
+                        message: "Tạo đơn hàng thành công!",
+                        order: populatedOrder,
+                    });
+            } else if (
+                paymentStatusForOrder === "FAILED" &&
+                paymentMethod === "CREDIT_CARD"
+            ) {
                 console.log("Thanh toán Stripe thất bại, giỏ hàng được giữ lại.");
-                return res.status(201).json({ message: 'Đơn hàng đã được ghi nhận nhưng thanh toán thất bại.', order: savedOrder });
+                return res
+                    .status(201)
+                    .json({
+                        message:
+                            "Đơn hàng đã được ghi nhận nhưng thanh toán thất bại.",
+                        order: savedOrder,
+                    });
             } else {
-                return res.status(201).json({ message: 'Đơn hàng đã được tạo với trạng thái chờ xử lý.', order: savedOrder });
+                return res
+                    .status(201)
+                    .json({
+                        message: "Đơn hàng đã được tạo với trạng thái chờ xử lý.",
+                        order: savedOrder,
+                    });
             }
 
         } catch (error) {

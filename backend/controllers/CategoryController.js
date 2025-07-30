@@ -647,3 +647,27 @@ const getCategoryHierarchy = async (categoryId) => {
     return [];
   }
 };
+
+// Get all descendant category IDs for a parent category
+exports.getDescendantCategoryIds = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Find the category by ID
+    const category = await Category.findById(id);
+    if (!category) {
+      return res.status(404).json({ message: 'Category not found' });
+    }
+    
+    // Get all descendant category IDs
+    const descendantIds = await getAllDescendantCategoryIds(id);
+    
+    res.json({
+      success: true,
+      data: descendantIds
+    });
+  } catch (err) {
+    console.error('Error getting descendant category IDs:', err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};

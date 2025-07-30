@@ -150,14 +150,6 @@ const ProfilePage = () => {
             value={formData.email}
           />
         </div>
-        <div className="md:col-span-1 flex justify-start items-start">
-          <p
-            onClick={() => alert('Chức năng thay đổi mật khẩu sẽ được phát triển!')}
-            className="text-light-green hover:underline text-sm font-medium cursor-pointer"
-          >
-            Thay đổi mật khẩu
-          </p>
-        </div>
         <div className="md:col-span-1 flex justify-end space-x-4">
           <Button
             onClick={handleCancelEdit}

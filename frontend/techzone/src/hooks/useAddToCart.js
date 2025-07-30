@@ -5,10 +5,13 @@ import useNotification from './useNotification';
 import useAuthUser from './useAuthUser';
 import { useStockValidation } from './useStockValidation';
 
-const useAddToCart = () => {
+const useAddToCart = (displayNotificationFromParent = null) => {
   const { setShowLoginModal } = useContext(AuthContext);
-  const { displayNotification } = useNotification();
+  const { displayNotification: localDisplayNotification } = useNotification();
   const { currentUserId } = useAuthUser();
+  
+  // Use parent's displayNotification if provided, otherwise use local one
+  const displayNotification = displayNotificationFromParent || localDisplayNotification;
   const { validateStockForAddToCart } = useStockValidation(displayNotification);
 
   const addToCart = async (product, quantity = 1) => {
@@ -45,7 +48,6 @@ const useAddToCart = () => {
         }
 
         await CartService.addToCart(currentUserId, product._id, quantity);
-        displayNotification('Đã thêm sản phẩm vào giỏ hàng', 'success');
         // Dispatch event to update navbar cart
         window.dispatchEvent(new Event('cartUpdated'));
         return true;
@@ -80,7 +82,6 @@ const useAddToCart = () => {
         guestCart.push({ productId: product._id, quantity: quantity, product });
       }
       localStorage.setItem('guestCart', JSON.stringify(guestCart));
-      displayNotification('Đã thêm sản phẩm vào giỏ hàng', 'success');
       // Dispatch event to update navbar cart
       window.dispatchEvent(new Event('cartUpdated'));
       return true;

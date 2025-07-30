@@ -468,7 +468,7 @@ const Navbar = ({onAccountClick, setAdminMode, searchValue, setSearchValue, prod
                 onMouseLeave={handleCloseNotificationsDropdown}
                 color="inherit"
               >
-                <Badge badgeContent={unreadCount} color="error">
+                <Badge badgeContent={unreadCount} color="success">
                   <BellAlertIcon className="h-6 w-6" />
                 </Badge>
               </IconButton>

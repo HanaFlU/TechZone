@@ -7,6 +7,7 @@ import VoucherService from '../services/VoucherService';
 import useNotification from '../hooks/useNotification';
 import useAuthUser from '../hooks/useAuthUser';
 import useAddToCart from '../hooks/useAddToCart';
+import NotificationContainer from '../components/button/NotificationContainer';
 import ProductReview from './ProductReview';
 import ProductSpecifications from '../components/product/ProductSpecifications';
 
@@ -15,9 +16,9 @@ const ProductDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, setShowLoginModal } = useContext(AuthContext);
-  const { displayNotification } = useNotification();
+  const { notifications, displayNotification, closeNotification } = useNotification();
   const { currentUserId } = useAuthUser();
-  const { addToCart, addToCartAndBuyNow } = useAddToCart();
+  const { addToCart, addToCartAndBuyNow } = useAddToCart(displayNotification);
   
   const [product, setProduct] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -159,6 +160,10 @@ const ProductDetailPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 cursor-pointer-all">
+      <NotificationContainer
+        notifications={notifications}
+        onClose={closeNotification}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
         <nav className="flex mb-8" aria-label="Breadcrumb">

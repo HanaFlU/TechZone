@@ -7,6 +7,7 @@ router.post('/', protect, checkPermission(["AD", "MANAGER"], "MANAGE_CATEGORY"),
 router.get('/', CategoryController.getCategories);
 router.get('/:identifier/products', CategoryController.getProductsByCategory);
 router.get('/:identifier/specifications', CategoryController.getCategorySpecifications);
+router.get('/:id/descendants', CategoryController.getDescendantCategoryIds);
 router.put('/:id', protect, checkPermission(["AD", "MANAGER"], "MANAGE_CATEGORY"), CategoryController.updateCategory);
 router.delete('/:id', protect, checkPermission(["AD"], "DELETE_CATEGORY"), CategoryController.deleteCategory);
 
