@@ -32,7 +32,6 @@ const ProductDetailPage = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        console.log('Fetching product with ID:', id);
         
         // Fetch product and categories first (required)
         const [productData, categoriesData] = await Promise.all([
@@ -40,19 +39,15 @@ const ProductDetailPage = () => {
           CategoryService.getCategories()
         ]);
         
-        console.log('Product data received:', productData);
-        console.log('Categories data received:', categoriesData);
-        
         setProduct(productData);
         setCategories(categoriesData);
         
         // Fetch vouchers separately (optional) - for all users
         try {
           const vouchersData = await VoucherService.getAllVouchers({ status: 'active' });
-          console.log('Vouchers data received:', vouchersData);
           setVouchers(vouchersData.vouchers || []);
         } catch (voucherErr) {
-          console.warn('Could not fetch vouchers:', voucherErr);
+          // Silently fallback to mock vouchers
           // Fallback to mock vouchers for non-logged users or API issues
           const mockVouchers = [
             {
@@ -85,8 +80,6 @@ const ProductDetailPage = () => {
         
         setError(null);
       } catch (err) {
-        console.error('Error fetching data:', err);
-        
         // More specific error messages
         if (err.response?.status === 404) {
           setError('Sản phẩm không tồn tại');

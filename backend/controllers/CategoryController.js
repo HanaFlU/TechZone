@@ -182,7 +182,7 @@ exports.getProductsByCategory = async (req, res) => {
     }
 
     // Build the query for products
-    const query = { category: { $in: leafCategoryIds } };
+    const query = { category: { $in: leafCategoryIds }, status: 'active' };
 
     // Add price filter
     if (minPrice || maxPrice) {

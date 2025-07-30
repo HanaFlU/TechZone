@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useContext, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
 import CategoryService from '../services/CategoryService';
-import ProductService from '../services/ProductService';
+import ReviewService from '../services/ReviewService';
 import ProductCard from '../components/product/ProductCard';
 import ProductFilter from '../components/product/ProductFilter';
 import useNotification from '../hooks/useNotification';
@@ -13,16 +12,10 @@ const CategoryPage = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, setShowLoginModal } = useContext(AuthContext);
+
   const { displayNotification } = useNotification();
   const { currentUserId } = useAuthUser();
   const { addToCart } = useAddToCart();
-  
-  // Check if this is a featured products page (rating filter)
-  const isFeaturedPage = slug === 'featured';
-  const ratingFilter = searchParams.get('rating');
-  const searchQuery = searchParams.get('search');
-  const isSearchPage = searchQuery && searchQuery.trim() !== '';
   
   const [category, setCategory] = useState(null);
   const [products, setProducts] = useState([]);
@@ -54,55 +47,8 @@ const CategoryPage = () => {
   useEffect(() => {
     const fetchOriginalProducts = async () => {
       try {
-        let response;
-        
-        if (isSearchPage) {
-          // For search page, get all products and filter by search query
-          const allProductsResponse = await ProductService.getAllProducts();
-          const allProducts = allProductsResponse || [];
-          
-          // Filter products by search query
-          const searchTerm = searchQuery.toLowerCase().trim();
-          const searchWords = searchTerm.split(/\s+/).filter(word => word.length > 0);
-          
-          const searchResults = allProducts.filter(product => {
-            const productName = product.name?.toLowerCase() || '';
-            const productDescription = product.description?.toLowerCase() || '';
-            const categoryName = product.category?.name?.toLowerCase() || '';
-            
-            // Get all specs labels and values as searchable text
-            const specsText = product.specs?.map(spec => 
-              `${spec.label?.toLowerCase() || ''} ${spec.value?.toLowerCase() || ''}`
-            ).join(' ') || '';
-            
-            // Combine all searchable text
-            const searchableText = `${productName} ${productDescription} ${categoryName} ${specsText}`;
-            
-            // Check if all search words are found in the combined searchable text
-            return searchWords.every(word => searchableText.includes(word));
-          });
-          
-          setAllProducts(searchResults);
-        } else if (isFeaturedPage && ratingFilter) {
-          // For featured page, get all products and filter by rating
-          const allProductsResponse = await ProductService.getAllProducts();
-          const allProducts = allProductsResponse || [];
-          
-          // Filter products with 4-5 star ratings
-          const featuredProducts = allProducts.filter(product => {
-            if (!product.reviews || product.reviews.length === 0) return false;
-            
-            // Calculate average rating
-            const totalRating = product.reviews.reduce((sum, review) => sum + review.rating, 0);
-            const averageRating = totalRating / product.reviews.length;
-            
-            return averageRating >= 4;
-          });
-          
-          setAllProducts(featuredProducts);
-        } else {
-          // For regular category pages
-          response = await CategoryService.getProductsByCategory(slug, {
+        // Get original products without any price filtering
+        const response = await CategoryService.getProductsByCategory(slug, {
           page: 1,
           limit: 1000, // Get all products
           sort: 'name',
@@ -111,7 +57,6 @@ const CategoryPage = () => {
         
         if (response.success) {
           setAllProducts(response.data.products);
-          }
         }
       } catch (err) {
         console.error('Error fetching original products:', err);
@@ -121,18 +66,12 @@ const CategoryPage = () => {
     if (slug && allProducts.length === 0) {
       fetchOriginalProducts();
     }
-  }, [slug, allProducts.length, isFeaturedPage, ratingFilter, searchQuery]);
+  }, [slug, allProducts.length]);
 
   // Load available specifications for the category
   useEffect(() => {
     const fetchSpecifications = async () => {
       try {
-        // Skip specifications for featured page and search page
-        if (isFeaturedPage || isSearchPage) {
-          setAvailableSpecs([]);
-          return;
-        }
-        
         const response = await CategoryService.getCategorySpecifications(slug);
         if (response.success) {
           setAvailableSpecs(response.data);
@@ -146,7 +85,7 @@ const CategoryPage = () => {
     if (slug) {
       fetchSpecifications();
     }
-  }, [slug, isFeaturedPage, isSearchPage]);
+  }, [slug]);
 
   // Initial category and products load
   useEffect(() => {
@@ -155,132 +94,45 @@ const CategoryPage = () => {
         setLoading(true);
         setError(null);
         
-        let response;
+        // Check if this is a featured products request
+        const ratingFilter = searchParams.get('rating');
+        const isFeaturedProducts = slug === 'featured' && ratingFilter === '4-5';
         
-        if (isSearchPage) {
-          // For search page, get all products and filter by search query
-          try {
-            const allProductsResponse = await ProductService.getAllProducts();
-            const allProducts = allProductsResponse || [];
-            
-            // Filter products by search query
-            const searchTerm = searchQuery.toLowerCase().trim();
-            const searchWords = searchTerm.split(/\s+/).filter(word => word.length > 0);
-            
-            const searchResults = allProducts.filter(product => {
-              const productName = product.name?.toLowerCase() || '';
-              const productDescription = product.description?.toLowerCase() || '';
-              const categoryName = product.category?.name?.toLowerCase() || '';
-              
-              // Get all specs labels and values as searchable text
-              const specsText = product.specs?.map(spec => 
-                `${spec.label?.toLowerCase() || ''} ${spec.value?.toLowerCase() || ''}`
-              ).join(' ') || '';
-              
-              // Combine all searchable text
-              const searchableText = `${productName} ${productDescription} ${categoryName} ${specsText}`;
-              
-              // Check if all search words are found in the combined searchable text
-              return searchWords.every(word => searchableText.includes(word));
-            });
-            
-            // Create a mock category for search results
-            setCategory({
-              name: `Kết quả tìm kiếm: "${searchQuery}"`,
-              description: '',
-              slug: 'search'
-            });
-            
-            // Apply pagination manually
-            const page = 1;
-            const limit = 20;
-            const startIndex = (page - 1) * limit;
-            const endIndex = startIndex + limit;
-            const paginatedProducts = searchResults.slice(startIndex, endIndex);
-            
-            setProducts(paginatedProducts);
-            setAllProducts(searchResults);
-            setPagination({
-              currentPage: page,
-              totalPages: Math.ceil(searchResults.length / limit),
-              totalProducts: searchResults.length,
-              hasNextPage: endIndex < searchResults.length,
-              hasPrevPage: page > 1
-            });
-            
-            response = { success: true }; // Mark as successful
-          } catch (productErr) {
-            console.error('Error fetching search results:', productErr);
-            response = { success: false };
-          }
-        } else if (isFeaturedPage && ratingFilter) {
-          // For featured page, get all products and filter by rating
-          try {
-            const allProductsResponse = await ProductService.getAllProducts();
-            const allProducts = allProductsResponse || [];
-            
-            // Filter products with 4-5 star ratings
-            const featuredProducts = allProducts.filter(product => {
-              if (!product.reviews || product.reviews.length === 0) return false;
-              
-              // Calculate average rating
-              const totalRating = product.reviews.reduce((sum, review) => sum + review.rating, 0);
-              const averageRating = totalRating / product.reviews.length;
-              
-              return averageRating >= 4;
-            });
-            
-            // Create a mock category for featured products
-            setCategory({
-              name: 'Sản phẩm nổi bật',
-              description: 'Các sản phẩm được đánh giá cao',
-              slug: 'featured'
-            });
-            
-            // Apply pagination manually
-            const page = 1;
-            const limit = 20;
-            const startIndex = (page - 1) * limit;
-            const endIndex = startIndex + limit;
-            const paginatedProducts = featuredProducts.slice(startIndex, endIndex);
-            
-            setProducts(paginatedProducts);
-            setAllProducts(featuredProducts);
-            setPagination({
-              currentPage: page,
-              totalPages: Math.ceil(featuredProducts.length / limit),
-              totalProducts: featuredProducts.length,
-              hasNextPage: endIndex < featuredProducts.length,
-              hasPrevPage: page > 1
-            });
-            
-            response = { success: true }; // Mark as successful
-          } catch (productErr) {
-            console.error('Error fetching featured products:', productErr);
-            response = { success: false };
-          }
+        if (isFeaturedProducts) {
+          // Fetch featured products with high ratings
+          const featuredProducts = await ReviewService.getProductsWithHighRatings(4, 20);
+          setCategory({
+            name: 'Sản phẩm nổi bật',
+            description: 'Các sản phẩm có đánh giá cao'
+          });
+          setProducts(featuredProducts);
+          setPagination({
+            currentPage: 1,
+            totalPages: 1,
+            totalProducts: featuredProducts.length,
+            hasNextPage: false,
+            hasPrevPage: false
+          });
         } else {
-          // For regular category pages
-          response = await CategoryService.getProductsByCategory(slug, {
-          page: 1,
-          limit: 20,
-          sort: 'name',
-          order: 'asc'
-        });
-        
-        if (response.success) {
-          setCategory(response.data.category);
-          setProducts(response.data.products);
-          setPagination(response.data.pagination);
+          // Get category info and initial products
+          const response = await CategoryService.getProductsByCategory(slug, {
+            page: 1,
+            limit: 20,
+            sort: 'name',
+            order: 'asc'
+          });
+          
+          if (response.success) {
+            setCategory(response.data.category);
+            setProducts(response.data.products);
+            setPagination(response.data.pagination);
+          } else {
+            setError('Failed to load category data');
           }
-        }
-        
-        if (!response.success) {
-          setError('Failed to load category data');
         }
       } catch (err) {
         console.error('Error fetching initial category data:', err);
-        if (err.response && err.response.status === 404 && !isFeaturedPage) {
+        if (err.response && err.response.status === 404) {
           setError('Category not found');
         } else {
           setError('Failed to load category data');
@@ -293,7 +145,7 @@ const CategoryPage = () => {
     if (slug) {
       fetchInitialData();
     }
-  }, [slug, isFeaturedPage, ratingFilter, searchQuery]);
+  }, [slug, searchParams]);
 
   // Handle filter changes (separate from initial load)
   useEffect(() => {
@@ -301,97 +153,84 @@ const CategoryPage = () => {
       // Skip if this is the initial load (category is null)
       if (!category) return;
       
-      try {
-        setFilterLoading(true);
-        
-        let response;
-        
-        if (isSearchPage) {
-          // For search page, filter from allProducts (already filtered by search)
-          const { page, limit, sort, order } = filters;
+      // Check if this is featured products
+      const ratingFilter = searchParams.get('rating');
+      const isFeaturedProducts = slug === 'featured' && ratingFilter === '4-5';
+      
+      if (isFeaturedProducts) {
+        // For featured products, we'll do client-side filtering since we already have all the data
+        try {
+          setFilterLoading(true);
           
-          // Apply sorting
-          let sortedProducts = [...allProducts];
-          if (sort === 'name') {
-            sortedProducts.sort((a, b) => {
-              const nameA = a.name.toLowerCase();
-              const nameB = b.name.toLowerCase();
-              return order === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
-            });
-          } else if (sort === 'price') {
-            sortedProducts.sort((a, b) => {
-              return order === 'asc' ? a.price - b.price : b.price - a.price;
-            });
+          // Get all featured products again (we could optimize this by storing the original data)
+          const featuredProducts = await ReviewService.getProductsWithHighRatings(4, 100); // Get more products for filtering
+          
+          // Apply client-side filtering
+          let filteredProducts = [...featuredProducts];
+          
+          // Apply price filter
+          if (filters.priceRange) {
+            filteredProducts = filteredProducts.filter(product => 
+              product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1]
+            );
           }
           
+          // Apply sorting
+          filteredProducts.sort((a, b) => {
+            switch (filters.sort) {
+              case 'name':
+                return filters.order === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
+              case 'price':
+                return filters.order === 'asc' ? a.price - b.price : b.price - a.price;
+              case 'createdAt':
+                return filters.order === 'asc' ? new Date(a.createdAt) - new Date(b.createdAt) : new Date(b.createdAt) - new Date(a.createdAt);
+              default:
+                return 0;
+            }
+          });
+          
           // Apply pagination
-          const startIndex = (page - 1) * limit;
-          const endIndex = startIndex + limit;
-          const paginatedProducts = sortedProducts.slice(startIndex, endIndex);
+          const startIndex = (filters.page - 1) * filters.limit;
+          const endIndex = startIndex + filters.limit;
+          const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
           
           setProducts(paginatedProducts);
           setPagination({
-            currentPage: page,
-            totalPages: Math.ceil(sortedProducts.length / limit),
-            totalProducts: sortedProducts.length,
-            hasNextPage: endIndex < sortedProducts.length,
-            hasPrevPage: page > 1
+            currentPage: filters.page,
+            totalPages: Math.ceil(filteredProducts.length / filters.limit),
+            totalProducts: filteredProducts.length,
+            hasNextPage: endIndex < filteredProducts.length,
+            hasPrevPage: filters.page > 1
           });
-          
-          response = { success: true };
-        } else if (isFeaturedPage && ratingFilter) {
-          // For featured page, filter from allProducts (already filtered by rating)
-          const { page, limit, sort, order } = filters;
-          
-          // Apply sorting
-          let sortedProducts = [...allProducts];
-          if (sort === 'name') {
-            sortedProducts.sort((a, b) => {
-              const nameA = a.name.toLowerCase();
-              const nameB = b.name.toLowerCase();
-              return order === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
-            });
-          } else if (sort === 'price') {
-            sortedProducts.sort((a, b) => {
-              return order === 'asc' ? a.price - b.price : b.price - a.price;
-            });
-          }
-          
-          // Apply pagination
-          const startIndex = (page - 1) * limit;
-          const endIndex = startIndex + limit;
-          const paginatedProducts = sortedProducts.slice(startIndex, endIndex);
-          
-          setProducts(paginatedProducts);
-          setPagination({
-            currentPage: page,
-            totalPages: Math.ceil(sortedProducts.length / limit),
-            totalProducts: sortedProducts.length,
-            hasNextPage: endIndex < sortedProducts.length,
-            hasPrevPage: page > 1
-          });
-          
-          response = { success: true };
-        } else {
-          // For regular category pages
-          response = await CategoryService.getProductsByCategory(slug, filters);
-        
-        if (response.success) {
-          setProducts(response.data.products);
-          setPagination(response.data.pagination);
-          }
+        } catch (err) {
+          console.error('Error filtering featured products:', err);
+        } finally {
+          setFilterLoading(false);
         }
-      } catch (err) {
-        console.error('Error fetching filtered data:', err);
-      } finally {
-        setFilterLoading(false);
+      } else {
+        // Regular category filtering
+        try {
+          setFilterLoading(true);
+          
+          // Get filtered products
+          const response = await CategoryService.getProductsByCategory(slug, filters);
+          
+          if (response.success) {
+            setProducts(response.data.products);
+            setPagination(response.data.pagination);
+          }
+        } catch (err) {
+          console.error('Error fetching filtered data:', err);
+        } finally {
+          setFilterLoading(false);
+        }
       }
     };
 
     if (slug && category) {
       fetchFilteredData();
     }
-  }, [slug, filters.page, filters.limit, filters.sort, filters.order, filters.priceRange, filters.specs, category, isFeaturedPage, ratingFilter, searchQuery]);
+  }, [slug, filters.page, filters.limit, filters.sort, filters.order, filters.priceRange, filters.specs, category, searchParams]);
 
   // Cleanup filter debounce timer on unmount
   useEffect(() => {
@@ -500,7 +339,7 @@ const CategoryPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 cursor-pointer-all">
+    <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb */}
         <nav className="flex mb-8" aria-label="Breadcrumb">
@@ -513,31 +352,8 @@ const CategoryPage = () => {
                 Trang chủ
               </button>
             </li>
-            {isSearchPage ? (
-              <li>
-                <div className="flex items-center">
-                  <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"></path>
-                  </svg>
-                  <span className="ml-1 text-sm font-medium text-gray-500 md:ml-2">
-                    Kết quả tìm kiếm
-                  </span>
-                </div>
-              </li>
-            ) : isFeaturedPage ? (
-              <li>
-                <div className="flex items-center">
-                  <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"></path>
-                  </svg>
-                  <span className="ml-1 text-sm font-medium text-gray-500 md:ml-2">
-                    Sản phẩm nổi bật
-                  </span>
-                </div>
-              </li>
-            ) : (
-              category.hierarchy && category.hierarchy.map((cat, index) => (
-                <li key={cat._id}>
+            {category.hierarchy && category.hierarchy.map((cat, index) => (
+              <li key={cat._id}>
                 <div className="flex items-center">
                   <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"></path>
@@ -556,8 +372,7 @@ const CategoryPage = () => {
                   )}
                 </div>
               </li>
-              ))
-            )}
+            ))}
           </ol>
         </nav>
 
@@ -609,7 +424,7 @@ const CategoryPage = () => {
               </div>
               
               {pagination.totalPages > 1 && (
-                <div className="flex items-center space-x-2 pagination">
+                <div className="flex items-center space-x-2">
                   <button
                     onClick={() => handlePageChange(pagination.currentPage - 1)}
                     disabled={!pagination.hasPrevPage}
@@ -641,19 +456,18 @@ const CategoryPage = () => {
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
                   {products.map((product) => (
-                    <div key={product._id} className="product-card">
                     <ProductCard
+                      key={product._id}
                       product={product}
                       onAddToCart={handleAddToCart}
                     />
-                    </div>
                   ))}
                 </div>
             
                 {/* Bottom Pagination */}
                 {pagination.totalPages > 1 && (
                   <div className="mt-8 flex justify-center">
-                    <div className="flex items-center space-x-2 pagination">
+                    <div className="flex items-center space-x-2">
                       <button
                         onClick={() => handlePageChange(pagination.currentPage - 1)}
                         disabled={!pagination.hasPrevPage}

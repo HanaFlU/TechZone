@@ -22,7 +22,6 @@ const useAuthUser = () => {
             }
         } else {
             // Không có user trong localStorage, có thể chuyển hướng về trang đăng nhập hoặc hiển thị thông báo
-            console.warn("useAuthUser Warning: No user found in localStorage.");
             setAuthError("Bạn chưa đăng nhập. Vui lòng đăng nhập để xem thông tin.");
         }
         setIsAuthLoading(false);

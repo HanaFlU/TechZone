@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProductService from '../services/ProductService';
 import CategoryService from '../services/CategoryService';
+import ReviewService from '../services/ReviewService';
 import CategorySidebar from '../components/layout/user/CategorySidebar';
 import ProductSection from '../components/product/ProductSection';
 import ProductCard from '../components/product/ProductCard';
@@ -46,8 +47,10 @@ const mockNews = [
 const HomePage = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
+  const [featuredProducts, setFeaturedProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [featuredLoading, setFeaturedLoading] = useState(true);
   const [hoveredCategory, setHoveredCategory] = useState(null);
   const [sidebarHeight, setSidebarHeight] = useState(0);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -55,8 +58,6 @@ const HomePage = () => {
   const floatingMenuRef = useRef(null);
   const [newsIndex, setNewsIndex] = useState(0);
   const newsItemsToShow = 3;
-  const newsProducts = products; // You can replace this with actual news data if available
-  const maxNewsIndex = Math.max(0, newsProducts.length - newsItemsToShow);
   const { currentUserId } = useAuthUser();
   const { 
     notifications, 
@@ -72,8 +73,6 @@ const HomePage = () => {
     try {
       const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
       if (guestCart.length === 0) return;
-
-      console.log('Starting guest cart transfer:', { guestCart, currentUserId });
 
       // Convert guest cart format to match backend expectations
       const guestCartItems = guestCart.map(item => ({
@@ -95,7 +94,6 @@ const HomePage = () => {
         
         // Clear guest cart after successful transfer
         localStorage.removeItem('guestCart');
-        console.log('Guest cart cleared from localStorage');
         
         // Dispatch cart updated event
         window.dispatchEvent(new Event('cartUpdated'));
@@ -111,6 +109,17 @@ const HomePage = () => {
       .then(data => setProducts(data))
       .catch(err => console.error(err))
       .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    ReviewService.getProductsWithHighRatings(4, 4)
+      .then(data => setFeaturedProducts(data))
+      .catch(err => {
+        console.error('Failed to fetch featured products:', err);
+        // Fallback to regular products if featured products fetch fails
+        setFeaturedProducts([]);
+      })
+      .finally(() => setFeaturedLoading(false));
   }, []);
 
   useEffect(() => {
@@ -352,8 +361,8 @@ const HomePage = () => {
             <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl p-8 mb-8 shadow-lg border border-emerald-100">
               <ProductSection
                 title="Sản phẩm nổi bật"
-                products={products.slice(0, 4)}
-                loading={loading}
+                products={featuredProducts.length > 0 ? featuredProducts : products.slice(0, 4)}
+                loading={featuredLoading && loading}
                 renderProduct={renderProductCard}
                 onViewAll={handleViewAllFeatured}
                 sectionStyle="mb-0"

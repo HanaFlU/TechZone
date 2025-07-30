@@ -48,6 +48,30 @@ const escapeRegExp = (string) => {
 };
 
 /**
+ * Strips HTML tags and decodes HTML entities from a string
+ * @param {string} html - The HTML string to strip
+ * @returns {string} - Plain text without HTML tags
+ */
+const stripHtmlTags = (html) => {
+  if (!html) return '';
+  
+  // Create a temporary div to decode HTML entities
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = html;
+  
+  // Get text content (this removes all HTML tags)
+  let text = tempDiv.textContent || tempDiv.innerText || '';
+  
+  // Also remove any remaining HTML-like patterns that might have been missed
+  text = text.replace(/<[^>]*>/g, '');
+  
+  // Clean up extra whitespace
+  text = text.replace(/\s+/g, ' ').trim();
+  
+  return text;
+};
+
+/**
  * Converts a description with \n\n line breaks to HTML paragraphs
  * @param {string} description - The description text
  * @param {Array} categories - Array of category objects
@@ -56,11 +80,12 @@ const escapeRegExp = (string) => {
 export const formatDescriptionWithCategories = (description, categories) => {
   if (!description) return '';
 
-  // First highlight categories
-  let highlightedText = highlightCategoriesInText(description, categories);
+  // First strip any existing HTML tags to get clean text
+  const cleanDescription = stripHtmlTags(description);
   
-  // Then handle line breaks
-  const paragraphs = highlightedText.split('\\n\\n');
+  // For now, let's just return the clean text without category highlighting
+  // to see if the issue is with the highlighting function
+  const paragraphs = cleanDescription.split('\\n\\n');
   
   return paragraphs
     .map(paragraph => `<p class="mb-4">${paragraph}</p>`)
