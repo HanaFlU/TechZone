@@ -2,6 +2,7 @@ const Review = require('../models/ReviewModel');
 const Order = require('../models/OrderModel');
 const User = require('../models/UserModel');
 const Customer = require('../models/CustomerModel');
+const Product = require('../models/ProductModel');
 const mongoose = require('mongoose');
 
 const ReviewController = {
@@ -71,8 +72,6 @@ const ReviewController = {
     getReviewByUserAndProduct: async (req, res) => {
         const { productId } = req.params;
         const userId = req.user.id
-        console.log("productId:", productId);
-        console.log("userId:", userId);
 
         if (!mongoose.Types.ObjectId.isValid(productId)) {
             return res.status(400).json({ message: 'ID sản phẩm không hợp lệ.' });
@@ -89,6 +88,67 @@ const ReviewController = {
         } catch (error) {
             console.error('Lỗi khi lấy đánh giá của người dùng cho sản phẩm:', error);
             res.status(500).json({ message: 'Lỗi server khi lấy đánh giá.', error: error.message });
+        }
+    },
+
+    getProductsWithHighRatings: async (req, res) => {
+        const { minRating = 4, limit = 10 } = req.query;
+
+        try {
+            // First, check if there are any reviews at all
+            const totalReviews = await Review.countDocuments();
+            
+            if (totalReviews === 0) {
+                return res.status(200).json([]);
+            }
+
+            // Aggregate reviews to get average rating for each product
+            const productsWithRatings = await Review.aggregate([
+                {
+                    $group: {
+                        _id: '$productId',
+                        averageRating: { $avg: '$rating' },
+                        reviewCount: { $sum: 1 }
+                    }
+                },
+                {
+                    $match: {
+                        averageRating: { $gte: parseFloat(minRating) }
+                    }
+                },
+                {
+                    $sort: { averageRating: -1, reviewCount: -1 }
+                },
+                {
+                    $limit: parseInt(limit)
+                }
+            ]);
+
+            // If no products with high ratings found, return empty array
+            if (productsWithRatings.length === 0) {
+                return res.status(200).json([]);
+            }
+
+            // Get product details for the products with high ratings
+            const productIds = productsWithRatings.map(item => item._id);
+            const products = await Product.find({ _id: { $in: productIds }, status: 'active' })
+                .populate('category', 'name');
+
+            // Combine product data with rating data
+            const productsWithRatingData = products.map(product => {
+                const ratingData = productsWithRatings.find(rating => rating._id.toString() === product._id.toString());
+                return {
+                    ...product.toObject(),
+                    averageRating: ratingData.averageRating,
+                    reviewCount: ratingData.reviewCount
+                };
+            });
+
+            res.status(200).json(productsWithRatingData);
+        } catch (error) {
+            console.error('Lỗi khi lấy sản phẩm có đánh giá cao:', error);
+            console.error('Error stack:', error.stack);
+            res.status(500).json({ message: 'Lỗi server khi lấy sản phẩm có đánh giá cao.', error: error.message });
         }
     },
 };

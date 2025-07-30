@@ -1,18 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import CategoryService from '../services/CategoryService';
+import ReviewService from '../services/ReviewService';
 import ProductCard from '../components/product/ProductCard';
 import ProductFilter from '../components/product/ProductFilter';
 import useNotification from '../hooks/useNotification';
+import useAuthUser from '../hooks/useAuthUser';
+import useAddToCart from '../hooks/useAddToCart';
 
 const CategoryPage = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
   const { displayNotification } = useNotification();
+  const { currentUserId } = useAuthUser();
+  const { addToCart } = useAddToCart();
   
   const [category, setCategory] = useState(null);
   const [products, setProducts] = useState([]);
+  const [allProducts, setAllProducts] = useState([]); // Store original unfiltered products
+  const [availableSpecs, setAvailableSpecs] = useState([]); // Store available specifications
   const [loading, setLoading] = useState(true);
+  const [filterLoading, setFilterLoading] = useState(false); // Separate loading state for filters
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({
     currentPage: 1,
@@ -27,37 +37,124 @@ const CategoryPage = () => {
     sort: 'name',
     order: 'asc',
     priceRange: null,
-    brands: [],
-    minRating: null,
-    availability: null
+    specs: null
   });
 
-  // Extract unique brands from products
-  const [brands, setBrands] = useState([]);
+  // Debounce timer for filter changes
+  const [filterDebounceTimer, setFilterDebounceTimer] = useState(null);
 
-  // Single effect to load category data and products
+  // Load original unfiltered products once when category is first loaded
   useEffect(() => {
-    const fetchCategoryData = async () => {
+    const fetchOriginalProducts = async () => {
+      try {
+        // Get original products without any price filtering
+        const response = await CategoryService.getProductsByCategory(slug, {
+          page: 1,
+          limit: 1000, // Get all products
+          sort: 'name',
+          order: 'asc'
+        });
+        
+        if (response.success) {
+          setAllProducts(response.data.products);
+        }
+      } catch (err) {
+        console.error('Error fetching original products:', err);
+      }
+    };
+
+    if (slug && allProducts.length === 0) {
+      fetchOriginalProducts();
+    }
+  }, [slug, allProducts.length]);
+
+  // Load available specifications for the category
+  useEffect(() => {
+    const fetchSpecifications = async () => {
+      try {
+        const searchTerm = searchParams.get('search');
+        const response = await CategoryService.getCategorySpecifications(slug, searchTerm);
+        if (response.success) {
+          setAvailableSpecs(response.data);
+        }
+      } catch (err) {
+        console.error('Error fetching specifications:', err);
+        setAvailableSpecs([]);
+      }
+    };
+
+    if (slug) {
+      fetchSpecifications();
+    }
+  }, [slug, searchParams]);
+
+  // Initial category and products load
+  useEffect(() => {
+    const fetchInitialData = async () => {
       try {
         setLoading(true);
         setError(null);
         
-        // Get category info and products
-        const response = await CategoryService.getProductsByCategory(slug, filters);
+        // Check if this is a featured products request
+        const ratingFilter = searchParams.get('rating');
+        const searchTerm = searchParams.get('search');
+        const isFeaturedProducts = slug === 'featured' && ratingFilter === '4-5';
+        const isSearchRequest = slug === 'all' && searchTerm;
         
-        if (response.success) {
-          setCategory(response.data.category);
-          setProducts(response.data.products);
-          setPagination(response.data.pagination);
+        if (isFeaturedProducts) {
+          // Fetch featured products with high ratings
+          const featuredProducts = await ReviewService.getProductsWithHighRatings(4, 20);
+          setCategory({
+            name: 'Sản phẩm nổi bật',
+            description: 'Các sản phẩm có đánh giá cao'
+          });
+          setProducts(featuredProducts);
+          setPagination({
+            currentPage: 1,
+            totalPages: 1,
+            totalProducts: featuredProducts.length,
+            hasNextPage: false,
+            hasPrevPage: false
+          });
+        } else if (isSearchRequest) {
+          // Handle search request
+          const response = await CategoryService.getProductsByCategory('all', {
+            page: 1,
+            limit: 20,
+            sort: 'name',
+            order: 'asc',
+            search: searchTerm
+          });
           
-          // Extract unique brands from all products for filter options
-          const uniqueBrands = [...new Set(response.data.products.map(product => product.brand).filter(Boolean))];
-          setBrands(uniqueBrands);
+          if (response.success) {
+            setCategory({
+              name: `Kết quả tìm kiếm: "${searchTerm}"`,
+              description: `Tìm thấy ${response.data.pagination.totalProducts} sản phẩm`
+            });
+            setProducts(response.data.products);
+            setPagination(response.data.pagination);
+          } else {
+            setError('Failed to load search results');
+          }
         } else {
-          setError('Failed to load category data');
+          // Get category info and initial products
+          const response = await CategoryService.getProductsByCategory(slug, {
+            page: 1,
+            limit: 20,
+            sort: 'name',
+            order: 'asc'
+          });
+          
+          if (response.success) {
+            setCategory(response.data.category);
+            setProducts(response.data.products);
+            setPagination(response.data.pagination);
+          } else {
+            setError('Failed to load category data');
+          }
         }
       } catch (err) {
-        console.error('Error fetching category data:', err);
+        console.error('Error fetching initial category data:', err);
         if (err.response && err.response.status === 404) {
           setError('Category not found');
         } else {
@@ -69,13 +166,146 @@ const CategoryPage = () => {
     };
 
     if (slug) {
-      fetchCategoryData();
+      fetchInitialData();
     }
-  }, [slug, filters.page, filters.limit, filters.sort, filters.order, filters.priceRange, filters.brands, filters.minRating, filters.availability]);
+  }, [slug, searchParams]);
 
-  const handleAddToCart = (product) => {
-    // This would typically integrate with your cart service
-    displayNotification('Product added to cart', 'success');
+  // Handle filter changes (separate from initial load)
+  useEffect(() => {
+    const fetchFilteredData = async () => {
+      // Skip if this is the initial load (category is null)
+      if (!category) return;
+      
+      // Check if this is featured products or search request
+      const ratingFilter = searchParams.get('rating');
+      const searchTerm = searchParams.get('search');
+      const isFeaturedProducts = slug === 'featured' && ratingFilter === '4-5';
+      const isSearchRequest = slug === 'all' && searchTerm;
+      
+      if (isFeaturedProducts) {
+        // For featured products, we'll do client-side filtering since we already have all the data
+        try {
+          setFilterLoading(true);
+          
+          // Get all featured products again (we could optimize this by storing the original data)
+          const featuredProducts = await ReviewService.getProductsWithHighRatings(4, 100); // Get more products for filtering
+          
+          // Apply client-side filtering
+          let filteredProducts = [...featuredProducts];
+          
+          // Apply price filter
+          if (filters.priceRange) {
+            filteredProducts = filteredProducts.filter(product => 
+              product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1]
+            );
+          }
+          
+          // Apply sorting
+          filteredProducts.sort((a, b) => {
+            switch (filters.sort) {
+              case 'name':
+                return filters.order === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
+              case 'price':
+                return filters.order === 'asc' ? a.price - b.price : b.price - a.price;
+              case 'createdAt':
+                return filters.order === 'asc' ? new Date(a.createdAt) - new Date(b.createdAt) : new Date(b.createdAt) - new Date(a.createdAt);
+              default:
+                return 0;
+            }
+          });
+          
+          // Apply pagination
+          const startIndex = (filters.page - 1) * filters.limit;
+          const endIndex = startIndex + filters.limit;
+          const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+          
+          setProducts(paginatedProducts);
+          setPagination({
+            currentPage: filters.page,
+            totalPages: Math.ceil(filteredProducts.length / filters.limit),
+            totalProducts: filteredProducts.length,
+            hasNextPage: endIndex < filteredProducts.length,
+            hasPrevPage: filters.page > 1
+          });
+        } catch (err) {
+          console.error('Error filtering featured products:', err);
+        } finally {
+          setFilterLoading(false);
+        }
+      } else if (isSearchRequest) {
+        // Handle search filtering
+        try {
+          setFilterLoading(true);
+          
+          // Get filtered search results
+          const response = await CategoryService.getProductsByCategory('all', {
+            ...filters,
+            search: searchTerm
+          });
+          
+          if (response.success) {
+            setProducts(response.data.products);
+            setPagination(response.data.pagination);
+          }
+        } catch (err) {
+          console.error('Error fetching filtered search data:', err);
+        } finally {
+          setFilterLoading(false);
+        }
+      } else {
+        // Regular category filtering
+        try {
+          setFilterLoading(true);
+          
+          // Get filtered products
+          const response = await CategoryService.getProductsByCategory(slug, filters);
+          
+          if (response.success) {
+            setProducts(response.data.products);
+            setPagination(response.data.pagination);
+          }
+        } catch (err) {
+          console.error('Error fetching filtered data:', err);
+        } finally {
+          setFilterLoading(false);
+        }
+      }
+    };
+
+    if (slug && category) {
+      fetchFilteredData();
+    }
+  }, [slug, filters.page, filters.limit, filters.sort, filters.order, filters.priceRange, filters.specs, category, searchParams]);
+
+  // Cleanup filter debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (filterDebounceTimer) {
+        clearTimeout(filterDebounceTimer);
+      }
+    };
+  }, [filterDebounceTimer]);
+
+  // Calculate maximum price from original unfiltered products
+  const maxPrice = React.useMemo(() => {
+    // Use allProducts (unfiltered) instead of products (filtered)
+    const productsToUse = allProducts.length > 0 ? allProducts : products;
+    
+    if (!productsToUse || productsToUse.length === 0) return 10000000; // Default max price
+    
+    // Find the highest price among all products
+    const highestPrice = Math.max(...productsToUse.map(product => product.price || 0));
+    
+    // Round up to the nearest whole number (e.g., 1234567 -> 1235000)
+    // This makes the slider more user-friendly
+    const roundedMaxPrice = Math.ceil(highestPrice / 100000) * 100000;
+    
+    return roundedMaxPrice;
+  }, [allProducts, products]);
+
+  // Add to Cart handler
+  const handleAddToCart = async (product) => {
+    await addToCart(product, 1);
   };
 
   const handlePageChange = (newPage) => {
@@ -91,19 +321,33 @@ const CategoryPage = () => {
   };
 
   const handleFilterChange = (newFilters) => {
-    setFilters(newFilters);
+    // Clear existing timer
+    if (filterDebounceTimer) {
+      clearTimeout(filterDebounceTimer);
+    }
+
+    // Set new timer for debounced filter update
+    const timer = setTimeout(() => {
+      setFilters(newFilters);
+    }, 800); // Increased to 800ms for better performance
+
+    setFilterDebounceTimer(timer);
   };
 
   const handleClearFilters = () => {
+    // Clear any pending timer
+    if (filterDebounceTimer) {
+      clearTimeout(filterDebounceTimer);
+      setFilterDebounceTimer(null);
+    }
+
     setFilters({
       page: 1,
       limit: filters.limit,
       sort: filters.sort,
       order: filters.order,
       priceRange: null,
-      brands: [],
-      minRating: null,
-      availability: null
+      specs: null
     });
   };
 
@@ -183,9 +427,6 @@ const CategoryPage = () => {
           {category.description && (
             <p className="text-gray-600">{category.description}</p>
           )}
-          <p className="text-sm text-gray-500 mt-2">
-            {pagination.totalProducts} sản phẩm
-          </p>
         </div>
 
         {/* Main Content with Filter Sidebar */}
@@ -196,7 +437,9 @@ const CategoryPage = () => {
               filters={filters}
               onFilterChange={handleFilterChange}
               onClearFilters={handleClearFilters}
-              brands={brands}
+              maxPrice={maxPrice}
+              availableSpecs={availableSpecs}
+              // brands={brands} // Removed as per edit hint
             />
           </div>
 
@@ -220,6 +463,9 @@ const CategoryPage = () => {
                   <option value="price-desc">Giá giảm dần</option>
                   <option value="createdAt-desc">Mới nhất</option>
                 </select>
+                <span className="text-sm text-gray-500">
+                  {pagination.totalProducts} sản phẩm
+                </span>
               </div>
               
               {pagination.totalPages > 1 && (
@@ -246,7 +492,12 @@ const CategoryPage = () => {
             </div>
 
             {/* Products Grid */}
-            {products.length > 0 ? (
+            {filterLoading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+                <p className="text-gray-600">Đang tải sản phẩm...</p>
+              </div>
+            ) : products.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
                   {products.map((product) => (
@@ -322,4 +573,4 @@ const CategoryPage = () => {
   );
 };
 
-export default CategoryPage; 
+export default CategoryPage;

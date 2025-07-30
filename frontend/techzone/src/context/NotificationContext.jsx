@@ -19,7 +19,10 @@ export const NotificationProvider = ({ children }) => {
             setNotifications(data);
             setUnreadCount(data.filter(notif => !notif.isRead).length);
         } catch (err) {
-            console.error("Error fetching notifications:", err);
+            // Don't log 401 errors as they're expected when not logged in
+            if (err.response?.status !== 401) {
+                console.error("Error fetching notifications:", err);
+            }
             setError(err.response?.data?.message || "Failed to fetch notifications.");
         } finally {
             setLoading(false);

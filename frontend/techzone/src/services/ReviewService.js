@@ -42,6 +42,16 @@ class ReviewService {
         }
     }
 
+    async getProductsWithHighRatings(minRating = 4, limit = 10) {
+        try {
+            const response = await this.api.get(`/featured/high-rated?minRating=${minRating}&limit=${limit}`);
+            return response.data;
+        } catch (error) {
+            console.error('ReviewService Error: Failed to fetch products with high ratings:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    }
+
 }
 
 export default new ReviewService();

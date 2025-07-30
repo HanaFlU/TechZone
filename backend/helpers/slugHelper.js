@@ -16,4 +16,14 @@ const isDuplicateSlug = async (slug, excludeId = null) => {
     return !!existing;
 };
 
-module.exports = { generateSlug, ensureSlug, isDuplicateSlug }
+// Remove diacritics and normalize string (lowercase, trim)
+const removeDiacritics = (str) => {
+    return str
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .replace(/[\u0300-\u036f]/g, '');
+};
+
+module.exports = { generateSlug, ensureSlug, isDuplicateSlug, removeDiacritics };

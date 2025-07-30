@@ -7,4 +7,5 @@ const router = express.Router();
 router.post('/', protect, ReviewController.createReview);
 router.get('/:productId', ReviewController.getReviewsByProductId);
 router.get('/:productId/my-review', protect, ReviewController.getReviewByUserAndProduct);
+router.get('/featured/high-rated', ReviewController.getProductsWithHighRatings);
 module.exports = router;
