@@ -72,9 +72,13 @@ const CategoryPage = () => {
   useEffect(() => {
     const fetchSpecifications = async () => {
       try {
-        const response = await CategoryService.getCategorySpecifications(slug);
+        console.log('Fetching specifications for slug:', slug);
+        const searchTerm = searchParams.get('search');
+        const response = await CategoryService.getCategorySpecifications(slug, searchTerm);
+        console.log('Specifications response:', response);
         if (response.success) {
           setAvailableSpecs(response.data);
+          console.log('Available specs set:', response.data);
         }
       } catch (err) {
         console.error('Error fetching specifications:', err);
@@ -85,7 +89,7 @@ const CategoryPage = () => {
     if (slug) {
       fetchSpecifications();
     }
-  }, [slug]);
+  }, [slug, searchParams]);
 
   // Initial category and products load
   useEffect(() => {
@@ -96,7 +100,9 @@ const CategoryPage = () => {
         
         // Check if this is a featured products request
         const ratingFilter = searchParams.get('rating');
+        const searchTerm = searchParams.get('search');
         const isFeaturedProducts = slug === 'featured' && ratingFilter === '4-5';
+        const isSearchRequest = slug === 'all' && searchTerm;
         
         if (isFeaturedProducts) {
           // Fetch featured products with high ratings
@@ -113,6 +119,26 @@ const CategoryPage = () => {
             hasNextPage: false,
             hasPrevPage: false
           });
+        } else if (isSearchRequest) {
+          // Handle search request
+          const response = await CategoryService.getProductsByCategory('all', {
+            page: 1,
+            limit: 20,
+            sort: 'name',
+            order: 'asc',
+            search: searchTerm
+          });
+          
+          if (response.success) {
+            setCategory({
+              name: `Kết quả tìm kiếm: "${searchTerm}"`,
+              description: `Tìm thấy ${response.data.pagination.totalProducts} sản phẩm`
+            });
+            setProducts(response.data.products);
+            setPagination(response.data.pagination);
+          } else {
+            setError('Failed to load search results');
+          }
         } else {
           // Get category info and initial products
           const response = await CategoryService.getProductsByCategory(slug, {
@@ -153,9 +179,11 @@ const CategoryPage = () => {
       // Skip if this is the initial load (category is null)
       if (!category) return;
       
-      // Check if this is featured products
+      // Check if this is featured products or search request
       const ratingFilter = searchParams.get('rating');
+      const searchTerm = searchParams.get('search');
       const isFeaturedProducts = slug === 'featured' && ratingFilter === '4-5';
+      const isSearchRequest = slug === 'all' && searchTerm;
       
       if (isFeaturedProducts) {
         // For featured products, we'll do client-side filtering since we already have all the data
@@ -204,6 +232,26 @@ const CategoryPage = () => {
           });
         } catch (err) {
           console.error('Error filtering featured products:', err);
+        } finally {
+          setFilterLoading(false);
+        }
+      } else if (isSearchRequest) {
+        // Handle search filtering
+        try {
+          setFilterLoading(true);
+          
+          // Get filtered search results
+          const response = await CategoryService.getProductsByCategory('all', {
+            ...filters,
+            search: searchTerm
+          });
+          
+          if (response.success) {
+            setProducts(response.data.products);
+            setPagination(response.data.pagination);
+          }
+        } catch (err) {
+          console.error('Error fetching filtered search data:', err);
         } finally {
           setFilterLoading(false);
         }

@@ -54,7 +54,8 @@ class CategoryService {
                 brands,
                 minRating,
                 availability,
-                specs
+                specs,
+                search
             } = options;
             
             const queryParams = new URLSearchParams({
@@ -95,6 +96,11 @@ class CategoryService {
             if (specs && specs.length > 0) {
                 queryParams.append('specs', JSON.stringify(specs));
             }
+
+            // Add search filter
+            if (search) {
+                queryParams.append('search', search);
+            }
             
             const response = await this.api.get(`/${identifier}/products?${queryParams.toString()}`);
             return response.data;
@@ -104,9 +110,18 @@ class CategoryService {
         }
     }
 
-    async getCategorySpecifications(identifier) {
+    async getCategorySpecifications(identifier, search = null) {
         try {
-            const response = await this.api.get(`/${identifier}/specifications`);
+            const queryParams = new URLSearchParams();
+            if (search) {
+                queryParams.append('search', search);
+            }
+            
+            const url = search ? 
+                `/${identifier}/specifications?${queryParams.toString()}` : 
+                `/${identifier}/specifications`;
+                
+            const response = await this.api.get(url);
             return response.data;
         } catch (error) {
             console.error('CategoryService Error: Failed to get category specifications:', error.response ? error.response.data : error.message);

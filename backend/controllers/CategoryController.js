@@ -160,10 +160,135 @@ exports.getProductsByCategory = async (req, res) => {
       brands,
       minRating,
       availability,
-      specs
+      specs,
+      search
     } = req.query;
     
-    // Find the category by slug or _id
+    // Handle search functionality first (before trying to find category)
+    if (identifier === 'all' && search) {
+      // For search, we don't need category filtering
+      const query = { status: 'active' };
+      
+      // Add search filter
+      if (search) {
+        // First, find categories that match the search term
+        const matchingCategories = await Category.find({
+          $or: [
+            { name: { $regex: search, $options: 'i' } },
+            { slug: { $regex: search, $options: 'i' } }
+          ]
+        });
+        
+        const matchingCategoryIds = matchingCategories.map(cat => cat._id);
+        
+        query.$or = [
+          { name: { $regex: search, $options: 'i' } },
+          { description: { $regex: search, $options: 'i' } },
+          { 'specs.value': { $regex: search, $options: 'i' } },
+          { category: { $in: matchingCategoryIds } }
+        ];
+      }
+      
+      // Add price filter
+      if (minPrice || maxPrice) {
+        query.price = {};
+        if (minPrice) query.price.$gte = parseFloat(minPrice);
+        if (maxPrice) query.price.$lte = parseFloat(maxPrice);
+      }
+
+      // Add brand filter
+      if (brands) {
+        const brandArray = Array.isArray(brands) ? brands : [brands];
+        query.brand = { $in: brandArray };
+      }
+
+      // Add rating filter
+      if (minRating) {
+        query.rating = { $gte: parseFloat(minRating) };
+      }
+
+      // Add availability filter
+      if (availability) {
+        if (availability === 'inStock') {
+          query.stock = { $gt: 0 };
+        } else if (availability === 'outOfStock') {
+          query.stock = { $lte: 0 };
+        }
+      }
+
+      // Add specifications filter
+      if (specs) {
+        try {
+          const specsFilter = JSON.parse(specs);
+          if (Array.isArray(specsFilter) && specsFilter.length > 0) {
+            const specsByKey = {};
+            specsFilter.forEach(spec => {
+              if (!specsByKey[spec.key]) {
+                specsByKey[spec.key] = [];
+              }
+              specsByKey[spec.key].push(spec.value);
+            });
+            
+            const specsQueries = Object.entries(specsByKey).map(([key, values]) => ({
+              'specs': {
+                $elemMatch: {
+                  key: key,
+                  value: { $in: values }
+                }
+              }
+            }));
+            
+            query.$and = specsQueries;
+          }
+        } catch (err) {
+          console.error('Error parsing specs filter:', err);
+        }
+      }
+
+      // Build sort object
+      const sortObj = {};
+      sortObj[sort] = order === 'desc' ? -1 : 1;
+
+      // Calculate pagination
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+
+      // Execute the query with pagination and sorting
+      const products = await Product.find(query)
+        .populate('category', 'name slug')
+        .sort(sortObj)
+        .skip(skip)
+        .limit(parseInt(limit))
+        .lean();
+      
+      // Get total count for pagination
+      const totalProducts = await Product.countDocuments(query);
+      const totalPages = Math.ceil(totalProducts / parseInt(limit));
+
+      res.json({
+        success: true,
+        data: {
+          category: {
+            _id: 'search',
+            name: `Search Results for "${search}"`,
+            slug: 'all',
+            description: `Found ${totalProducts} products`,
+            hierarchy: []
+          },
+          products,
+          pagination: {
+            currentPage: parseInt(page),
+            totalPages,
+            totalProducts,
+            hasNextPage: parseInt(page) < totalPages,
+            hasPrevPage: parseInt(page) > 1
+          }
+        }
+      });
+      
+      return;
+    }
+    
+    // Find the category by slug or _id (only for non-search requests)
     let category = await Category.findOne({ slug: identifier });
     if (!category) {
       category = await Category.findById(identifier);
@@ -244,6 +369,26 @@ exports.getProductsByCategory = async (req, res) => {
       }
     }
 
+    // Add search filter
+    if (search) {
+      // First, find categories that match the search term
+      const matchingCategories = await Category.find({
+        $or: [
+          { name: { $regex: search, $options: 'i' } },
+          { slug: { $regex: search, $options: 'i' } }
+        ]
+      });
+      
+      const matchingCategoryIds = matchingCategories.map(cat => cat._id);
+      
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+        { 'specs.value': { $regex: search, $options: 'i' } },
+        { category: { $in: matchingCategoryIds } }
+      ];
+    }
+
     // Build sort object
     const sortObj = {};
     sortObj[sort] = order === 'desc' ? -1 : 1;
@@ -297,6 +442,80 @@ exports.getProductsByCategory = async (req, res) => {
 exports.getCategorySpecifications = async (req, res) => {
   try {
     const { identifier } = req.params; // Can be slug or _id
+    const { search } = req.query; // Get search parameter
+    
+    // Handle search case (all products)
+    if (identifier === 'all') {
+      let products;
+      
+      if (search) {
+        // If there's a search term, only get specifications from products that match the search
+        const Category = require('../models/CategoryModel');
+        
+        // First, find categories that match the search term
+        const matchingCategories = await Category.find({
+          $or: [
+            { name: { $regex: search, $options: 'i' } },
+            { slug: { $regex: search, $options: 'i' } }
+          ]
+        });
+        
+        const matchingCategoryIds = matchingCategories.map(cat => cat._id);
+        
+        // Get only products that match the search criteria
+        products = await Product.find({
+          status: 'active',
+          $or: [
+            { name: { $regex: search, $options: 'i' } },
+            { description: { $regex: search, $options: 'i' } },
+            { 'specs.value': { $regex: search, $options: 'i' } },
+            { category: { $in: matchingCategoryIds } }
+          ]
+        }).select('specs').lean();
+      } else {
+        // If no search term, get all active products
+        products = await Product.find({ 
+          status: 'active'
+        }).select('specs').lean();
+      }
+
+      // Extract unique specifications
+      const specsMap = new Map();
+      
+      products.forEach(product => {
+        if (product.specs && Array.isArray(product.specs)) {
+          product.specs.forEach(spec => {
+            if (spec.key && spec.label && spec.value && spec.value.trim() !== '') {
+              const key = spec.key;
+              const label = spec.label;
+              
+              if (!specsMap.has(key)) {
+                specsMap.set(key, {
+                  key: key,
+                  label: label,
+                  values: new Set()
+                });
+              }
+              
+              specsMap.get(key).values.add(spec.value.trim());
+            }
+          });
+        }
+      });
+
+      // Convert to array format
+      const availableSpecs = Array.from(specsMap.values()).map(spec => ({
+        key: spec.key,
+        label: spec.label,
+        values: Array.from(spec.values).sort()
+      }));
+
+      res.json({
+        success: true,
+        data: availableSpecs
+      });
+      return;
+    }
     
     // Find the category by slug or _id
     let category = await Category.findOne({ slug: identifier });
