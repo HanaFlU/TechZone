@@ -1,12 +1,11 @@
 const express = require('express');
 const StaffController = require('../controllers/StaffController.js');
-const { checkPermission } = require('../midleware/AuthMiddleware.js');
 
 const router = express.Router();
 
-router.get('/', checkPermission(["AD"], "MANAGE_USERS"), StaffController.findAll);
-router.put('/:userId', checkPermission(["AD"], "MANAGE_USERS"), StaffController.updateStaff);
-router.post('/', checkPermission(["AD"], "MANAGE_USERS"), StaffController.createStaff);
+router.get('/', StaffController.findAll);
+router.put('/:userId', StaffController.updateStaff);
+router.post('/', StaffController.createStaff);
 
 
 module.exports = router;

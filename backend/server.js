@@ -43,18 +43,18 @@ app.get("/", (req, res) => {
 });
 
 app.use('/api/auth', AuthRoute);
-app.use('/api/upload', UploadRoute);
+app.use('/api/upload', protect, UploadRoute);
 app.use('/api/roles', protect, checkPermission(["AD"], "MANAGE_ROLES"), RoleRoute);
 app.use('/api/users', protect, UserRoute);
 app.use('/api/customers', protect, CustomerRoute);
-app.use('/api/staffs', protect, StaffRoute);
+app.use('/api/staffs', protect, checkPermission(["AD"], "MANAGE_USERS"), StaffRoute);
 app.use('/api/orders', protect, OrderRoute);
 app.use('/api/carts', protect, CartRoute);
 app.use('/api/payments', protect, PaymentRoute);
 app.use('/api/shipping-rate', protect, ShippingRateRoute);
 app.use('/api/vouchers', protect, VoucherRoute);
-app.use('/api/products', productRoutes);
 app.use('/api/categories', CategoryRoute);
+app.use('/api/products', productRoutes);
 
 app.use('/api/reviews', ReviewRoute);
 app.post('/api/chat', async (req, res) => {

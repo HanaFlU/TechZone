@@ -32,6 +32,9 @@ const checkPermission = (roles = [], permission = "") => {
         if (path === '/api/products') {
             return next();
         }
+        if (!req.user) {
+            return res.status(403).json({ message: "Bạn chưa đăng nhập!" });
+        }
 
         const userId = req.user.id;
         const user = await User.findById(userId).populate('role');

@@ -26,6 +26,7 @@ import {
 
 import DetailOrderDialog from '../ManageOrders/DetailOrderDialog';
 import CustomTablePagination from '../../../components/CustomPagination';
+import { toast } from 'react-toastify';
 
 const AdminCustomerOrderList = () => {
     const { customerId } = useParams();
@@ -105,7 +106,7 @@ const AdminCustomerOrderList = () => {
         setDetailsDialogOpen(true);
       } catch (err) {
         console.error('Error fetching order details:', err);
-        console.error('Could not load order details.');
+        setError('Không thể tải chi tiết đơn hàng.');
       }
     };
 
@@ -126,9 +127,11 @@ const AdminCustomerOrderList = () => {
             await OrderService.updateOrderStatus(selectedOrder._id, currentUpdateStatus);
             console.log(`Order ${selectedOrder.orderId} status updated to ${currentUpdateStatus} successfully!`);
             handleCloseStatusUpdateDialog();
+            toast.success(`Cập nhật trạng thái đơn hàng ${selectedOrder.orderId} thành công!`);
         } catch (err) {
             console.error('Error updating status:', err);
-            setError('Could not update order status. Please try again.');
+            setError('Không thể cập nhật trạng thái đơn hàng. Vui lòng thử lại.');
+            toast.error('Không thể cập nhật trạng thái đơn hàng.');
         }
     };
     const handleUpdateStatusInline = async (orderId, newStatus) => {
@@ -140,9 +143,11 @@ const AdminCustomerOrderList = () => {
                     order._id === orderId ? { ...order, status: newStatus } : order
                 )
             );
+            toast.success(`Cập nhật trạng thái đơn hàng ${orderId} thành công!`);
         } catch (err) {
             console.error('Error updating status:', err);
             setError('Không thể cập nhật trạng thái đơn hàng. Vui lòng thử lại.');
+            toast.error('Không thể cập nhật trạng thái đơn hàng.');
         }
     };
     const availableStatuses = ['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
@@ -161,6 +166,7 @@ const AdminCustomerOrderList = () => {
         } catch (err) {
             console.error('Error fetching order details for printing:', err);
             setError('Không thể tải chi tiết đơn hàng để in.');
+            toast.error('Không thể tải chi tiết đơn hàng để in.');
         }
     };
 

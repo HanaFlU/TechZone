@@ -5,6 +5,7 @@ import useAuthForm from "../../hooks/useAuthForm";
 
 import LoginWithGoogleButton from "../button/LoginWithGoogleButton";
 import { IoMdClose } from "react-icons/io";
+import {toast} from "react-toastify";
 
 export default function LoginModal({ onClose, onSwitch }) {
   const { login } = useContext(AuthContext);
@@ -41,16 +42,16 @@ export default function LoginModal({ onClose, onSwitch }) {
     
         try {
           const data = await AuthService.login(formData);
-          console.log('Login successful:', data);
           login(data.user, data.token);
           setError(null); 
-    
+          toast.success("Đăng nhập thành công!");
           onClose();
         } catch (err) {
           if (err.message) {
             setError(err.message);
+            toast.error("Đăng nhập thất bại.");
           } else {
-            setError("Lỗi kết nối tới máy chủ.");
+            toast.error("Lỗi kết nối tới máy chủ. Đăng nhập thất bại.");
             return;
           }
         }
@@ -88,17 +89,6 @@ export default function LoginModal({ onClose, onSwitch }) {
             />
             
             {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
-
-            <div className="text-sm mb-2 text-right">
-              <button
-                type="button"
-                className="text-light-green hover:underline"
-                onClick={() => alert("Chức năng này chưa được triển khai")}
-              >
-                Quên mật khẩu?
-              </button>
-            </div>
-
             <button
               onSubmit={handleSubmit}
               type="submit"

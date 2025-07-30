@@ -24,6 +24,7 @@ import {
     getStatusChipColor
 } from '../../../hooks/useOrderFormat';
 import CustomTablePagination from '../../../components/CustomPagination';
+import { toast } from 'react-toastify';
 const AdminOrderList = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -58,8 +59,7 @@ const AdminOrderList = () => {
             setTotalOrders(response.totalOrders);
         } catch (err) {
             console.error('Error fetching order list:', err);
-            setError('Could not load order list. Please try again.');
-            console.error('Error loading orders!');
+            setError('Không thể tải danh sách đơn hàng. Vui lòng thử lại sau.');
         } finally {
             setLoading(false);
         }
@@ -116,7 +116,7 @@ const AdminOrderList = () => {
             setDetailsDialogOpen(true);
         } catch (err) {
             console.error('Error fetching order details:', err);
-            console.error('Could not load order details.');
+            toast.error('Không thể tải chi tiết đơn hàng.');
         }
     };
 
@@ -137,17 +137,20 @@ const AdminOrderList = () => {
         try {
             await OrderService.updateOrderStatus(selectedOrder._id, currentUpdateStatus);
             console.log(`Order ${selectedOrder.orderId} status updated to ${currentUpdateStatus} successfully!`);
+            toast.success(`Cập nhật trạng thái đơn hàng thành công!`);
             handleCloseStatusUpdateDialog();
             fetchOrders();
         } catch (err) {
             console.error('Error updating status:', err);
-            setError('Could not update order status. Please try again.');
+            setError('Không thể cập nhật trạng thái đơn hàng. Vui lòng thử lại sau.');
+            toast.error('Không thể cập nhật trạng thái đơn hàng.');
         }
     };
     const handleUpdateStatusInline = async (orderId, newStatus) => {
         try {
             await OrderService.updateOrderStatus(orderId, newStatus);
             console.log(`Order ${orderId} status updated to ${newStatus} successfully!`);
+            toast.success(`Cập nhật trạng thái đơn hàng thành công!`);
             setOrders(prevOrders =>
                 prevOrders.map(order =>
                     order._id === orderId ? { ...order, status: newStatus } : order
@@ -156,6 +159,7 @@ const AdminOrderList = () => {
         } catch (err) {
             console.error('Error updating status:', err);
             setError('Không thể cập nhật trạng thái đơn hàng. Vui lòng thử lại.');
+            toast.error('Không thể cập nhật trạng thái đơn hàng.');
         }
     };
     const availableStatuses = ['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
@@ -175,6 +179,7 @@ const triggerPrint = async (order) => {
     } catch (err) {
         console.error('Error fetching order details for printing:', err);
         setError('Không thể tải chi tiết đơn hàng để in.');
+        toast.error('Không thể tải chi tiết đơn hàng để in.');
     }
 };
 

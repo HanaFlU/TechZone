@@ -9,7 +9,7 @@ import useAuthUser from '../hooks/useAuthUser';
 import useAddToCart from '../hooks/useAddToCart';
 import ProductReview from './ProductReview';
 import ProductSpecifications from '../components/product/ProductSpecifications';
-import { formatDescriptionWithCategories } from '../utils/textHighlighter';
+
 
 const ProductDetailPage = () => {
   const { id } = useParams();
@@ -38,46 +38,11 @@ const ProductDetailPage = () => {
           ProductService.getProductById(id),
           CategoryService.getCategories()
         ]);
-        
+        console.log('Fetched product:', productData);
         setProduct(productData);
         setCategories(categoriesData);
-        
-        // Fetch vouchers separately (optional) - for all users
-        try {
-          const vouchersData = await VoucherService.getAllVouchers({ status: 'active' });
-          setVouchers(vouchersData.vouchers || []);
-        } catch (voucherErr) {
-          // Silently fallback to mock vouchers
-          // Fallback to mock vouchers for non-logged users or API issues
-          const mockVouchers = [
-            {
-              _id: 'mock1',
-              code: 'GIAM15',
-              description: 'Giảm giá 15% cho đơn hàng từ 500K',
-              discountType: 'percentage',
-              discountValue: 15,
-              minimumOrderAmount: 500000
-            },
-            {
-              _id: 'mock2',
-              code: 'GIAM100K',
-              description: 'Giảm 100K cho đơn hàng từ 1M',
-              discountType: 'fixed',
-              discountValue: 100000,
-              minimumOrderAmount: 1000000
-            },
-            {
-              _id: 'mock3',
-              code: 'FREESHIP',
-              description: 'Miễn phí vận chuyển cho đơn hàng từ 200K',
-              discountType: 'shipping',
-              discountValue: 0,
-              minimumOrderAmount: 200000
-            }
-          ];
-          setVouchers(mockVouchers);
-        }
-        
+        const vouchersData = await VoucherService.getAllVouchers({ status: 'active' });
+        setVouchers(vouchersData.vouchers || []);
         setError(null);
       } catch (err) {
         // More specific error messages
@@ -472,10 +437,9 @@ const ProductDetailPage = () => {
             </div>
             <div className="p-8">
               {product.description && product.description.trim() !== "" ? (
-                <div 
-                  className="prose prose-lg text-gray-700 leading-relaxed text-base"
+                <div
                   dangerouslySetInnerHTML={{ 
-                    __html: formatDescriptionWithCategories(product.description, categories) 
+                    __html: product.description || ""
                   }}
                 />
               ) : (

@@ -16,6 +16,7 @@ import { LuFilePlus2, LuRefreshCw } from "react-icons/lu";
 import { IoEyeOutline } from 'react-icons/io5';
 import { MdEdit, MdDelete, MdAdd } from 'react-icons/md';
 import VoucherService from '../../../services/VoucherService';
+import { toast } from 'react-toastify';
 
 const AdminVoucher = () => {
     const [vouchers, setVouchers] = useState([]);
@@ -180,6 +181,7 @@ const AdminVoucher = () => {
         e.preventDefault();
         if (!voucherForm.description || !voucherForm.code || voucherForm.discountValue === undefined) {
             setError('Vui lòng điền đầy đủ thông tin bắt buộc.');
+            toast.error('Vui lòng điền đầy đủ thông tin bắt buộc.');
             return;
         }
 
@@ -193,16 +195,20 @@ const AdminVoucher = () => {
                 const response = await VoucherService.updateVoucher(editingVoucher._id, formData);
                 if (response.success) {
                     console.log('Voucher đã được cập nhật thành công!');
+                    toast.success('Cập nhật voucher thành công!');
                 } else {
                     setError(response.message || 'Lỗi khi cập nhật voucher.');
+                    toast.error('Lỗi khi cập nhật voucher.');
                     return;
                 }
             } else {
                 const response = await VoucherService.createVoucher(formData);
                 if (response.success) {
                     console.log('Voucher đã được tạo thành công!');
+                    toast.success('Tạo voucher thành công!');
                 } else {
                     setError(response.message || 'Lỗi khi tạo voucher.');
+                    toast.error('Lỗi khi tạo voucher.');
                     return;
                 }
             }
@@ -210,7 +216,8 @@ const AdminVoucher = () => {
             handleCloseModal();
         } catch (err) {
             console.error('Error saving voucher:', err);
-            setError(err.response?.data?.message || 'Lỗi khi lưu voucher.');
+            setError('Lỗi khi lưu voucher.');
+            toast.error('Lỗi khi lưu voucher.');
         }
     };
 
@@ -224,11 +231,14 @@ const AdminVoucher = () => {
                         voucher._id === voucherId ? { ...voucher, isActive: !currentStatus } : voucher
                     )
                 );
+                toast.success('Cập nhật trạng thái voucher thành công!');
             } else {
                 setError(response.message || 'Lỗi khi cập nhật trạng thái.');
+                toast.error('Lỗi khi cập nhật trạng thái voucher.');
             }
         } catch (err) {
             console.error('Error toggling voucher status:', err);
+            toast.error('Lỗi khi cập nhật trạng thái voucher.');
             setError(err.response?.data?.message || 'Lỗi khi cập nhật trạng thái voucher.');
         }
     };
@@ -239,12 +249,15 @@ const AdminVoucher = () => {
                 const response = await VoucherService.deleteVoucher(voucherId);
                 if (response.success) {
                     console.log('Voucher đã được xóa thành công!');
+                    toast.success('Xóa voucher thành công!');
                     fetchVouchers();
                 } else {
                     setError(response.message || 'Lỗi khi xóa voucher.');
+                    toast.error('Lỗi khi xóa voucher.');
                 }
             } catch (err) {
                 console.error('Error deleting voucher:', err);
+                setError('Lỗi khi xóa voucher.');
                 setError(err.response?.data?.message || 'Lỗi khi xóa voucher.');
             }
         }

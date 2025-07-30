@@ -5,7 +5,7 @@ import useAuthForm from "../../hooks/useAuthForm";
 
 
 import { IoMdClose } from "react-icons/io";
-
+import {toast} from "react-toastify";
 
 
 export default function RegisterModal({ onClose, onSwitch }) {
@@ -60,14 +60,12 @@ export default function RegisterModal({ onClose, onSwitch }) {
     try {
       console.log(formData);
       const data = await AuthService.register(formData);
-
-      login(data.user, data.token);
       setError(null); 
-
+      toast.success("Đăng ký thành công!");
       onClose();
     } catch (err) {
       console.error("Error during registration:", err);
-      setError("Lỗi kết nối tới máy chủ.");
+      toast.error("Lỗi kết nối tới máy chủ. Đăng ký thất bại.");
       return;
     }
   };

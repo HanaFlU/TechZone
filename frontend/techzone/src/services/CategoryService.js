@@ -45,10 +45,10 @@ class CategoryService {
 
     async getProductsByCategory(identifier, options = {}) {
         try {
-            const { 
-                page = 1, 
-                limit = 20, 
-                sort = 'name', 
+            const {
+                page = 1,
+                limit = 20,
+                sort = 'name',
                 order = 'asc',
                 priceRange,
                 brands,
@@ -57,7 +57,7 @@ class CategoryService {
                 specs,
                 search
             } = options;
-            
+
             const queryParams = new URLSearchParams({
                 page: page.toString(),
                 limit: limit.toString(),
@@ -101,7 +101,7 @@ class CategoryService {
             if (search) {
                 queryParams.append('search', search);
             }
-            
+
             const response = await this.api.get(`/${identifier}/products?${queryParams.toString()}`);
             return response.data;
         } catch (error) {
@@ -116,11 +116,11 @@ class CategoryService {
             if (search) {
                 queryParams.append('search', search);
             }
-            
-            const url = search ? 
-                `/${identifier}/specifications?${queryParams.toString()}` : 
+
+            const url = search ?
+                `/${identifier}/specifications?${queryParams.toString()}` :
                 `/${identifier}/specifications`;
-                
+
             const response = await this.api.get(url);
             return response.data;
         } catch (error) {

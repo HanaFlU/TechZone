@@ -14,6 +14,7 @@ import { LuRefreshCw } from 'react-icons/lu'; // Import icon Refresh
 import StaffService from '../../../services/StaffService';
 import RoleService from '../../../services/RoleService';
 import CustomTablePagination from '../../../components/CustomPagination';
+import { toast } from 'react-toastify';
 
 const StaffAdmin = () => {
     const [staffs, setStaffs] = useState([]);
@@ -38,7 +39,7 @@ const StaffAdmin = () => {
                 setStaffs(staffData);
                 setRoles(roleData);
             } catch (err) {
-                setError('Không thể tải dữ liệu.');
+                setError('Không thể tải  danh sách nhân viên. Vui lòng thử lại sau.');
                 console.error(err);
             } finally {
                 setLoading(false);
@@ -131,10 +132,10 @@ const StaffAdmin = () => {
             const updated = await StaffService.getAllStaffs();
             setStaffs(updated);
             setEditDialog({ open: false, staff: null });
-            alert('Cập nhật nhân viên thành công!');
+            toast.success('Cập nhật nhân viên thành công!');
         } catch (err) {
             console.error(err);
-            alert('Cập nhật thất bại!');
+            alert('Cập nhật nhân viên thất bại!');
         } finally {
             setLoading(false);
         }
@@ -147,10 +148,10 @@ const StaffAdmin = () => {
                 setLoading(true);
                 await StaffService.deleteStaff(staff._id);
                 setStaffs(prev => prev.filter(s => s._id !== staff._id));
-                alert('Xóa nhân viên thành công!');
+                toast.success('Xóa nhân viên thành công!');
             } catch (err) {
                 console.error(err);
-                alert('Xóa thất bại!');
+                toast.error('Xóa nhân viên thất bại!');
             } finally {
                 setLoading(false);
             }
@@ -170,10 +171,10 @@ const StaffAdmin = () => {
             const updated = await StaffService.getAllStaffs();
             setStaffs(updated);
             setAddDialog({ open: false, fields: { name: '', email: '', phone: '', isActive: true, password: '', role: '' } });
-            alert('Thêm nhân viên thành công!');
+            toast.success('Thêm nhân viên thành công!');
         } catch (err) {
             console.error(err);
-            alert('Thêm nhân viên thất bại!');
+            toast.error('Thêm nhân viên thất bại!');
         } finally {
             setLoading(false);
         }

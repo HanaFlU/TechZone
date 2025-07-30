@@ -41,6 +41,8 @@ import { useContext } from 'react';
 import { Fab, Tooltip, Zoom } from '@mui/material';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import ChatIcon from '@mui/icons-material/Chat';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const App = () => {
   const { showLoginModal, setShowLoginModal } = useContext(AuthContext);
@@ -189,7 +191,20 @@ const App = () => {
         
         {/* Modal */}
         {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} onSwitch={() => { setShowLoginModal(false); setShowRegisterModal(true); }} />}
-        {showRegisterModal && <RegisterModal onClose={()=>setShowRegisterModal(false) } onSwitch={() => { setShowLoginModal(true); setShowRegisterModal(false); }} />}
+        {showRegisterModal && <RegisterModal onClose={() => setShowRegisterModal(false)} onSwitch={() => { setShowLoginModal(true); setShowRegisterModal(false); }} />}
+      
+      <ToastContainer
+            position="top-right" // Vị trí hiển thị toast
+            autoClose={5000} // Tự động đóng sau 5 giây
+            hideProgressBar={false} // Hiển thị thanh tiến trình
+            newestOnTop={false} // Toast mới nhất ở trên cùng
+            closeOnClick // Đóng toast khi click
+            rtl={false} // Hỗ trợ ngôn ngữ đọc từ phải sang trái
+            pauseOnFocusLoss // Tạm dừng khi mất focus
+            draggable // Cho phép kéo toast
+            pauseOnHover // Tạm dừng khi hover
+            theme="light" // Chủ đề của toast (light, dark, colored)
+        />
       </div>
   )
 }

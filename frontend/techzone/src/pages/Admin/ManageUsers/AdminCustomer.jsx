@@ -35,6 +35,7 @@ import { LuRefreshCw } from 'react-icons/lu'; // Import icon Refresh
 import { useNavigate } from 'react-router-dom';
 import CustomerService from '../../../services/CustomerService';
 import CustomTablePagination from '../../../components/CustomPagination';
+import { toast } from 'react-toastify';
 
 const CustomerAdmin = () => {
     const [customers, setCustomers] = useState([]);
@@ -140,9 +141,10 @@ const CustomerAdmin = () => {
             const res = await CustomerService.getAllCustomers(); // Gọi lại getAllCustomers để đảm bảo dữ liệu mới nhất
             setCustomers(res);
             setEditDialog({ open: false, customer: null });
+            toast.success("Cập nhật khách hàng thành công!");
         } catch (err) {
             console.error('Error updating customer:', err);
-            alert('Cập nhật thất bại!');
+            alert('Cập nhật khách hàng thất bại!');
         } finally {
             setLoading(false);
         }
@@ -169,6 +171,7 @@ const CustomerAdmin = () => {
                         : '', password: ''
                 }
             });
+            toast.success("Thêm khách hàng thành công!");
         } catch (err) {
             console.error('Error adding customer:', err);
             alert('Thêm khách hàng thất bại!');
@@ -184,9 +187,10 @@ const CustomerAdmin = () => {
                 // Gọi API xóa user/customer ở đây nếu backend hỗ trợ
                 await CustomerService.deleteCustomer(customer._id); // Sử dụng deleteCustomer đã định nghĩa trong service
                 setCustomers(customers.filter(c => c._id !== customer._id));
+                toast.success("Xóa khách hàng thành công!");
             } catch (err) {
                 console.error('Error deleting customer:', err);
-                alert('Xóa thất bại!');
+                alert('Xóa khách hàng thất bại!');
             } finally {
                 setLoading(false);
             }

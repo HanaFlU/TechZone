@@ -24,6 +24,7 @@ import CategoryTreeSelect from '../../../components/treeView/categoryTreeSelect'
 import { Editor } from '@tinymce/tinymce-react';
 import removeDiacritics from '../../../utils/removeDiacritics';
 import CustomTablePagination from '../../../components/CustomPagination';
+import { toast } from 'react-toastify';
 
 const ProductManager = () => {
   const [products, setProducts] = useState([]); // Ensure products is initialized as an empty array
@@ -50,6 +51,7 @@ const ProductManager = () => {
   const [bulkActionType, setBulkActionType] = useState('');
   const [newCategory, setNewCategory] = useState('');
   const [newStatus, setNewStatus] = useState('');
+  const [error, setError] = useState(null);
 
 
   const [formData, setFormData] = useState({
@@ -88,6 +90,7 @@ const ProductManager = () => {
       setCategories(res || []);
     } catch (err) {
       console.error("Lỗi khi fetch danh mục:", err);
+      toast.error("Không thể tải danh sách danh mục.");
       setCategories([]);
     }
   };
@@ -113,46 +116,46 @@ const ProductManager = () => {
   const filteredAndSortedProducts =
     (products || [])
       .filter((p) => {
-      const normalizedCatName = removeDiacritics(p.name);
-      const normalizedFilterName = removeDiacritics(filterKeyword);
+        const normalizedCatName = removeDiacritics(p.name);
+        const normalizedFilterName = removeDiacritics(filterKeyword);
   
-      const matchName = normalizedCatName.includes(normalizedFilterName);
-      let matchCategory = true;
+        const matchName = normalizedCatName.includes(normalizedFilterName);
+        let matchCategory = true;
 
-      if (filterCategory) {
-        const categoryIdsToMatch = getAllChildCategoryIds(filterCategory, categories);
-        matchCategory = categoryIdsToMatch.includes(p.category?._id);
-      }
+        if (filterCategory) {
+          const categoryIdsToMatch = getAllChildCategoryIds(filterCategory, categories);
+          matchCategory = categoryIdsToMatch.includes(p.category?._id);
+        }
 
-      return matchName && matchCategory;
-    })
-    .sort((a, b) => {
-      if (!sort.field || !sort.order) {
+        return matchName && matchCategory;
+      })
+      .sort((a, b) => {
+        if (!sort.field || !sort.order) {
+          return 0;
+        }
+
+        let valA = a[sort.field];
+        let valB = b[sort.field];
+
+        if (sort.field === 'price' || sort.field === 'stock') {
+          valA = parseFloat(valA);
+          valB = parseFloat(valB);
+        } else if (sort.field === 'updatedAt') {
+          valA = new Date(a.updatedAt);
+          valB = new Date(b.updatedAt);
+        } else {
+          valA = String(valA).toLowerCase();
+          valB = String(valB).toLowerCase();
+        }
+
+        if (valA < valB) {
+          return sort.order === 'asc' ? -1 : 1;
+        }
+        if (valA > valB) {
+          return sort.order === 'asc' ? 1 : -1;
+        }
         return 0;
-      }
-
-      let valA = a[sort.field];
-      let valB = b[sort.field];
-
-      if (sort.field === 'price' || sort.field === 'stock') {
-        valA = parseFloat(valA);
-        valB = parseFloat(valB);
-      } else if (sort.field === 'updatedAt') {
-        valA = new Date(a.updatedAt);
-        valB = new Date(b.updatedAt);
-      } else {
-        valA = String(valA).toLowerCase();
-        valB = String(valB).toLowerCase();
-      }
-
-      if (valA < valB) {
-        return sort.order === 'asc' ? -1 : 1;
-      }
-      if (valA > valB) {
-        return sort.order === 'asc' ? 1 : -1;
-      }
-      return 0;
-    });
+      });
 
 
   const handleChangePage = (event, newPage) => {
@@ -231,11 +234,12 @@ const ProductManager = () => {
       } else {
         await ProductService.createProduct(formData);
       }
+      toast.success(editingProduct ? "Cập nhật sản phẩm thành công!" : "Thêm sản phẩm thành công!");
       handleClose();
       fetchProducts();
     } catch (err) {
       console.error(err);
-      alert("An error occurred while saving the product.");
+      toast.error("Đã xảy ra lỗi khi lưu sản phẩm.");
     } finally {
       setLoading(false);
     }
@@ -246,10 +250,11 @@ const ProductManager = () => {
       setLoading(true);
       try {
         await ProductService.deleteProduct(id);
+        toast.success("Xoá sản phẩm thành công!");
         fetchProducts();
       } catch (err) {
         console.error(err);
-        alert("An error occurred while deleting the product.");
+        toast.error("Đã xảy ra lỗi khi xoá sản phẩm.");
       } finally {
         setLoading(false);
       }
@@ -285,6 +290,7 @@ const ProductManager = () => {
     setSelectedProducts(newSelected);
   };
 
+
   const handleOpenBulkActionDialog = (type) => {
     setBulkActionType(type);
     setOpenBulkActionDialog(true);
@@ -307,10 +313,11 @@ const ProductManager = () => {
         handleCloseBulkActionDialog();
         setSelectedProducts([]);
         fetchProducts();
+        toast.success("Cập nhật danh mục hàng loạt thành công!");
       }
     } catch (err) {
       console.error("Lỗi khi cập nhật danh mục hàng loạt:", err);
-      alert("An error occurred while bulk updating categories.");
+      toast.error("Đã xảy ra lỗi khi cập nhật danh mục hàng loạt.");
     } finally {
       setLoading(false);
     }
@@ -327,10 +334,11 @@ const ProductManager = () => {
         handleCloseBulkActionDialog();
         setSelectedProducts([]);
         fetchProducts();
+        toast.success("Cập nhật trạng thái hàng loạt thành công!");
       }
     } catch (err) {
       console.error("Lỗi khi cập nhật trạng thái hàng loạt:", err);
-      alert("An error occurred while bulk updating statuses.");
+      toast.error("Đã xảy ra lỗi khi cập nhật trạng thái hàng loạt.");
     } finally {
       setLoading(false);
     }
@@ -344,9 +352,10 @@ const ProductManager = () => {
         handleCloseBulkActionDialog();
         setSelectedProducts([]);
         fetchProducts();
+        toast.success("Xoá sản phẩm hàng loạt thành công!");
       } catch (err) {
         console.error("Lỗi khi xoá sản phẩm hàng loạt:", err);
-        alert("An error occurred while bulk deleting products.");
+        toast.error("Đã xảy ra lỗi khi xoá sản phẩm hàng loạt.");
       } finally {
         setLoading(false);
       }
@@ -370,109 +379,116 @@ const ProductManager = () => {
             Thêm sản phẩm
           </Button>
         </div>
-        {loading ? <CircularProgress /> : (
-          <div>
-            <Card sx={{ p: 2, mb: 2 }}>
-              <Grid container spacing={2}>
-                <Grid size={{xs:12, sm:6, md: 3}}>
-                  <TextField
-                    label="Tìm theo tên"
-                    size="small"
-                    value={filterKeyword}
-                    onChange={(e) => setFilterKeyword( e.target.value || '')}
-                    fullWidth
-                    sx={{ minWidth: 150 }}
-                  />
-                </Grid>
-
-                <Grid size={{xs:12, sm:6, md: 3}}>
-                  <FormControl size="small" fullWidth>
-                    <InputLabel>Danh mục</InputLabel>
-                    <Select
-                      value={filterCategory}
-                      label="Danh mục"
-                      sx={{ minWidth: 150 }}
-                      onChange={(e) => setFilterCategory(e.target.value || '')}
-                      MenuProps={{
-                        PaperProps: {
-                          style: {
-                            maxHeight: 300,
-                          },
-                        },
-                      }}
-                    >
-                      <MenuItem value="">Tất cả</MenuItem>
-                      {categories.map((c) => (
-                        <MenuItem key={c._id} value={c._id}>{c.name}</MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-
-                <Grid size={{xs:12, sm:6, md: 3}}>
-                  <FormControl size="small" fullWidth>
-                    <InputLabel>Ngày cập nhật</InputLabel>
-                    <Select
-                      value={sort.order}
-                      label="Ngày cập nhật"
-                      sx={{ minWidth: 150 }}
-                      onChange={(e) => setSort(() => ({
-                        field: 'updatedAt',
-                        order: e.target.value,
-                      }))}
-                    >
-                      <MenuItem value="desc">Mới nhất</MenuItem>
-                      <MenuItem value="asc">Cũ nhất</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-
-                <Grid size={{xs:12, sm:6, md: 2}}>
-                  <Button
-                    startIcon={<LuRefreshCw />}
-                    color="success"
-                    variant="outlined"
-                    onClick={() => {
-                      setFilterKeyword('');
-                      setFilterCategory('');
-                      setSort({ field: '', order: '' });
-                      setSelectedProducts([]);
-                    }}
-                    sx={{ minWidth: 100 }}
-                    fullWidth
-                  >
-                    RESET
-                  </Button>
-                </Grid>
+        <div>
+          <Card sx={{ p: 2, mb: 2 }}>
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                <TextField
+                  label="Tìm theo tên"
+                  size="small"
+                  value={filterKeyword}
+                  onChange={(e) => setFilterKeyword(e.target.value || '')}
+                  fullWidth
+                  sx={{ minWidth: 150 }}
+                />
               </Grid>
-            </Card>
 
-            {selectedProducts.length > 0 && (
-              <Box sx={{ mb: 2, display: 'flex', gap: 1 }}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => handleOpenBulkActionDialog('category')}
-                >
-                  Đổi danh mục ({selectedProducts.length})
-                </Button>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  onClick={() => handleOpenBulkActionDialog('status')}
-                >
-                  Đổi trạng thái ({selectedProducts.length})
-                </Button>
-                <Button
-                  variant="contained"
-                  color="error"
-                  onClick={() => handleOpenBulkActionDialog('delete')}
-                >
-                  Xoá đã chọn ({selectedProducts.length})
-                </Button>
-              </Box>
-            )}
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                <FormControl size="small" fullWidth>
+                  <InputLabel>Danh mục</InputLabel>
+                  <Select
+                    value={filterCategory}
+                    label="Danh mục"
+                    sx={{ minWidth: 150 }}
+                    onChange={(e) => setFilterCategory(e.target.value || '')}
+                    MenuProps={{
+                      PaperProps: {
+                        style: {
+                          maxHeight: 300,
+                        },
+                      },
+                    }}
+                  >
+                    <MenuItem value="">Tất cả</MenuItem>
+                    {categories.map((c) => (
+                      <MenuItem key={c._id} value={c._id}>{c.name}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
 
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                <FormControl size="small" fullWidth>
+                  <InputLabel>Ngày cập nhật</InputLabel>
+                  <Select
+                    value={sort.order}
+                    label="Ngày cập nhật"
+                    sx={{ minWidth: 150 }}
+                    onChange={(e) => setSort(() => ({
+                      field: 'updatedAt',
+                      order: e.target.value,
+                    }))}
+                  >
+                    <MenuItem value="desc">Mới nhất</MenuItem>
+                    <MenuItem value="asc">Cũ nhất</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+                <Button
+                  startIcon={<LuRefreshCw />}
+                  color="success"
+                  variant="outlined"
+                  onClick={() => {
+                    setFilterKeyword('');
+                    setFilterCategory('');
+                    setSort({ field: '', order: '' });
+                    setSelectedProducts([]);
+                  }}
+                  sx={{ minWidth: 100 }}
+                  fullWidth
+                >
+                  RESET
+                </Button>
+              </Grid>
+            </Grid>
+          </Card>
+
+          {selectedProducts.length > 0 && (
+            <Box sx={{ mb: 2, display: 'flex', gap: 1 }}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => handleOpenBulkActionDialog('category')}
+              >
+                Đổi danh mục ({selectedProducts.length})
+              </Button>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={() => handleOpenBulkActionDialog('status')}
+              >
+                Đổi trạng thái ({selectedProducts.length})
+              </Button>
+              <Button
+                variant="contained"
+                color="error"
+                onClick={() => handleOpenBulkActionDialog('delete')}
+              >
+                Xoá đã chọn ({selectedProducts.length})
+              </Button>
+            </Box>
+          )}
+        
+          {loading ? (
+            <Box display="flex" justifyContent="center" py={4}>
+              <CircularProgress color="success" />
+            </Box>
+          ) : error ? (
+            <Alert severity="error">{error}</Alert>
+          ) : (
+          <div>
             <TableContainer component={Paper} sx={{ mt: 2 }}>
               <Table>
                 <TableHead>
@@ -592,7 +608,9 @@ const ProductManager = () => {
               rowsPerPageOptions={[5, 10, 20]}
             />
           </div>
-        )}
+          )}
+        </div>
+
 
         <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
           <DialogTitle style={{ color: '#328E6E', fontWeight: "bold" }}>{editingProduct ? 'Cập nhật sản phẩm' : 'Thêm sản phẩm'}</DialogTitle>
@@ -662,10 +680,19 @@ const ProductManager = () => {
               initialValue={formData.description || ''}
               value={formData.description || ''}
               init={{
-                height: 1000,
+                height: 500,
                 menubar: false,
-                plugins: ['link', 'image', 'code', 'lists', 'table', 'colorpicker', 'textcolor', 'autoresize'],
-                toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | bullist numlist outdent indent | code | link image table | forecolor backcolor',
+                plugins: [
+                  'advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
+                  'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                  'insertdatetime', 'media', 'table', 'preview', 'help', 'wordcount'
+                ],
+                toolbar: 'undo redo | blocks | ' +
+                  'bold italic forecolor | alignleft aligncenter ' +
+                  'alignright alignjustify | bullist numlist outdent indent | '+ 'image link' +
+                  'removeformat | help',
+                images_file_types: 'jpg,svg,webp',
+                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
               }}
               onEditorChange={(value) => setFormData({ ...formData, description: value })}
             />

@@ -45,7 +45,7 @@ const CustomerController = {
             res.status(500).json({ message: 'Lỗi khi tạo khách hàng.' });
         }
     },
-    getUserInfo: async (req, res) => {
+    getCustomerInfo: async (req, res) => {
         try {
             const userId = req.params.userId;
             const user = await User.findById(userId);
@@ -79,7 +79,7 @@ const CustomerController = {
             });
         }
     },
-    updateUserInfo: async (req, res) => {
+    updateCustomerInfo: async (req, res) => {
         try {
             const userId = req.params.userId;
             const { name, phone, birthdate, gender, isActive } = req.body;

@@ -28,6 +28,7 @@ import {
   Checkbox,
   Grid
 } from "@mui/material";
+import { toast } from "react-toastify";
 import { AiOutlineEdit } from "react-icons/ai";
 import { FaRegTrashCan } from "react-icons/fa6";
 import { FaPlus } from "react-icons/fa";
@@ -48,6 +49,7 @@ const CategoryManager = () => {
   const [filterName, setFilterName] = useState("");
   const [filterParent, setFilterParent] = useState("");
   const [showRootOnly, setShowRootOnly] = useState(false);
+  const [error, setError] = useState(null);
 
   const [form, setForm] = useState({
     id: null,
@@ -72,6 +74,7 @@ const CategoryManager = () => {
       setSelectedCategoryIds([]);
     } catch (error) {
       console.error("Error fetching categories:", error);
+      setError( "Lỗi khi tải danh mục.");
       setCategories([]);
     } finally {
       setLoading(false);
@@ -107,13 +110,12 @@ const CategoryManager = () => {
   const handleUploadIcon = async (file) => {
     setLoading(true); // Indicate loading during upload
     try {
-      console.log("Uploading icon:", file.name);
       const url = await UploadService.uploadIcon(file);
-      console.log("Icon uploaded successfully:", url);
+      toast.success("Icon đã được tải lên thành công!");
       return url;
     } catch (error) {
       console.error("Error uploading icon:", error);
-      alert("Đã xảy ra lỗi khi tải icon lên.");
+      toast.error("Không thể tải icon lên. Vui lòng thử lại.");
       return form.icon; // Return existing icon if upload fails
     } finally {
       setLoading(false);
@@ -147,7 +149,7 @@ const CategoryManager = () => {
       } else {
         await CategoryService.createCategory(payload);
       }
-
+      toast.success(form.id ? "Cập nhật danh mục thành công!" : "Thêm danh mục thành công!");
       // Reset form and close dialog
       setForm({
         name: "",
@@ -162,8 +164,8 @@ const CategoryManager = () => {
       setFormDialog(false);
       fetchCategories(); // Re-fetch categories to update the list
     } catch (error) {
+      toast.error("Đã xảy ra lỗi khi lưu danh mục.", 1000);
       console.error("Error saving category:", error);
-      alert(error.response?.data?.message || "Đã xảy ra lỗi khi lưu danh mục.");
     } finally {
       setLoading(false);
     }
@@ -188,11 +190,12 @@ const CategoryManager = () => {
       setLoading(true);
       try {
         await CategoryService.deleteCategory(id);
+        toast.success("Xoá danh mục thành công!");
         fetchCategories(); // Re-fetch categories to update the list
       } catch (error) {
         console.error("Error deleting category:", error);
         // Display the specific error message from the backend
-        alert(error.response?.data?.message || "Đã xảy ra lỗi khi xóa danh mục.");
+        toast.error("Đã xảy ra lỗi khi xoá danh mục.");
       } finally {
         setLoading(false);
       }
@@ -230,7 +233,7 @@ const CategoryManager = () => {
   // Hàm xử lý cập nhật hàng loạt danh mục cha
   const handleBatchUpdateParent = async () => {
     if (!selectedCategoryIds || selectedCategoryIds.length === 0) {
-      alert("Vui lòng chọn ít nhất một danh mục để cập nhật.");
+      toast.error("Vui lòng chọn ít nhất một danh mục để cập nhật.");
       return;
     }
 
@@ -240,6 +243,7 @@ const CategoryManager = () => {
       for (const categoryId of selectedCategoryIds) {
         // Đảm bảo không chọn chính nó làm danh mục cha
         if (categoryId === newParentForBatch) {
+          toast.error("Cập nhật không thành công.");
           alert(`Không thể đặt danh mục '${categories.find(c => c._id === categoryId)?.name}' làm danh mục cha của chính nó.`);
           continue;
         }
@@ -263,19 +267,20 @@ const CategoryManager = () => {
         }
 
         if (isCircular) {
-            alert(`Không thể đặt danh mục '${categories.find(c => c._id === categoryId)?.name}' làm con của '${categories.find(c => c._id === newParentForBatch)?.name}' vì sẽ tạo ra vòng lặp cha-con.`);
-            continue;
+          toast.error("Cập nhật không thành công.");
+          alert(`Không thể đặt danh mục '${categories.find(c => c._id === categoryId)?.name}' làm con của '${categories.find(c => c._id === newParentForBatch)?.name}' vì sẽ tạo ra vòng lặp cha-con.`);
+          continue;
         }
-
 
         await CategoryService.updateCategory(categoryId, { parent: newParentForBatch });
       }
-      alert("Cập nhật danh mục cha thành công!");
+      toast.success("Cập nhật danh mục cha thành công!");
       setBatchUpdateParentDialog(false);
       setNewParentForBatch(null);
       fetchCategories(); // Tải lại danh sách để hiển thị thay đổi
     } catch (error) {
       console.error("Error batch updating parent:", error);
+      toast.error("Đã xảy ra lỗi khi cập nhật danh mục cha.");
       alert(error.response?.data?.message || "Đã xảy ra lỗi khi cập nhật danh mục cha.");
     } finally {
       setLoading(false);
@@ -388,7 +393,9 @@ const CategoryManager = () => {
 
         {loading ? (
           <CircularProgress color="primary" />
-        ) : (
+        ) : error ? (
+          <Alert severity="error">{error}</Alert>
+        ): (
           <div>
             <TableContainer component={Paper}>
               <Table size="small">
