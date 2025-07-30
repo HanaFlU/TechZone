@@ -6,21 +6,24 @@ const ProductSection = ({
   loading = false,
   renderProduct,
   onViewAll,
+  sectionStyle = "mb-12",
+  titleStyle = "text-gray-900",
+  lineStyle = "bg-gray-300",
+  buttonStyle = "bg-green-600 hover:bg-emerald-700 text-white",
 }) => {
   return (
-    <section className="mb-12">
-      <div className="flex items-center justify-between mb-6 relative">
+    <section className={sectionStyle}>
+      <div className="flex items-center justify-between mb-6">
         <div className="flex items-center flex-1">
-          <span className="h-0.5 w-16 bg-gray-300 mr-4 hidden sm:inline-block"></span>
-          <h2 className="text-2xl font-bold text-gray-900 text-center flex-1">{title}</h2>
-          <span className="h-0.5 w-16 bg-gray-300 ml-4 hidden sm:inline-block"></span>
+          <h2 className={`text-2xl font-bold ${titleStyle} mr-4`}>{title}</h2>
+          <div className="flex-1 h-1 bg-green-700 mr-4"></div>
         </div>
         <button
-          className="absolute right-0 top-0 bg-green-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition-colors"
+          className={`${buttonStyle} font-semibold py-2 px-4 rounded-lg shadow transition-colors`}
           style={{ minWidth: '110px' }}
           onClick={onViewAll}
         >
-          View All
+          Xem tất cả
         </button>
       </div>
       {loading ? (

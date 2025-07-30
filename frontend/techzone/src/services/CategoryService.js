@@ -53,7 +53,8 @@ class CategoryService {
                 priceRange,
                 brands,
                 minRating,
-                availability
+                availability,
+                specs
             } = options;
             
             const queryParams = new URLSearchParams({
@@ -89,11 +90,26 @@ class CategoryService {
             if (availability) {
                 queryParams.append('availability', availability);
             }
+
+            // Add specifications filter
+            if (specs && specs.length > 0) {
+                queryParams.append('specs', JSON.stringify(specs));
+            }
             
             const response = await this.api.get(`/${identifier}/products?${queryParams.toString()}`);
             return response.data;
         } catch (error) {
             console.error('CategoryService Error: Failed to get products by category:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    }
+
+    async getCategorySpecifications(identifier) {
+        try {
+            const response = await this.api.get(`/${identifier}/specifications`);
+            return response.data;
+        } catch (error) {
+            console.error('CategoryService Error: Failed to get category specifications:', error.response ? error.response.data : error.message);
             throw error;
         }
     }

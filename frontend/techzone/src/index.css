@@ -72,3 +72,112 @@
 .animate-bounce-in {
   animation: bounce-in 0.6s ease-out;
 }
+
+/* Custom cursor styles for clickable elements */
+@layer components {
+  .cursor-pointer-all button, 
+  .cursor-pointer-all select, 
+  .cursor-pointer-all [role="button"], 
+  .cursor-pointer-all .clickable,
+  .cursor-pointer-all a {
+    cursor: pointer !important;
+  }
+  
+  .cursor-pointer-all button:disabled {
+    cursor: not-allowed !important;
+  }
+  
+  .cursor-pointer-all .product-card,
+  .cursor-pointer-all .product-card * {
+    cursor: pointer;
+  }
+  
+  .cursor-pointer-all nav button,
+  .cursor-pointer-all nav a {
+    cursor: pointer;
+  }
+  
+  .cursor-pointer-all .pagination button:not(:disabled) {
+    cursor: pointer;
+  }
+  
+  .cursor-pointer-all select {
+    cursor: pointer;
+  }
+}
+
+/* Dual range slider styles */
+@layer components {
+  .dual-slider-container {
+    position: relative;
+    width: 100%;
+    height: 24px;
+    margin: 20px 0;
+    user-select: none;
+    cursor: pointer;
+  }
+  
+  .dual-slider-track {
+    position: absolute;
+    width: 100%;
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 2px;
+    top: 10px;
+    cursor: pointer;
+  }
+  
+  .dual-slider-range {
+    position: absolute;
+    height: 4px;
+    background: #10b981;
+    border-radius: 2px;
+    top: 10px;
+  }
+  
+  .dual-slider-thumb {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background: #ffffff;
+    border: 2px solid #10b981;
+    border-radius: 50%;
+    cursor: pointer;
+    top: 3px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    transition: all 0.15s ease;
+    z-index: 10;
+  }
+  
+  .dual-slider-thumb:hover {
+    transform: translateX(-50%) scale(1.1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);
+  }
+  
+  .dual-slider-thumb:active {
+    cursor: pointer;
+    transform: translateX(-50%) scale(1.15);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .dual-slider-min {
+    z-index: 11;
+  }
+  
+  .dual-slider-max {
+    z-index: 12;
+  }
+}
+
+/* Hide number input spinners */
+@layer utilities {
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+}

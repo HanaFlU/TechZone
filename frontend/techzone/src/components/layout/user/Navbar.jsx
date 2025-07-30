@@ -16,6 +16,8 @@ const Navbar = ({onAccountClick, setAdminMode, searchValue, setSearchValue, prod
   const [cartData, setCartData] = useState(null);
   const [showCartDropdown, setShowCartDropdown] = useState(false);
   const [dropdownTimer, setDropdownTimer] = useState(null);
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+  const searchRef = useRef(null);
   
   const [showNotificationDropdown, setShowNotificationDropdown] = useState(false);
   const [notificationDropdownTimer, setNotificationDropdownTimer] = useState(null);
@@ -237,24 +239,73 @@ const Navbar = ({onAccountClick, setAdminMode, searchValue, setSearchValue, prod
   // Filter and sort products for dropdown
   const suggestions = searchValue
     ? products
-        .filter(p => p.name && p.name.toLowerCase().includes(searchValue.toLowerCase()))
+        .filter(product => {
+          const searchTerm = searchValue.toLowerCase().trim();
+          const searchWords = searchTerm.split(/\s+/).filter(word => word.length > 0);
+          
+          const productName = product.name?.toLowerCase() || '';
+          const productDescription = product.description?.toLowerCase() || '';
+          const categoryName = product.category?.name?.toLowerCase() || '';
+          
+          // Get all specs labels and values as searchable text
+          const specsText = product.specs?.map(spec => 
+            `${spec.label?.toLowerCase() || ''} ${spec.value?.toLowerCase() || ''}`
+          ).join(' ') || '';
+          
+          // Combine all searchable text
+          const searchableText = `${productName} ${productDescription} ${categoryName} ${specsText}`;
+          
+          // Check if all search words are found in the combined searchable text
+          return searchWords.every(word => searchableText.includes(word));
+        })
         .sort((a, b) => a.name.localeCompare(b.name))
         .slice(0, 6)
     : [];
 
   const handleSearchChange = (e) => {
-    setSearchValue(e.target.value)
+    setSearchValue(e.target.value);
+    setShowSearchDropdown(e.target.value.length > 0);
   }
 
-  const handleClearSearch = () => setSearchValue('');
+  // Handle click outside to close search dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowSearchDropdown(false);
+      }
+    };
 
-  const handleSuggestionClick = (name) => {
-    setSearchValue(name);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleClearSearch = () => {
+    setSearchValue('');
+    setShowSearchDropdown(false);
+  };
+
+  const handleSuggestionClick = (product) => {
+    setSearchValue(product.name);
+    setShowSearchDropdown(false);
+    // Navigate to product detail page
+    navigate(`/product/${product._id}`);
   };
 
   const handleSearch = () => {
-    console.log('Searching for:', searchValue)
+    if (searchValue.trim()) {
+      // Navigate to category page with search parameter
+      navigate(`/category/all?search=${encodeURIComponent(searchValue.trim())}`);
+      setShowSearchDropdown(false);
+    }
   }
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
 
   const handleCartClick = () => {
     navigate('/cart');
@@ -280,7 +331,7 @@ const Navbar = ({onAccountClick, setAdminMode, searchValue, setSearchValue, prod
   };
 
   return (
-      <nav className='bg-dark-green text-white px-4 py-3 flex justify-between items-center sticky top-0 z-50' >
+      <nav className='bg-dark-green text-white px-4 py-3 flex justify-between items-center sticky top-0 z-50 cursor-pointer-all' >
           <div className='flex items-center'>
             <img 
               src="/TECHZONE-Logo.png" 
@@ -297,18 +348,18 @@ const Navbar = ({onAccountClick, setAdminMode, searchValue, setSearchValue, prod
               onMouseEnter={handleOpenCategoryDropdown}
               onMouseLeave={handleCloseCategoryDropdown}
             >
-              <button
-                className={`flex items-center space-x-3 px-4 py-2 text-white transition-all duration-300 rounded-lg transform bg-light-green ${
-                  showCategoryDropdown 
-                    ? 'bg-emerald-700 shadow-lg scale-105 text-gray-200' 
-                    : 'hover:text-gray-200 hover:bg-emerald-700 hover:shadow-lg hover:scale-105'
-                }`}
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-white">
-                  <path d="M3 6H21V8H3V6ZM3 11H21V13H3V11ZM3 16H21V18H3V16Z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                <span className="text-white font-semibold text-lg">DANH MỤC SẢN PHẨM</span>
-              </button>
+                                                           <button
+                  className={`flex items-center justify-center lg:justify-start space-x-0 lg:space-x-3 px-2 lg:px-4 py-1 lg:py-2 text-white transition-all duration-300 rounded-lg transform bg-light-green ${
+                    showCategoryDropdown 
+                      ? 'bg-emerald-700 shadow-lg scale-105 text-gray-200' 
+                      : 'hover:text-gray-200 hover:bg-emerald-700 hover:shadow-lg hover:scale-105'
+                  }`}
+                >
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-white">
+                    <path d="M3 6H21V8H3V6ZM3 11H21V13H3V11ZM3 16H21V18H3V16Z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span className="text-white font-semibold text-base hidden lg:block">DANH MỤC SẢN PHẨM</span>
+                </button>
 
               {/* Category Dropdown Menu using CategorySidebar */}
               {showCategoryDropdown && (
@@ -340,12 +391,13 @@ const Navbar = ({onAccountClick, setAdminMode, searchValue, setSearchValue, prod
           )}
           
           {/* Search Bar */}
-          <div className='flex-1 max-w-2xl mx-8'>
+          <div className='flex-1 max-w-2xl mx-8' ref={searchRef}>
             <div className='relative flex items-center'>
               <input
                 type="text"
                 value={searchValue}
                 onChange={handleSearchChange}
+                onKeyPress={handleKeyPress}
                 placeholder="Tìm kiếm sản phẩm..."
                 className="w-full px-5 py-2 bg-white text-gray-900 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 autoComplete="off"
@@ -373,15 +425,31 @@ const Navbar = ({onAccountClick, setAdminMode, searchValue, setSearchValue, prod
                 </svg>
               </button>
               {/* Dropdown suggestions */}
-              {suggestions.length > 0 && (
-                <div className="absolute left-0 top-full mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+              {showSearchDropdown && suggestions.length > 0 && (
+                <div className="absolute left-0 top-full mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
                   {suggestions.map(product => (
                     <div
                       key={product._id}
-                      className="px-4 py-2 cursor-pointer hover:bg-green-100 text-gray-900"
-                      onClick={() => handleSuggestionClick(product.name)}
+                      className="px-4 py-3 cursor-pointer hover:bg-green-50 text-gray-900 border-b border-gray-100 last:border-b-0 flex items-center space-x-3"
+                      onClick={() => handleSuggestionClick(product)}
                     >
-                      {product.name}
+                      {/* Product image */}
+                      <div className="w-10 h-10 flex-shrink-0">
+                        <img
+                          src={product.images && product.images.length > 0 ? product.images[0] : '/default-product-image.svg'}
+                          alt={product.name}
+                          className="w-full h-full object-cover rounded"
+                        />
+                      </div>
+                      {/* Product info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-gray-900 truncate">
+                          {product.name}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {product.price?.toLocaleString('vi-VN')}₫
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>

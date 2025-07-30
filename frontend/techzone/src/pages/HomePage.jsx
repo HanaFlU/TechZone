@@ -10,7 +10,7 @@ import useAuthUser from '../hooks/useAuthUser';
 import useNotification from '../hooks/useNotification';
 import CartService from '../services/CartService';
 import NotificationContainer from '../components/button/NotificationContainer';
-import { useStockValidation } from '../hooks/useStockValidation';
+import useAddToCart from '../hooks/useAddToCart';
 
 const mockNews = [
   {
@@ -63,7 +63,7 @@ const HomePage = () => {
     displayNotification, 
     closeNotification
   } = useNotification();
-  const { validateStockForAddToCart } = useStockValidation(displayNotification);
+  const { addToCart } = useAddToCart();
 
   // Transfer guest cart when user logs in
   const transferGuestCartToUser = async () => {
@@ -222,73 +222,54 @@ const HomePage = () => {
 
   // Add to Cart handler
   const handleAddToCart = async (product) => {
-    console.log('handleAddToCart called with product:', product);
-    console.log('Product stock:', product.stock);
-    
-    if (currentUserId) {
-      // Logged-in user: use CartService
-      try {
-        // First, get current cart to check existing quantity
-        let currentCart = [];
-        try {
-          const cartData = await CartService.getCartData(currentUserId);
-          currentCart = cartData?.items || [];
-          console.log('Current cart items:', currentCart);
-        } catch (err) {
-          console.error('Failed to get current cart:', err);
-          currentCart = [];
-        }
+    await addToCart(product, 1);
+  };
 
-        // Find existing item in cart
-        const existingItem = currentCart.find(item => item.product._id === product._id);
-        const currentQuantity = existingItem ? existingItem.quantity : 0;
-        
-        console.log('Stock validation:', {
-          existingItem,
-          currentQuantity,
-          productStock: product.stock
-        });
+  // Navigation handlers for View All buttons
+  const handleViewAllFeatured = () => {
+    // Navigate to a special route that will show products with 4-5 star reviews
+    navigate('/category/featured?rating=4-5');
+  };
 
-        // Validate stock using the hook
-        if (!validateStockForAddToCart(product, currentQuantity)) {
-          return;
-        }
-
-        await CartService.addToCart(currentUserId, product._id, 1);
-        // Dispatch event to update navbar cart
-        window.dispatchEvent(new Event('cartUpdated'));
-      } catch (err) {
-        if (err.response?.data?.message) {
-          displayNotification(err.response.data.message, 'error');
-        } else {
-          displayNotification('Thêm vào giỏ hàng thất bại!', 'error');
-        }
-      }
+  const handleViewAllCPU = () => {
+    // Find CPU category and navigate to it
+    const cpuCategory = categories.find(cat => 
+      cat.name.toLowerCase().includes('cpu') || 
+      cat.name.toLowerCase().includes('processor')
+    );
+    if (cpuCategory && cpuCategory.slug) {
+      navigate(`/category/${cpuCategory.slug}`);
     } else {
-      // Guest: use localStorage
-      let guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
-      const existing = guestCart.find(item => item.productId === product._id);
-      const currentQuantity = existing ? existing.quantity : 0;
-      
-      console.log('Guest cart validation:', {
-        existing,
-        currentQuantity,
-        productStock: product.stock
-      });
+      // Fallback to a general CPU category if not found
+      navigate('/category/cpu');
+    }
+  };
 
-      // Validate stock using the hook
-      if (!validateStockForAddToCart(product, currentQuantity)) {
-        return;
-      }
+  const handleViewAllMonitor = () => {
+    // Find Monitor category and navigate to it
+    const monitorCategory = categories.find(cat => 
+      cat.name.toLowerCase().includes('màn hình') || 
+      cat.name.toLowerCase().includes('monitor')
+    );
+    if (monitorCategory && monitorCategory.slug) {
+      navigate(`/category/${monitorCategory.slug}`);
+    } else {
+      // Fallback to a general monitor category if not found
+      navigate('/category/monitor');
+    }
+  };
 
-      if (existing) {
-        existing.quantity += 1;
-      } else {
-        guestCart.push({ productId: product._id, quantity: 1, product });
-      }
-      localStorage.setItem('guestCart', JSON.stringify(guestCart));
-      // Dispatch event to update navbar cart
-      window.dispatchEvent(new Event('cartUpdated'));
+  const handleViewAllAccessories = () => {
+    // Find Accessories category and navigate to it
+    const accessoriesCategory = categories.find(cat => 
+      cat.name.toLowerCase().includes('phụ kiện') || 
+      cat.name.toLowerCase().includes('accessories')
+    );
+    if (accessoriesCategory && accessoriesCategory.slug) {
+      navigate(`/category/${accessoriesCategory.slug}`);
+    } else {
+      // Fallback to a general accessories category if not found
+      navigate('/category/accessories');
     }
   };
 
@@ -320,7 +301,7 @@ const HomePage = () => {
   );
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gray-50 cursor-pointer-all">
       <NotificationContainer
         notifications={notifications}
         onClose={closeNotification}
@@ -367,34 +348,69 @@ const HomePage = () => {
           </div>
           {/* Main Content Area: All Products Section */}
           <div className="w-full">
-            <ProductSection
-              title="Sản phẩm nổi bật"
-              products={products.slice(0, 4)}
-              loading={loading}
-              renderProduct={renderProductCard}
-            />
-            <ProductSection
-              title="CPU"
-              products={products.filter(product => {
-                    if (!product.category) return false;
-                    const catId = typeof product.category === 'object' ? product.category._id : product.category;
-                    return cpuCategoryIds.includes(catId);
-              }).slice(0, 4)}
-              loading={loading}
-              renderProduct={renderProductCard}
-            />
-            <ProductSection
-              title="Màn hình"
-              products={products.filter(product => (product.category && ['688122b612839dc4b8e5fe2a', '68814c9580cdfdd23e5e8c95', '68814c9580cdfdd23e5e8c94', '68814c9580cdfdd23e5e8c93'].includes(product.category._id))).slice(0, 4)}
-              loading={loading}
-              renderProduct={renderProductCard}
-            />
-            <ProductSection
-              title="Phụ kiện"
-              products={products.filter(product => (product.category && product.category._id === '68814ff880cdfdd23e5e8d42')).slice(0, 4)}
-              loading={loading}
-              renderProduct={renderProductCard}
-            />
+            {/* Featured Products Section */}
+            <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl p-8 mb-8 shadow-lg border border-emerald-100">
+              <ProductSection
+                title="Sản phẩm nổi bật"
+                products={products.slice(0, 4)}
+                loading={loading}
+                renderProduct={renderProductCard}
+                onViewAll={handleViewAllFeatured}
+                sectionStyle="mb-0"
+                titleStyle="text-emerald-800"
+                lineStyle="bg-emerald-400"
+                buttonStyle="bg-emerald-600 hover:bg-emerald-700 text-white"
+              />
+            </div>
+
+            {/* CPU Section */}
+            <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl p-8 mb-8 shadow-lg border border-emerald-100">
+              <ProductSection
+                title="CPU"
+                products={products.filter(product => {
+                      if (!product.category) return false;
+                      const catId = typeof product.category === 'object' ? product.category._id : product.category;
+                      return cpuCategoryIds.includes(catId);
+                }).slice(0, 8)}
+                loading={loading}
+                renderProduct={renderProductCard}
+                onViewAll={handleViewAllCPU}
+                sectionStyle="mb-0"
+                titleStyle="text-emerald-800"
+                lineStyle="bg-emerald-400"
+                buttonStyle="bg-emerald-600 hover:bg-emerald-700 text-white"
+              />
+            </div>
+
+            {/* Monitor Section */}
+            <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl p-8 mb-8 shadow-lg border border-emerald-100">
+              <ProductSection
+                title="Màn hình"
+                products={products.filter(product => (product.category && ['688122b612839dc4b8e5fe2a', '68814c9580cdfdd23e5e8c95', '68814c9580cdfdd23e5e8c94', '68814c9580cdfdd23e5e8c93'].includes(product.category._id))).slice(0, 8)}
+                loading={loading}
+                renderProduct={renderProductCard}
+                onViewAll={handleViewAllMonitor}
+                sectionStyle="mb-0"
+                titleStyle="text-emerald-800"
+                lineStyle="bg-emerald-400"
+                buttonStyle="bg-emerald-600 hover:bg-emerald-700 text-white"
+              />
+            </div>
+
+            {/* Accessories Section */}
+            <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl p-8 mb-8 shadow-lg border border-emerald-100">
+              <ProductSection
+                title="Phụ kiện"
+                products={products.filter(product => (product.category && product.category._id === '68814ff880cdfdd23e5e8d42')).slice(0, 8)}
+                loading={loading}
+                renderProduct={renderProductCard}
+                onViewAll={handleViewAllAccessories}
+                sectionStyle="mb-0"
+                titleStyle="text-emerald-800"
+                lineStyle="bg-emerald-400"
+                buttonStyle="bg-emerald-600 hover:bg-emerald-700 text-white"
+              />
+            </div>
             <NewsCarousel
               products={mockNews}
               loading={false}

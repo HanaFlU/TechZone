@@ -98,6 +98,21 @@ class ProductService {
       throw error;
     }
   }
+
+  async getProductsByRating(minRating = 4, filters = {}) {
+    try {
+      const queryParams = new URLSearchParams({
+        minRating,
+        ...filters
+      }).toString();
+      console.log('ProductService: Attempting to GET products by rating with filters:', queryParams);
+      const response = await this.api.get(`/by-rating?${queryParams}`);
+      return response.data; // Server trả về { success, data: products }
+    } catch (error) {
+      console.error('ProductService Error: Failed to get products by rating:', error.response ? error.response.data : error.message);
+      throw error;
+    }
+  }
 }
 
 export default new ProductService();

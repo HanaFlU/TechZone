@@ -2,11 +2,11 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import ProductService from '../services/ProductService';
-import CartService from '../services/CartService';
 import CategoryService from '../services/CategoryService';
+import VoucherService from '../services/VoucherService';
 import useNotification from '../hooks/useNotification';
 import useAuthUser from '../hooks/useAuthUser';
-import { useStockValidation } from '../hooks/useStockValidation';
+import useAddToCart from '../hooks/useAddToCart';
 import ProductReview from './ProductReview';
 import ProductSpecifications from '../components/product/ProductSpecifications';
 import { formatDescriptionWithCategories } from '../utils/textHighlighter';
@@ -17,10 +17,11 @@ const ProductDetailPage = () => {
   const { user, setShowLoginModal } = useContext(AuthContext);
   const { displayNotification } = useNotification();
   const { currentUserId } = useAuthUser();
-  const { validateStockForAddToCart } = useStockValidation(displayNotification);
+  const { addToCart, addToCartAndBuyNow } = useAddToCart();
   
   const [product, setProduct] = useState(null);
   const [categories, setCategories] = useState([]);
+  const [vouchers, setVouchers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -31,19 +32,71 @@ const ProductDetailPage = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
+        console.log('Fetching product with ID:', id);
         
-        // Fetch product and categories in parallel
+        // Fetch product and categories first (required)
         const [productData, categoriesData] = await Promise.all([
           ProductService.getProductById(id),
           CategoryService.getCategories()
         ]);
         
+        console.log('Product data received:', productData);
+        console.log('Categories data received:', categoriesData);
+        
         setProduct(productData);
         setCategories(categoriesData);
+        
+        // Fetch vouchers separately (optional) - for all users
+        try {
+          const vouchersData = await VoucherService.getAllVouchers({ status: 'active' });
+          console.log('Vouchers data received:', vouchersData);
+          setVouchers(vouchersData.vouchers || []);
+        } catch (voucherErr) {
+          console.warn('Could not fetch vouchers:', voucherErr);
+          // Fallback to mock vouchers for non-logged users or API issues
+          const mockVouchers = [
+            {
+              _id: 'mock1',
+              code: 'GIAM15',
+              description: 'Giảm giá 15% cho đơn hàng từ 500K',
+              discountType: 'percentage',
+              discountValue: 15,
+              minimumOrderAmount: 500000
+            },
+            {
+              _id: 'mock2',
+              code: 'GIAM100K',
+              description: 'Giảm 100K cho đơn hàng từ 1M',
+              discountType: 'fixed',
+              discountValue: 100000,
+              minimumOrderAmount: 1000000
+            },
+            {
+              _id: 'mock3',
+              code: 'FREESHIP',
+              description: 'Miễn phí vận chuyển cho đơn hàng từ 200K',
+              discountType: 'shipping',
+              discountValue: 0,
+              minimumOrderAmount: 200000
+            }
+          ];
+          setVouchers(mockVouchers);
+        }
+        
         setError(null);
       } catch (err) {
-        setError('Không thể tải thông tin sản phẩm');
         console.error('Error fetching data:', err);
+        
+        // More specific error messages
+        if (err.response?.status === 404) {
+          setError('Sản phẩm không tồn tại');
+        } else if (err.response?.status === 500) {
+          setError('Lỗi server, vui lòng thử lại sau');
+        } else if (err.message === 'Network Error') {
+          setError('Không thể kết nối đến server');
+        } else {
+          setError('Không thể tải thông tin sản phẩm');
+        }
       } finally {
         setLoading(false);
       }
@@ -54,138 +107,18 @@ const ProductDetailPage = () => {
   }, [id]);
 
   const handleAddToCart = async () => {
-    console.log('handleAddToCart called with product:', product);
-    console.log('Product stock:', product.stock);
-    
-    if (currentUserId) {
-      // Logged-in user: use CartService
-      try {
-        // First, get current cart to check existing quantity
-        let currentCart = [];
-        try {
-          const cartData = await CartService.getCartData(currentUserId);
-          currentCart = cartData?.items || [];
-          console.log('Current cart items:', currentCart);
-        } catch (err) {
-          console.error('Failed to get current cart:', err);
-          currentCart = [];
-        }
-
-        // Find existing item in cart
-        const existingItem = currentCart.find(item => item.product._id === product._id);
-        const currentQuantity = existingItem ? existingItem.quantity : 0;
-        
-        console.log('Stock validation:', {
-          existingItem,
-          currentQuantity,
-          productStock: product.stock
-        });
-
-        // Validate stock using the hook
-        if (!validateStockForAddToCart(product, currentQuantity)) {
-          return;
-        }
-
-        await CartService.addToCart(currentUserId, product._id, quantity);
-        displayNotification('Đã thêm sản phẩm vào giỏ hàng', 'success');
-        // Dispatch event to update navbar cart
-        window.dispatchEvent(new Event('cartUpdated'));
-      } catch (err) {
-        if (err.response?.data?.message) {
-          displayNotification(err.response.data.message, 'error');
-        } else {
-          displayNotification('Thêm vào giỏ hàng thất bại!', 'error');
-        }
-      }
-    } else {
-      // Guest: use localStorage
-      let guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
-      const existing = guestCart.find(item => item.productId === product._id);
-      const currentQuantity = existing ? existing.quantity : 0;
-      
-      console.log('Guest cart validation:', {
-        existing,
-        currentQuantity,
-        productStock: product.stock
-      });
-
-      // Validate stock using the hook
-      if (!validateStockForAddToCart(product, currentQuantity)) {
-        return;
-      }
-
-      if (existing) {
-        existing.quantity += quantity;
-      } else {
-        guestCart.push({ productId: product._id, quantity: quantity, product });
-      }
-      localStorage.setItem('guestCart', JSON.stringify(guestCart));
-      displayNotification('Đã thêm sản phẩm vào giỏ hàng', 'success');
-      // Dispatch event to update navbar cart
-      window.dispatchEvent(new Event('cartUpdated'));
+    setAddingToCart(true);
+    try {
+      await addToCart(product, quantity);
+    } finally {
+      setAddingToCart(false);
     }
   };
 
   const handleBuyNow = async () => {
-    if (quantity < 1) {
-      displayNotification('Số lượng phải lớn hơn 0', 'error');
-      return;
-    }
-
-    if (!currentUserId) {
-      // Guest user: show login modal
-      setShowLoginModal(true);
-      return;
-    }
-
-    // Logged-in user: validate stock and create order data directly
-    try {
-      // Validate stock for the selected quantity
-      if (quantity > product.stock) {
-        displayNotification(`Không đủ số lượng sản phẩm "${product.name}". Chỉ còn ${product.stock} sản phẩm trong kho.`, 'warning');
-        return;
-      }
-
-      // Get customer ID from cart data (needed for order page)
-      let customerId = null;
-      try {
-        const cartData = await CartService.getCartData(currentUserId);
-        customerId = cartData?.customer;
-      } catch (err) {
-        console.error('Failed to get customer ID:', err);
-        displayNotification('Không thể lấy thông tin khách hàng', 'error');
-        return;
-      }
-
-      if (!customerId) {
-        displayNotification('Không tìm thấy thông tin khách hàng', 'error');
-        return;
-      }
-
-      // Create order data directly (without adding to cart)
-      const orderItem = {
-        product: product,
-        quantity: quantity
-      };
-
-      const checkoutData = {
-        customer: customerId,
-        items: [orderItem]
-      };
-
-      // Store in localStorage for order page
-      localStorage.setItem('checkoutData', JSON.stringify(checkoutData));
-      console.log('Created checkout data for direct order:', checkoutData);
-
-      // Redirect to order page
+    const checkoutData = await addToCartAndBuyNow(product, quantity);
+    if (checkoutData) {
       navigate('/order');
-    } catch (err) {
-      if (err.response?.data?.message) {
-        displayNotification(err.response.data.message, 'error');
-      } else {
-        displayNotification('Không thể tạo đơn hàng', 'error');
-      }
-      console.error('Error creating order:', err);
     }
   };
 
@@ -204,6 +137,37 @@ const ProductDetailPage = () => {
     if (!product.saleEvent) return product.price;
     const discount = product.saleEvent.discountPercentage || 0;
     return product.price * (1 - discount / 100);
+  };
+
+  const copyVoucherCode = (code) => {
+    navigator.clipboard.writeText(code).then(() => {
+      displayNotification('Đã sao chép mã voucher!', 'success');
+    }).catch(() => {
+      displayNotification('Không thể sao chép mã voucher', 'error');
+    });
+  };
+
+  const formatVoucherType = (voucher) => {
+    if (voucher.discountType === 'percentage') {
+      return `Giảm ${voucher.discountValue}%`;
+    } else if (voucher.discountType === 'fixed') {
+      return `Giảm ${voucher.discountValue?.toLocaleString('vi-VN')}₫`;
+    } else if (voucher.discountType === 'shipping') {
+      return 'Miễn phí ship';
+    }
+    return 'Giảm giá';
+  };
+
+  const getVoucherColor = (index) => {
+    const colors = [
+      { bg: 'from-purple-50 to-pink-50', border: 'border-purple-200', icon: 'bg-purple-500', text: 'text-purple-600', hover: 'hover:text-purple-700' },
+      { bg: 'from-blue-50 to-cyan-50', border: 'border-blue-200', icon: 'bg-blue-500', text: 'text-blue-600', hover: 'hover:text-blue-700' },
+      { bg: 'from-green-50 to-emerald-50', border: 'border-green-200', icon: 'bg-green-500', text: 'text-green-600', hover: 'hover:text-green-700' },
+      { bg: 'from-orange-50 to-red-50', border: 'border-orange-200', icon: 'bg-orange-500', text: 'text-orange-600', hover: 'hover:text-orange-700' },
+      { bg: 'from-indigo-50 to-purple-50', border: 'border-indigo-200', icon: 'bg-indigo-500', text: 'text-indigo-600', hover: 'hover:text-indigo-700' },
+      { bg: 'from-pink-50 to-rose-50', border: 'border-pink-200', icon: 'bg-pink-500', text: 'text-pink-600', hover: 'hover:text-pink-700' }
+    ];
+    return colors[index % colors.length];
   };
 
   if (loading) {
@@ -236,7 +200,7 @@ const ProductDetailPage = () => {
   const hasDiscount = product.saleEvent && product.saleEvent.discountPercentage > 0;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 py-8 cursor-pointer-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
         <nav className="flex mb-8" aria-label="Breadcrumb">
@@ -450,121 +414,57 @@ const ProductDetailPage = () => {
 
               {/* Voucher Display */}
               <div className="mt-6 space-y-2">
-                {/* Voucher 1 - Percentage Discount */}
-                <div className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
-                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 100 4v2a2 2 0 01-2 2H4a2 2 0 01-2-2v-2a2 2 0 100-4V6z"/>
-                        </svg>
+                <h3 className="text-sm font-semibold text-gray-900 mb-3">
+                  Vouchers khả dụng ({vouchers.length})
+                </h3>
+                {vouchers.length > 0 ? (
+                  vouchers.slice(0, 4).map((voucher, index) => {
+                    const colors = getVoucherColor(index);
+                    
+                    return (
+                      <div key={voucher._id} className={`p-3 bg-gradient-to-r ${colors.bg} border ${colors.border} rounded-lg`}>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <div className={`w-6 h-6 ${colors.icon} rounded-full flex items-center justify-center`}>
+                              <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 100 4v2a2 2 0 01-2 2H4a2 2 0 01-2-2v-2a2 2 0 100-4V6z"/>
+                              </svg>
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-semibold text-gray-900">
+                                {voucher.discountType === 'percentage' ? 'Giảm giá %' :
+                                 voucher.discountType === 'fixed' ? 'Giảm tiền mặt' :
+                                 voucher.discountType === 'shipping' ? 'Miễn phí vận chuyển' : 'Giảm giá'}
+                              </h4>
+                              <p className="text-xs text-gray-600">
+                                {voucher.minimumOrderAmount ? `Từ ${voucher.minimumOrderAmount.toLocaleString('vi-VN')}₫` : 'Không giới hạn'}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className={`text-sm font-bold ${colors.text}`}>{voucher.code}</div>
+                            <div className="text-xs text-gray-500">{formatVoucherType(voucher)}</div>
+                          </div>
+                        </div>
+                        <div className="mt-2 pt-2 border-t border-gray-200">
+                          <div className="flex items-center justify-between text-xs text-gray-600">
+                            <span className="text-gray-500">{voucher.description || 'Voucher giảm giá'}</span>
+                            <button 
+                              onClick={() => copyVoucherCode(voucher.code)}
+                              className={`${colors.text} ${colors.hover} font-medium text-xs`}
+                            >
+                              Sao chép
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="text-xs font-semibold text-gray-900">Giảm giá %</h4>
-                        <p className="text-xs text-gray-600">Từ 500K</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm font-bold text-purple-600">GIAM15</div>
-                      <div className="text-xs text-gray-500">Giảm 15%</div>
-                    </div>
+                    );
+                  })
+                ) : (
+                  <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                    <p className="text-sm text-gray-500 text-center">Không có voucher khả dụng</p>
                   </div>
-                  <div className="mt-2 pt-2 border-t border-purple-200">
-                    <div className="flex items-center justify-between text-xs text-gray-600">
-                      <span>31/12/2024</span>
-                      <button className="text-purple-600 hover:text-purple-700 font-medium text-xs">
-                        Sao chép
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Voucher 2 - Fixed Amount */}
-                <div className="p-3 bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 100 4v2a2 2 0 01-2 2H4a2 2 0 01-2-2v-2a2 2 0 100-4V6z"/>
-                        </svg>
-                      </div>
-                      <div>
-                        <h4 className="text-xs font-semibold text-gray-900">Giảm tiền mặt</h4>
-                        <p className="text-xs text-gray-600">Từ 1M</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm font-bold text-blue-600">GIAM100K</div>
-                      <div className="text-xs text-gray-500">Giảm 100K</div>
-                    </div>
-                  </div>
-                  <div className="mt-2 pt-2 border-t border-blue-200">
-                    <div className="flex items-center justify-between text-xs text-gray-600">
-                      <span>15/01/2025</span>
-                      <button className="text-blue-600 hover:text-blue-700 font-medium text-xs">
-                        Sao chép
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Voucher 3 - Free Shipping */}
-                <div className="p-3 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 100 4v2a2 2 0 01-2 2H4a2 2 0 01-2-2v-2a2 2 0 100-4V6z"/>
-                        </svg>
-                      </div>
-                      <div>
-                        <h4 className="text-xs font-semibold text-gray-900">Miễn phí vận chuyển</h4>
-                        <p className="text-xs text-gray-600">Từ 200K</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm font-bold text-green-600">FREESHIP</div>
-                      <div className="text-xs text-gray-500">Miễn phí ship</div>
-                    </div>
-                  </div>
-                  <div className="mt-2 pt-2 border-t border-green-200">
-                    <div className="flex items-center justify-between text-xs text-gray-600">
-                      <span>28/02/2025</span>
-                      <button className="text-green-600 hover:text-green-700 font-medium text-xs">
-                        Sao chép
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Voucher 4 - New User */}
-                <div className="p-3 bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center">
-                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 100 4v2a2 2 0 01-2 2H4a2 2 0 01-2-2v-2a2 2 0 100-4V6z"/>
-                        </svg>
-                      </div>
-                      <div>
-                        <h4 className="text-xs font-semibold text-gray-900">Khách hàng mới</h4>
-                        <p className="text-xs text-gray-600">Lần mua đầu tiên</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm font-bold text-orange-600">NEWUSER</div>
-                      <div className="text-xs text-gray-500">Giảm 200K</div>
-                    </div>
-                  </div>
-                  <div className="mt-2 pt-2 border-t border-orange-200">
-                    <div className="flex items-center justify-between text-xs text-gray-600">
-                      <span>31/03/2025</span>
-                      <button className="text-orange-600 hover:text-orange-700 font-medium text-xs">
-                        Sao chép
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           </div>

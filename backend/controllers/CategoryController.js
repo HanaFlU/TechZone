@@ -150,31 +150,32 @@ exports.deleteCategory = async (req, res) => {
 exports.getProductsByCategory = async (req, res) => {
   try {
     const { identifier } = req.params; // Can be slug or _id
-    const {
-      page = 1,
-      limit = 20,
-      sort = 'name',
+    const { 
+      page = 1, 
+      limit = 20, 
+      sort = 'name', 
       order = 'asc',
       minPrice,
       maxPrice,
       brands,
       minRating,
-      availability
+      availability,
+      specs
     } = req.query;
-
+    
     // Find the category by slug or _id
     let category = await Category.findOne({ slug: identifier });
     if (!category) {
       category = await Category.findById(identifier);
     }
-
+    
     if (!category) {
       return res.status(404).json({ message: 'Category not found' });
     }
-
+    
     // Get all leaf category IDs (categories with no children)
     const leafCategoryIds = await getLeafCategoryIds(category._id);
-
+    
     if (leafCategoryIds.length === 0) {
       // If no leaf categories, use the category itself
       leafCategoryIds.push(category._id.toString());
@@ -210,6 +211,39 @@ exports.getProductsByCategory = async (req, res) => {
       }
     }
 
+    // Add specifications filter
+    if (specs) {
+      try {
+        const specsFilter = JSON.parse(specs);
+        if (Array.isArray(specsFilter) && specsFilter.length > 0) {
+          // Group specs by key to handle multiple values per specification
+          const specsByKey = {};
+          specsFilter.forEach(spec => {
+            if (!specsByKey[spec.key]) {
+              specsByKey[spec.key] = [];
+            }
+            specsByKey[spec.key].push(spec.value);
+          });
+          
+          // Build specs query - products must match ALL specified spec keys
+          // For each spec key, product must match ANY of the specified values (OR logic)
+          const specsQueries = Object.entries(specsByKey).map(([key, values]) => ({
+            'specs': {
+              $elemMatch: {
+                key: key,
+                value: { $in: values } // OR logic for multiple values of same spec
+              }
+            }
+          }));
+          
+          // Combine all specs queries with AND logic
+          query.$and = specsQueries;
+        }
+      } catch (err) {
+        console.error('Error parsing specs filter:', err);
+      }
+    }
+
     // Build sort object
     const sortObj = {};
     sortObj[sort] = order === 'desc' ? -1 : 1;
@@ -223,11 +257,10 @@ exports.getProductsByCategory = async (req, res) => {
       .sort(sortObj)
       .skip(skip)
       .limit(parseInt(limit))
-      .lean()
-      .exec();
-
-    // Get total count for pagination (optimized)
-    const totalProducts = await Product.countDocuments(query).exec();
+      .lean();
+    
+    // Get total count for pagination
+    const totalProducts = await Product.countDocuments(query);
     const totalPages = Math.ceil(totalProducts / parseInt(limit));
 
     // Get category hierarchy for breadcrumb
@@ -257,6 +290,76 @@ exports.getProductsByCategory = async (req, res) => {
   } catch (err) {
     console.error('Error getting products by category:', err);
     res.status(500).json({ message: err.message });
+  }
+};
+
+// Get available specifications for a category
+exports.getCategorySpecifications = async (req, res) => {
+  try {
+    const { identifier } = req.params; // Can be slug or _id
+    
+    // Find the category by slug or _id
+    let category = await Category.findOne({ slug: identifier });
+    if (!category) {
+      category = await Category.findById(identifier);
+    }
+    
+    if (!category) {
+      return res.status(404).json({ message: 'Category not found' });
+    }
+    
+    // Get all leaf category IDs (categories with no children)
+    const leafCategoryIds = await getLeafCategoryIds(category._id);
+    
+    if (leafCategoryIds.length === 0) {
+      // If no leaf categories, use the category itself
+      leafCategoryIds.push(category._id.toString());
+    }
+
+    // Get all products in this category and its subcategories
+    const products = await Product.find({ 
+      category: { $in: leafCategoryIds },
+      status: 'active'
+    }).select('specs').lean();
+
+    // Extract unique specifications
+    const specsMap = new Map();
+    
+    products.forEach(product => {
+      if (product.specs && Array.isArray(product.specs)) {
+        product.specs.forEach(spec => {
+          if (spec.key && spec.label && spec.value && spec.value.trim() !== '') {
+            const key = spec.key;
+            const label = spec.label;
+            
+            if (!specsMap.has(key)) {
+              specsMap.set(key, {
+                key: key,
+                label: label,
+                values: new Set()
+              });
+            }
+            
+            specsMap.get(key).values.add(spec.value.trim());
+          }
+        });
+      }
+    });
+
+    // Convert to array format
+    const availableSpecs = Array.from(specsMap.values()).map(spec => ({
+      key: spec.key,
+      label: spec.label,
+      values: Array.from(spec.values).sort()
+    }));
+
+    res.json({
+      success: true,
+      data: availableSpecs
+    });
+  } catch (err) {
+    console.error('Error getting category specifications:', err);
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 

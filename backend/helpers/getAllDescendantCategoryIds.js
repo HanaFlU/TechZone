@@ -36,24 +36,23 @@ const getAllDescendantCategoryIds = async (parentId) => {
  * @returns {Promise<string[]>} Array of leaf category IDs
  */
 const getLeafCategoryIds = async (parentId) => {
-  try {
-    const allDescendants = await getAllDescendantCategoryIds(parentId);
-    const leafCategories = [];
-    
-    for (const categoryId of allDescendants) {
-      // Check if this category has any children
-      const hasChildren = await Category.exists({ parent: categoryId });
-      
-      if (!hasChildren) {
-        leafCategories.push(categoryId);
-      }
-    }
-    
-    return leafCategories;
-  } catch (error) {
-    console.error('Error getting leaf category IDs:', error);
-    throw error;
+  const allCategories = await Category.find().select('_id parent').lean();
+  const descendants = [];
+  const queue = [parentId];
+
+  while (queue.length > 0) {
+    const currentId = queue.shift();
+    descendants.push(currentId);
+    const children = allCategories.filter(cat => cat.parent?.toString() === currentId.toString());
+    queue.push(...children.map(child => child._id.toString()));
   }
+
+  const leafCategoryIds = descendants.filter(id =>
+    !allCategories.some(cat => cat.parent?.toString() === id.toString())
+  );
+
+  return leafCategoryIds.length > 0 ? leafCategoryIds : [parentId];
 };
+
 
 module.exports = { getAllDescendantCategoryIds, getLeafCategoryIds };
