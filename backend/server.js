@@ -52,7 +52,7 @@ app.use('/api/orders', protect, OrderRoute);
 app.use('/api/carts', protect, CartRoute);
 app.use('/api/payments', protect, PaymentRoute);
 app.use('/api/shipping-rate', protect, ShippingRateRoute);
-app.use('/api/vouchers', protect, VoucherRoute);
+app.use('/api/vouchers', VoucherRoute);
 app.use('/api/categories', CategoryRoute);
 app.use('/api/products', productRoutes);
 
