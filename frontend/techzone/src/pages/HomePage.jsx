@@ -24,7 +24,7 @@ const HomePage = () => {
     displayNotification, 
     closeNotification
   } = useNotification();
-  const { addToCart } = useAddToCart();
+  const { addToCart } = useAddToCart(displayNotification);
 
   // Custom hooks
   const { categories, mainCategories, subcategoriesByParent } = useHomePageCategories();

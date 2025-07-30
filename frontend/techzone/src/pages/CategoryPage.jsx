@@ -7,15 +7,16 @@ import ProductFilter from '../components/product/ProductFilter';
 import useNotification from '../hooks/useNotification';
 import useAuthUser from '../hooks/useAuthUser';
 import useAddToCart from '../hooks/useAddToCart';
+import NotificationContainer from '../components/button/NotificationContainer';
 
 const CategoryPage = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const { displayNotification } = useNotification();
+  const { notifications, displayNotification, closeNotification } = useNotification();
   const { currentUserId } = useAuthUser();
-  const { addToCart } = useAddToCart();
+  const { addToCart } = useAddToCart(displayNotification);
   
   const [category, setCategory] = useState(null);
   const [products, setProducts] = useState([]);
@@ -385,6 +386,10 @@ const CategoryPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <NotificationContainer
+        notifications={notifications}
+        onClose={closeNotification}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb */}
         <nav className="flex mb-8" aria-label="Breadcrumb">
