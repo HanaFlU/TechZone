@@ -2,8 +2,49 @@ const Category = require('../models/CategoryModel');
 const Product = require('../models/ProductModel');
 
 const { getAllDescendantCategoryIds, getLeafCategoryIds } = require('../helpers/getAllDescendantCategoryIds');
-const { generateSlug, ensureSlug, isDuplicateSlug } = require('../helpers/slugHelper');
+const { generateSlug, ensureSlug, isDuplicateSlug, removeDiacritics } = require('../helpers/slugHelper');
 const generateKeyFromLabel = require('../helpers/generateKeyFromeLabel');
+
+// Helper function to find categories that match the search term (including child categories)
+const findMatchingCategories = async (searchTerm) => {
+  const normalized = removeDiacritics(searchTerm.toLowerCase().trim());
+  
+  // Get all categories and find matches
+  const allCategories = await Category.find().select('name slug parent').lean();
+  
+  // Find categories that directly match the search term
+  const directMatches = allCategories.filter(cat => {
+    const catNameNorm = removeDiacritics(cat.name.toLowerCase());
+    const catSlugNorm = removeDiacritics(cat.slug.toLowerCase());
+    
+    // Create variations of category name and slug (remove spaces)
+    const catNameNoSpaces = catNameNorm.replace(/\s+/g, '');
+    const catSlugNoSpaces = catSlugNorm.replace(/\s+/g, '');
+    
+    // Check if search term matches category name or slug (with and without spaces)
+    return catNameNorm.includes(normalized) || 
+           normalized.includes(catNameNorm) ||
+           catSlugNorm.includes(normalized) || 
+           normalized.includes(catSlugNorm) ||
+           catNameNoSpaces.includes(normalized) ||
+           normalized.includes(catNameNoSpaces) ||
+           catSlugNoSpaces.includes(normalized) ||
+           normalized.includes(catSlugNoSpaces);
+  });
+  
+  // Get all category IDs that match (including parent categories)
+  const matchingCategoryIds = directMatches.map(cat => cat._id.toString());
+  
+  // Find all child categories of matching parent categories
+  const childCategories = allCategories.filter(cat => {
+    return cat.parent && matchingCategoryIds.includes(cat.parent.toString());
+  });
+  
+  // Combine direct matches and child categories
+  const allMatchingCategories = [...directMatches, ...childCategories];
+  
+  return allMatchingCategories;
+};
 
 // Tạo một danh mục hoặc nhiều danh mục
 exports.createCategory = async (req, res) => {
@@ -146,6 +187,7 @@ exports.deleteCategory = async (req, res) => {
 };
 
 
+
 // Get products by category (including all subcategories)
 exports.getProductsByCategory = async (req, res) => {
   try {
@@ -165,28 +207,26 @@ exports.getProductsByCategory = async (req, res) => {
     } = req.query;
     
     // Handle search functionality first (before trying to find category)
-    if (identifier === 'all' && search) {
+    if (identifier === 'all') {
       // For search, we don't need category filtering
       const query = { status: 'active' };
       
-      // Add search filter
       if (search) {
-        // First, find categories that match the search term
-        const matchingCategories = await Category.find({
-          $or: [
-            { name: { $regex: search, $options: 'i' } },
-            { slug: { $regex: search, $options: 'i' } }
-          ]
-        });
-        
+        // Find categories that match the search term
+        const matchingCategories = await findMatchingCategories(search);
         const matchingCategoryIds = matchingCategories.map(cat => cat._id);
         
+        // Build search query
         query.$or = [
           { name: { $regex: search, $options: 'i' } },
           { description: { $regex: search, $options: 'i' } },
-          { 'specs.value': { $regex: search, $options: 'i' } },
-          { category: { $in: matchingCategoryIds } }
+          { 'specs.value': { $regex: search, $options: 'i' } }
         ];
+        
+        // Add category matching if any categories were found
+        if (matchingCategoryIds.length > 0) {
+          query.$or.push({ category: { $in: matchingCategoryIds } });
+        }
       }
       
       // Add price filter
@@ -369,23 +409,28 @@ exports.getProductsByCategory = async (req, res) => {
       }
     }
 
-    // Add search filter
+        // Add search filter
     if (search) {
-      // First, find categories that match the search term
-      const matchingCategories = await Category.find({
-        $or: [
-          { name: { $regex: search, $options: 'i' } },
-          { slug: { $regex: search, $options: 'i' } }
-        ]
-      });
-      
+      // Find categories that match the search term
+      const matchingCategories = await findMatchingCategories(search);
       const matchingCategoryIds = matchingCategories.map(cat => cat._id);
       
-      query.$or = [
+      // Create search conditions
+      const searchConditions = [
         { name: { $regex: search, $options: 'i' } },
         { description: { $regex: search, $options: 'i' } },
-        { 'specs.value': { $regex: search, $options: 'i' } },
-        { category: { $in: matchingCategoryIds } }
+        { 'specs.value': { $regex: search, $options: 'i' } }
+      ];
+      
+      // Add category matching if any categories were found
+      if (matchingCategoryIds.length > 0) {
+        searchConditions.push({ category: { $in: matchingCategoryIds } });
+      }
+      
+      // Add search filter to existing category filter
+      query.$and = [
+        { category: { $in: leafCategoryIds } },
+        { $or: searchConditions }
       ];
     }
 
@@ -450,16 +495,8 @@ exports.getCategorySpecifications = async (req, res) => {
       
       if (search) {
         // If there's a search term, only get specifications from products that match the search
-        const Category = require('../models/CategoryModel');
-        
-        // First, find categories that match the search term
-        const matchingCategories = await Category.find({
-          $or: [
-            { name: { $regex: search, $options: 'i' } },
-            { slug: { $regex: search, $options: 'i' } }
-          ]
-        });
-        
+        // Use the new findMatchingCategories function that handles hierarchical search
+        const matchingCategories = await findMatchingCategories(search);
         const matchingCategoryIds = matchingCategories.map(cat => cat._id);
         
         // Get only products that match the search criteria
@@ -503,18 +540,20 @@ exports.getCategorySpecifications = async (req, res) => {
         }
       });
 
-      // Convert to array format
-      const availableSpecs = Array.from(specsMap.values()).map(spec => ({
-        key: spec.key,
-        label: spec.label,
-        values: Array.from(spec.values).sort()
-      }));
+          // Convert to array format
+    const availableSpecs = Array.from(specsMap.values()).map(spec => ({
+      key: spec.key,
+      label: spec.label,
+      values: Array.from(spec.values).sort()
+    }));
 
-      res.json({
-        success: true,
-        data: availableSpecs
-      });
-      return;
+
+
+    res.json({
+      success: true,
+      data: availableSpecs
+    });
+    return;
     }
     
     // Find the category by slug or _id

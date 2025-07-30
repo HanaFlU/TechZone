@@ -72,13 +72,10 @@ const CategoryPage = () => {
   useEffect(() => {
     const fetchSpecifications = async () => {
       try {
-        console.log('Fetching specifications for slug:', slug);
         const searchTerm = searchParams.get('search');
         const response = await CategoryService.getCategorySpecifications(slug, searchTerm);
-        console.log('Specifications response:', response);
         if (response.success) {
           setAvailableSpecs(response.data);
-          console.log('Available specs set:', response.data);
         }
       } catch (err) {
         console.error('Error fetching specifications:', err);
