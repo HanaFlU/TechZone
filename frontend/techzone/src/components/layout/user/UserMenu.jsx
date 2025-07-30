@@ -48,9 +48,8 @@ const UserMenu = ({onClick, setAdminMode}) => {
                     Tài khoản
                     </a>
                     
-                    {user?.role === "AD" && (
+                    {(user?.role === "AD" || user?.role === "MANAGER" || user?.role === "STAFF") && (
                         <a
-                            href="#"
                             className="block px-4 py-2 text-sm hover:bg-gray-100 rounded-t"
                             onClick={e => {
                                 e.preventDefault();

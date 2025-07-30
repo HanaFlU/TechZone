@@ -13,9 +13,8 @@ const protect = (req, res, next) => {
         try {
             // Verify the token
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            // Attach user information to the request object
             req.user = decoded;
-            return next(); // Proceed to the next middleware or route handler
+            return next();
         } catch (error) {
             return res.status(401).json({ message: "Not authorized, token failed" });
         }
@@ -27,8 +26,8 @@ const protect = (req, res, next) => {
 };
 
 const checkPermission = (roles = [], permission = "") => {
-    // If path is get product, don't need to check permission
     return async (req, res, next) => {
+        // If path is get products, don't need to check permission
         const path = req.path;
         if (path === '/api/products') {
             return next();
