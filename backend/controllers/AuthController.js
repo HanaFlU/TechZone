@@ -13,22 +13,22 @@ const AuthController = {
     // Register a new user local
     register: async (req, res) => {
         if (!req.body) {
-            return res.status(400).json({ message: 'Please fill in all required information.' });
+            return res.status(400).json({ message: 'Vui lòng điền đầy đủ thông tin' });
         }
         const { name, phone, email, birthdate, gender, password, comfirmpassword } = req.body;
         if (!name || !email || !password) {
-            return res.status(400).json({ message: 'Please fill in all required information.' });
+            return res.status(400).json({ message: 'Vui lòng điền đầy đủ thông tin' });
         }
 
         if (password !== comfirmpassword) {
-            return res.status(400).json({ message: 'Passwords do not match.' });
+            return res.status(400).json({ message: 'Đăng nhập thất bại' });
         }
 
         try {
             const existingUser = await User.findOne({ email });
             const roleDoc = await Role.findOne({ name: 'CUS' });
             if (existingUser) {
-                return res.status(400).json({ message: 'Email already exists.' });
+                return res.status(400).json({ message: 'Email đã tồn tại' });
             }
             const hashedPassword = await bcrypt.hash(password, 10);
             const newUser = new User({
@@ -54,31 +54,31 @@ const AuthController = {
             });
         } catch (error) {
             console.error('Error during registration:', error);
-            res.status(500).json({ message: 'Somthing went wrong!' });
+            res.status(500).json({ message: 'Lỗi server nội bộ' });
         }
     },
 
     // Login user local
     login: async (req, res) => {
         if (!req.body) {
-            return res.status(400).json({ message: 'Please fill in all required information.' });
+            return res.status(400).json({ message: 'Vui lòng điền đầy đủ thông tin' });
         }
         const { email, password } = req.body;
         if (!email || !password) {
-            return res.status(400).json({ message: 'Please fill in all required information.' });
+            return res.status(400).json({ message: 'Vui lòng điền đầy đủ thông tin' });
         }
 
         try {
             const user = await User.findOne({ email }).populate('role');
             if (!user) {
-                return res.status(404).json({ message: 'User does not exist.' });
+                return res.status(404).json({ message: 'Tài khoản không tồn tại' });
             }
             const isPasswordValid = await bcrypt.compare(password, user.password);
             if (!isPasswordValid) {
-                return res.status(401).json({ message: 'Incorrect password.' });
+                return res.status(401).json({ message: 'Đăng nhập thất bại' });
             }
             if (!user.isActive) {
-                return res.status(403).json({ message: 'Tài khoản đã bị khóa hoặc chưa kích hoạt.' });
+                return res.status(403).json({ message: 'Tài khoản chưa kích hoạt' });
             }
 
             user.lastLogin = new Date();
@@ -87,7 +87,7 @@ const AuthController = {
             const token = generateToken(user);
 
             res.status(200).json({
-                message: 'Login successful.',
+                message: 'Đăng nhập thành công',
                 token,
                 user: {
                     id: user._id,
@@ -98,7 +98,7 @@ const AuthController = {
             });
         } catch (error) {
             console.error('Error during login:', error);
-            res.status(500).json({ message: 'Somthing went wrong!' });
+            res.status(500).json({ message: 'Lỗi server nội bộ' });
         }
     },
 
@@ -123,7 +123,7 @@ const AuthController = {
                 await Customer.create({ user: user._id });
             }
             if (!user.isActive) {
-                return res.status(403).json({ message: 'Tài khoản đã bị khóa hoặc chưa kích hoạt.' });
+                return res.status(403).json({ message: 'Tài khoản chưa kích hoạt' });
             }
             console.log('User found or created:', user);
             user.lastLogin = new Date();
@@ -143,7 +143,7 @@ const AuthController = {
             });
         } catch (error) {
             console.error('Error during Google login:', error);
-            res.status(500).json({ message: 'Somthing went wrong!' });
+            res.status(500).json({ message: 'Lỗi server nội bộ' });
         }
     }
 
