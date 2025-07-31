@@ -28,6 +28,7 @@ const ProductDetailPage = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
+  const [showFullDescription, setShowFullDescription] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -115,6 +116,13 @@ const ProductDetailPage = () => {
       return 'Miễn phí ship';
     }
     return 'Giảm giá';
+  };
+
+  // Helper function to check if content needs truncation
+  const needsTruncation = (htmlContent) => {
+    if (!htmlContent) return false;
+    const textContent = htmlContent.replace(/<[^>]*>/g, '');
+    return textContent.length > 300;
   };
 
   const getVoucherColor = (index) => {
@@ -442,11 +450,27 @@ const ProductDetailPage = () => {
             </div>
             <div className="p-8">
               {product.description && product.description.trim() !== "" ? (
-                <div
-                  dangerouslySetInnerHTML={{ 
-                    __html: product.description || ""
-                  }}
-                />
+                <div className="relative">
+                  <div
+                    dangerouslySetInnerHTML={{ 
+                      __html: product.description
+                    }}
+                    className={`text-gray-700 leading-relaxed transition-all duration-300 ease-in-out ${
+                      !showFullDescription ? 'max-h-32 overflow-hidden' : ''
+                    }`}
+                  />
+                  {!showFullDescription && needsTruncation(product.description) && (
+                    <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none z-10"></div>
+                  )}
+                  {needsTruncation(product.description) && (
+                    <button
+                      onClick={() => setShowFullDescription(!showFullDescription)}
+                      className="relative z-20 mt-4 text-emerald-600 hover:text-emerald-800 font-medium text-sm underline focus:outline-none transition-colors duration-200"
+                    >
+                      {showFullDescription ? 'Thu gọn' : 'Xem thêm'}
+                    </button>
+                  )}
+                </div>
               ) : (
                 <div className="text-sm text-gray-500 italic">
                   Sản phẩm này đang cập nhật thông tin
