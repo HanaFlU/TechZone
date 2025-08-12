@@ -1,9 +1,8 @@
 const dotenv = require("dotenv");
-dotenv.config();
-
 const express = require("express");
 const cors = require("cors");
 const OpenAI = require('openai');
+
 const { connect } = require("./config/db.config.js");
 
 const RoleRoute = require("./routes/RoleRoute.js");
@@ -19,15 +18,23 @@ const productRoutes = require('./routes/ProductRoute');
 const CategoryRoute = require('./routes/CategoryRoute.js');
 const VoucherRoute = require("./routes/VoucherRoute.js");
 const ReviewRoute = require("./routes/ReviewRoute.js");
-
-
 const UploadRoute = require("./routes/UploadRoute.js");
-connect();
 const { protect, checkPermission } = require("./midleware/AuthMiddleware.js");
+
+connect();
+
 const app = express();
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
+const NODE_ENV = process.env.NODE_ENV;
+
+if (NODE_ENV !== "production") {
+    dotenv.config({
+        path: "./.env",
+    });
+}
+
 app.use(
     cors({
         origin: process.env.CLIENT_URL || "*",
