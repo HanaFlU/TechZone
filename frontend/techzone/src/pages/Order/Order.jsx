@@ -11,7 +11,7 @@ import VoucherApply from './VoucherApply';
 import Breadcrumb from '../../components/Breadcrumb';
 import Button from '../../components/button/Button';
 import { PlusIcon } from '@heroicons/react/24/outline';
-import QRImage from '../../assets/QRMomo.jpg';
+import QRImage from '../../assets/QRMoMo.jpg';
 import NotificationContainer from '../../components/button/NotificationContainer';
 import useNotification from '../../hooks/useNotification';
 import StripeWrapper from './Payment';
