@@ -21,7 +21,7 @@ const AuthController = {
         }
 
         if (password !== comfirmpassword) {
-            return res.status(400).json({ message: 'Đăng nhập thất bại' });
+            return res.status(400).json({ message: 'Đăng ký thất bại' });
         }
 
         try {
